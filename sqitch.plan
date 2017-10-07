@@ -1,3 +1,4 @@
 %syntax-version=1.0.0
 %project=side7v5
 
+appuser 2017-10-07T19:58:42Z Jason Lamey <jasonlamey@gmail.com> # Create an application user for the DB.
