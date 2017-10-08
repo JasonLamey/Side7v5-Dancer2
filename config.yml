@@ -18,14 +18,9 @@ charset: "UTF-8"
 # simple: default and very basic template engine
 # template_toolkit: TT
 
-template: "simple"
+#template: "simple"
 
-# template: "template_toolkit"
-# engines:
-#   template:
-#     template_toolkit:
-#       start_tag: '<%'
-#       end_tag:   '%>'
+template: "template_toolkit"
 
 # session engine
 #
@@ -50,3 +45,93 @@ template: "simple"
 #      cookie_name: eshop.session
 #      is_secure: 1
 #      is_http_only: 1
+
+session: Cookie
+
+datetime_format_short: '%d %b %Y, %I:%M %p'
+datetime_format_long: '%A, %d %B, %Y @ %I:%M %p'
+date_format_short: '%d %b %Y'
+date_format_long: '%A, %d %B, %Y'
+
+dbicx_sugar:
+  default:
+    dsn: 'dbi:mysql:database=side7_v5;host=localhost'
+    schema_class: 'Side7::Schema'
+    user: 'side7'
+    password: 'ArtIsLife'
+    options:
+      RaiseError: 1
+      PrintError: 1
+      AutoCommit: 1
+      ChopBlanks: 1
+      ShowErrorStatement: 1
+  side7:
+    alias: 'default'
+
+plugins:
+  Flash:
+    token_name: 'flash'
+    session_hash_key: '_flash'
+  DBIC:
+    default:
+      dsn: 'dbi:mysql:database=side7_v5;host=localhost'
+      schema_class: 'Side7::Schema'
+      user: 'side7'
+      password: 'ArtIsLife'
+      options:
+        RaiseError: 1
+        PrintError: 1
+        AutoCommit: 1
+        ChopBlanks: 1
+        ShowErrorStatement: 1
+    side7:
+      alias: 'default'
+  Auth::Extensible:
+    permission_denied_page_handler: Side7::Util::permission_denied_page_handler
+    disable_roles: 0
+    user_home_page: '/user'
+    exit_page: '/'
+    no_default_pages: 1
+    mail_from: '"Side 7 Communique" <noreply@side7.com>'
+    # Set to true to enable password reset code in the default handlers
+    reset_password_handler: 1
+    #password_generator: QP::Util::generate_user_pw # Optional random password generator
+    # Set to a true value to enable recording of successful last login times
+    record_lastlogin: 1
+    # Password reset functionality
+    password_reset_send_email: Side7::Mail::send_password_reset_email
+    # create_user options
+    welcome_send: Side7::Mail::send_welcome_email
+    record_lastlogin: 1
+    realms:
+      site:
+        provider: 'DBIC'
+        user_as_object: 1
+        schema_name: 'side7'
+        users_resultset: 'User'
+        roles_resultset: 'Role'
+        user_roles_resultset: 'UserRole'
+        users_lastlogin_column: 'lastlogin'
+        users_pwresetcode_column: 'pw_reset_code'
+        users_pwchanged_column: 'pw_changed'
+        users_username_column: 'username'
+        users_password_column: 'password'
+        roles_role_column: 'role'
+        roles_key: 'roles'
+        encryption_algorithm: 'SHA-512'
+  Ajax:
+    content_type: 'application/json'
+
+engines:
+  template:
+    template_toolkit:
+      start_tag: '[%'
+      end_tag:   '%]'
+  session:
+    YAML:
+      session_dir: "./sessions"
+      cookie_duration: 3600    # Default cookie timeout in seconds, 1 hour
+      is_secure: 1
+    Cookie:
+      secret_key: 'entire works of Shakespeare'
+      default_duration: 604800
