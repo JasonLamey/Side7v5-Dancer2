@@ -12,8 +12,21 @@ use Dancer2::Plugin::Ajax;
 use Dancer2::Plugin::DBIC;
 
 # Third-party modules
+use DBICx::Sugar;
+use DateTime;
+use Const::Fast;
+use Data::Dumper;
+
+# Side 7 modules
+use Side7::Schema;
 
 our $VERSION = '5.0';
+
+const my $DOMAIN_ROOT               => 'http://www.side7.com';
+const my $SCHEMA                    => Side7::Schema->db_connect();
+const my $USER_SESSION_EXPIRE_TIME  => 172800; # 48 hours in seconds.
+const my $ADMIN_SESSION_EXPIRE_TIME => 600;    # 10 minutes in seconds.
+const my $DPAE_REALM                => 'site'; # Dancer2::Plugin::Auth::Extensible realm
 
 
 =head1 NAME
