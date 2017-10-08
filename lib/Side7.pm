@@ -44,6 +44,11 @@ Primary library and route handler for the Side 7 web app.
 
 =head2 General Routes
 
+
+=head3 GET C</>
+
+Route for index page.
+
 =cut
 
 get '/' => sub {
@@ -62,6 +67,15 @@ get '/' => sub {
 
 
 =head1 ADDITIONAL METHODS
+
+=cut
+
+
+=head1 COPYRIGHT & LICENSE
+
+Copyright 2017 Side 7 L<http://www.side7.com>
+
+All rights reserved.
 
 =cut
 

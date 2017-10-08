@@ -51,7 +51,7 @@ sub method
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2017 Side 7
+Copyright 2017 Side 7 L<http://www.side7.com>
 All rights reserved.
 
 =cut
