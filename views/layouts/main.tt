@@ -3,14 +3,16 @@
 <head>
   <meta charset="[% settings.charset %]">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>[% IF title %][% title %] | [% END %]Side7</title>
-  <link rel="stylesheet" href="[% request.uri_base %]/css/style.css">
+  <title>[% IF title %][% title %] | [% END %]Side 7</title>
+  <link href="https://fonts.googleapis.com/css?family=Athiti|Jockey+One&amp;subset=latin-ext" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/notifIt.min.css">
 
 <!-- Grab jQuery from a CDN, fall back to local if necessary -->
-<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
-<script type="text/javascript">/* <![CDATA[ */
-    !window.jQuery && document.write('<script type="text/javascript" src="[% request.uri_base %]/javascripts/jquery.js"><\/script>')
-/* ]]> */</script>
+  <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script type="text/javascript">/* <![CDATA[ */
+    !window.jQuery && document.write('<script type="text/javascript" src="/javascripts/jquery.js"><\/script>') /* ]]> */</script>
+  <script type="text/javascript" src="/javascripts/vendor/notifIt.min.js"></script>
 
   <!-- FAVICON -->
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -23,9 +25,18 @@
 
 </head>
 <body>
-[% content %]
-<div id="footer">
-Powered by <a href="http://perldancer.org/">Dancer2</a> [% dancer_version %]
-</div>
+  [% PROCESS 'partials/notifications_js.tt' %]
+  [% PROCESS 'partials/main_menu.tt' %]
+
+  <div class="grid-container fluid">
+
+  [% content %]
+
+  </div>
+
+  [% PROCESS 'partials/main-footer.tt' %]
+
+  <script type="text/javascript" src="/javascripts/app.js"></script>
+  <script type="text/javascript" src="/javascripts/s7.js"></script>
 </body>
 </html>

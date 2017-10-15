@@ -1,0 +1,63 @@
+<div data-sticky-container>
+  <div data-sticky data-options="marginTop:0;">
+
+    <div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
+      <button class="menu-icon" type="button" data-toggle="main-menu"></button>
+      <div class="title-bar-title">Menu</div>
+    </div>
+
+    <div class="top-bar" id="main-menu">
+      <ul class="vertical medium-horizontal dropdown menu" data-responsive-menu="accordion medium-dropdown">
+        <li><img src="/images/Side 7 Logo Cropped-800x455.svg" height="40" width="70" alt="Side 7" title="Side 7" border="0"></li>
+        <li><a href="/">Main</a></li>
+        <li>
+          <a href="#">Browse</a>
+          <ul class="menu vertical nested">
+            <li><a href="#">Recent Submissions</a></li>
+            <li><a href="#">User Profiles</a></li>
+          </ul>
+        </li>
+        <li><a href="#">Forums</a></li>
+        <li>
+          <a href="#">Help &amp; Support</a>
+          <ul class="menu vertical nested">
+            <li><a href="/faq">FAQ</a></li>
+            <li><a href="/site_rules">Site Rules</a></li>
+            <li><a href="/categories_guide">Categories Guide</a></li>
+            <li><a href="/ratings_guide">Ratings Guide</a></li>
+            <li><a href="/contact_us">Contact Us</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <div class="grid-x">
+        <div class="cell text-right login-signup">
+          [% IF logged_in_user %]
+          <ul class="vertical medium-horizontal dropdown menu" data-responsive-menu="accordion medium-dropdown">
+            <li><a href="#">Inbox</a></li>
+            <li>
+              <a href="#">Quick Links</a>
+              <ul class="menu vertical nested">
+                <li><a href="#">Your Profile</a>
+                <li><a href="#">Your Gallery</a>
+                <li><a href="#">Your Watchlist</a>
+              </ul>
+            </li>
+            <li>
+              <a href="#">[AVATAR]</a>
+              <ul class="menu vertical nested">
+                <li><a href="#">Your Account</a>
+                <li><a href="#">Settings</a>
+                <li><a href="#">Logout</a>
+              </ul>
+            </li>
+          </ul>
+          [% ELSE %]
+          <a href="/login">Login</a> &#124; <a href="/signup">Sign Up</a>
+          [% END %]
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

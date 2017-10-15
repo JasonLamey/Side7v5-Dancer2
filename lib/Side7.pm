@@ -45,14 +45,27 @@ Primary library and route handler for the Side 7 web app.
 =head2 General Routes
 
 
+=head3 GET C</boilerplate>
+
+Route for styles boilerplate.
+
+=cut
+
+get '/boilerplate' => sub
+{
+  template 'boilerplate';
+};
+
+
 =head3 GET C</>
 
 Route for index page.
 
 =cut
 
-get '/' => sub {
-    template 'index';
+get '/' => sub
+{
+  template 'index';
 };
 
 

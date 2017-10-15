@@ -1,0 +1,22 @@
+<footer>
+  <div class="sticky-footer-css grid-x grid-padding-x align-stretch">
+
+    <div class="cell small-2 footer text-left">
+      <a href="/"><img src="/images/Side 7 Logo Cropped-800x455.svg" height="45" width="79" border="0" alt="Side 7 Logo"></a>
+    </div>
+
+    <div class="cell small-10 footer text-right">
+        <a href="/contact_us">Contact Us</a>
+        &middot;
+        <a href="/faq">FAQ</a>
+        &middot;
+        <a href="/privacy">Privacy Policy</a>
+        &middot;
+        <a href="/rules">Site Rules</a>
+        &middot;
+        <a href="/user_rights">User Rights</a><br>
+        <small>Side 7, the S7 logo, and all site-related code are copyright &copy; 1993-2017 Side 7</small>
+    </div>
+
+  </div>
+</footer>
