@@ -3,3 +3,8 @@
 
 appuser 2017-10-07T19:58:42Z Jason Lamey <jasonlamey@gmail.com> # Create an application user for the DB.
 appuser_grant [appuser] 2017-10-08T03:30:39Z Jason Lamey <jasonlamey@gmail.com> # Set permissions grant for appuser side7.
+users [appuser] 2017-10-16T12:47:10Z Jason Lamey <jasonlamey@gmail.com> # Create users table.
+user_statuses [users appuser] 2017-10-17T20:44:14Z Jason Lamey <jasonlamey@gmail.com> # Create user_statuses table
+populate_user_statuses [user_statuses users appuser] 2017-10-17T20:46:20Z Jason Lamey <jasonlamey@gmail.com> # Populate User Statuses
+user_sexes [users appuser] 2017-10-17T20:47:53Z Jason Lamey <jasonlamey@gmail.com> # Create user_sexes table
+populate_user_genders [user_sexes users appuser] 2017-10-17T21:08:53Z Jason Lamey <jasonlamey@gmail.com> # Populate the user_genders table
