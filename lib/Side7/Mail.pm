@@ -1,26 +1,26 @@
-package QP::Mail;
+package Side7::Mail;
 
-use Dancer2 appname => 'QP';
+use Dancer2 appname => 'Side7';
 
 use strict;
 use warnings;
 
-# QP modules
-use QP::Schema;
+# Side7 modules
+use Side7::Schema;
 
 # Third Party modules
 use version; our $VERSION = qv( 'v0.1.0' );
 use Emailesque;
 use Const::Fast;
 
-const my $SCHEMA       => QP::Schema->db_connect();
+const my $SCHEMA       => Side7::Schema->db_connect();
 const my $SYSTEM_FROM  => 'Quilt Patch <noreply@quiltpatchva.com>';
 const my %EMAIL_CONFIG => ( driver => 'sendmail', path => '/usr/sbin/sendmail' );
 
 
 =head1 NAME
 
-QP::Mail
+Side7::Mail
 
 
 =head1 AUTHOR
@@ -49,7 +49,7 @@ has been provided. These checks are common to all of the e-mail sending function
 
 =back
 
-    my $preflight = QP::Mail->preflight_checklist(
+    my $preflight = Side7::Mail->preflight_checklist(
                                                        username   => $username,
                                                        email      => $email_address,
                                                        full_name  => $full_name,
@@ -102,7 +102,7 @@ This function sends out the user welcome email, complete with a confirmation cod
 
 =back
 
-  $result = QP::Mail::send_welcome_email();
+  $result = Side7::Mail::send_welcome_email();
 
 =cut
 
@@ -120,7 +120,7 @@ sub send_welcome_email
   (
     not defined $new_user
     or
-    ref( $new_user ) ne 'QP::Schema::Result::User'
+    ref( $new_user ) ne 'Side7::Schema::Result::User'
   )
   {
     $return{'error'} = sprintf( 'Invalid or undefined user for username >%s< in send_welcome_email.', $user->{'username'} );
@@ -128,7 +128,7 @@ sub send_welcome_email
   }
 
   # Ensure we have the bare minimum to proceed.
-  my $preflight = QP::Mail->preflight_checklist(
+  my $preflight = Side7::Mail->preflight_checklist(
                                                       username   => $new_user->username,
                                                       full_name  => $new_user->full_name,
                                                       email      => $new_user->email,
@@ -144,7 +144,7 @@ sub send_welcome_email
   my $send_email = Emailesque->new(
                                     driver => $EMAIL_CONFIG{'driver'},
                                     path   => $EMAIL_CONFIG{'path'},
-                                    to     => QP::Mail->format_address(
+                                    to     => Side7::Mail->format_address(
                                                                             username  => $new_user->username,
                                                                             full_name => $new_user->full_name,
                                                                             email     => $new_user->email,
@@ -186,7 +186,7 @@ This function sends out the user password reset email, complete with a reset cod
 
 =back
 
-  $result = QP::Mail::send_password_reset_email();
+  $result = Side7::Mail::send_password_reset_email();
 
 =cut
 
@@ -208,7 +208,7 @@ sub send_password_reset_email
   }
 
   # Ensure we have the bare minimum to proceed.
-  my $preflight = QP::Mail->preflight_checklist(
+  my $preflight = Side7::Mail->preflight_checklist(
                                                       username   => $user->username,
                                                       full_name  => $user->full_name,
                                                       email      => $email,
@@ -223,7 +223,7 @@ sub send_password_reset_email
   my $send_email = Emailesque->new(
                                     driver => $EMAIL_CONFIG{'driver'},
                                     path   => $EMAIL_CONFIG{'path'},
-                                    to     => QP::Mail->format_address(
+                                    to     => Side7::Mail->format_address(
                                                                             username  => $user->username,
                                                                             full_name => $user->full_name,
                                                                             email     => $email,
@@ -265,7 +265,7 @@ This function sends out the contact us email to an admin account, including all 
 
 =back
 
-  $result = QP::Mail::send_contact_us_notification();
+  $result = Side7::Mail::send_contact_us_notification();
 
 =cut
 
@@ -281,7 +281,7 @@ sub send_contact_us_notification
   my %return = ( success => 0, error => undef );
 
   # Ensure we have the bare minimum to proceed.
-  my $preflight = QP::Mail->preflight_checklist(
+  my $preflight = Side7::Mail->preflight_checklist(
                                                       username   => $name,
                                                       full_name  => undef,
                                                       email      => $email,
@@ -297,7 +297,7 @@ sub send_contact_us_notification
   my $send_email = Emailesque->new(
                                     driver => $EMAIL_CONFIG{'driver'},
                                     path   => $EMAIL_CONFIG{'path'},
-                                    to     => QP::Mail->format_address(
+                                    to     => Side7::Mail->format_address(
                                                                             username  => 'Quilt Patch Contact Us',
                                                                             full_name => 'The Quilt Patch',
                                                                             email     => 'jasonlamey@gmail.com',
@@ -341,7 +341,7 @@ is provided. Otherwise, just the e-mail address is returned.  C<undef> is return
 
 =back
 
-    my $to = QP::Mail->format_address( username => $username, full_name => $full_name, email => $email );
+    my $to = Side7::Mail->format_address( username => $username, full_name => $full_name, email => $email );
 
 =cut
 

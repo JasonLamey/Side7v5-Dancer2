@@ -4,7 +4,7 @@
   <meta charset="[% settings.charset %]">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>[% IF title %][% title %] | [% END %]Side 7</title>
-  <link href="https://fonts.googleapis.com/css?family=Athiti|Jockey+One&amp;subset=latin-ext" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Athiti|Jockey+One|Share+Tech|Squada+One|Teko&amp;subset=latin-ext" rel="stylesheet">
   <link rel="stylesheet" href="/css/app.css">
   <link rel="stylesheet" href="/css/notifIt.min.css">
 
@@ -30,12 +30,32 @@
 
   <div class="grid-container fluid">
 
-  [% content %]
+    [% content %]
 
   </div>
 
   [% PROCESS 'partials/main-footer.tt' %]
 
+  [% IF flash.error.defined or flash.notify.defined or flash.success.defined or flash.warning.defined %]
+  <script>
+    $(document).ready( function () {
+      [% IF flash.error.defined %]
+      showError( '[% flash.error %]' );
+      [% END %]
+      [% IF flash.warning.defined %]
+      showWarning( '[% flash.warning %]' );
+      [% END %]
+      [% IF flash.notify.defined %]
+      showInfo( '[% flash.notify %]' );
+      [% END %]
+      [% IF flash.success.defined %]
+      showSuccess( '[% flash.success %]' );
+      [% END %]
+    });
+  </script>
+  [% END %]
+
+  <script type="text/javascript" src="https://use.fontawesome.com/bbc3509751.js"></script>
   <script type="text/javascript" src="/javascripts/app.js"></script>
   <script type="text/javascript" src="/javascripts/s7.js"></script>
 </body>

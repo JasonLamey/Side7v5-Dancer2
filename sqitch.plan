@@ -8,3 +8,5 @@ user_statuses [users appuser] 2017-10-17T20:44:14Z Jason Lamey <jasonlamey@gmail
 populate_user_statuses [user_statuses users appuser] 2017-10-17T20:46:20Z Jason Lamey <jasonlamey@gmail.com> # Populate User Statuses
 user_sexes [users appuser] 2017-10-17T20:47:53Z Jason Lamey <jasonlamey@gmail.com> # Create user_sexes table
 populate_user_genders [user_sexes users appuser] 2017-10-17T21:08:53Z Jason Lamey <jasonlamey@gmail.com> # Populate the user_genders table
+user_logs [appuser] 2017-10-18T05:17:05Z Jason Lamey <jasonlamey@gmail.com> # Create user_logs table.
+admin_logs [appuser] 2017-10-18T05:17:10Z Jason Lamey <jasonlamey@gmail.com> # Create admin_logs table.

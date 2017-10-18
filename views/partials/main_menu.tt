@@ -1,7 +1,7 @@
 <div data-sticky-container>
   <div data-sticky data-options="marginTop:0;">
 
-    <div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
+    <div class="title-bar" data-responsive-toggle="main-menu" data-hide-for="medium">
       <button class="menu-icon" type="button" data-toggle="main-menu"></button>
       <div class="title-bar-title">Menu</div>
     </div>
@@ -53,7 +53,7 @@
             </li>
           </ul>
           [% ELSE %]
-          <a href="/login">Login</a> &#124; <a href="/signup">Sign Up</a>
+          <a href="/login?return_url=[% request.request_uri | uri %]">Login</a> &#124; <a href="/signup">Sign Up</a>
           [% END %]
         </div>
       </div>

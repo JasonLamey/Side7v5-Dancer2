@@ -1,9 +1,9 @@
-package QP::Log;
+package Side7::Log;
 
 use strict;
 use warnings;
 
-use Dancer2 appname => 'QP';
+use Dancer2 appname => 'Side7';
 
 use Email::Valid;
 use Try::Tiny;
@@ -13,15 +13,15 @@ use Data::Dumper;
 
 use version; our $VERSION = qv( "v0.1.0" );
 
-use QP::Schema;
+use Side7::Schema;
 
-const my $SCHEMA => QP::Schema->db_connect();
+const my $SCHEMA => Side7::Schema->db_connect();
 #$SCHEMA->storage->debug(1);   # UNCOMMENT IN ORDER TO DUMP SQL DEBUG MESSAGES TO LOGS
 
 
 =head1 NAME
 
-QP::Log
+Side7::Log
 
 
 =head1 DESCRIPTION AND SYNOPSIS
@@ -44,7 +44,7 @@ This module handles critical logging functionality for Admin and non-Admin logs.
 
 =back
 
-    my $logged = QP::Log->admin_log( \%log_data );
+    my $logged = Side7::Log->admin_log( \%log_data );
 
 =cut
 
@@ -96,7 +96,7 @@ sub admin_log
 
 =back
 
-    my $logged = QP::Log->user_log( \%log_data );
+    my $logged = Side7::Log->user_log( \%log_data );
 
 =cut
 
@@ -148,7 +148,7 @@ sub user_log
 
 =back
 
-    my $diffs = QP::Log->find_changes_in_data( old_data => $old, new_data => $new );
+    my $diffs = Side7::Log->find_changes_in_data( old_data => $old, new_data => $new );
 
 =cut
 
@@ -190,7 +190,7 @@ sub find_changes_in_data
 
 =back
 
-    my $logs = QP::Log->get_admin_logs( page => 1, per_page => 50 );
+    my $logs = Side7::Log->get_admin_logs( page => 1, per_page => 50 );
 
 =cut
 
@@ -229,7 +229,7 @@ sub get_admin_logs
 
 =back
 
-    my $logs = QP::Log->get_user_logs( page => 1, per_page => 50 );
+    my $logs = Side7::Log->get_user_logs( page => 1, per_page => 50 );
 
 =cut
 
