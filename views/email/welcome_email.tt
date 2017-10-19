@@ -1,0 +1,11 @@
+<p>Greetings [% username %]!</p>
+
+<p>Thank you for registering with <strong>Side 7</strong>! Your next step is to activate your account. To do that, please go to the following link:</p>
+
+<p>[% domain_root %]/account_confirmation/[% ccode %]</p>
+
+<p>Follow the above link to confirm your account with us, and you will be able to log in and use your account.</p>
+
+<p>Thank you for signing up!</p>
+
+<p>-- Side 7</p>

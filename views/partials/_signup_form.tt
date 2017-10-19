@@ -1,0 +1,46 @@
+<div class="grid-container">
+  <div class="grid-x">
+    <div class="cell">
+
+      <h3>Sign Up</h3>
+
+      <form action="/signup" method="post" data-abide novalidate>
+
+        <label>Username:
+          <input class="form-registration-input" type="text" placeholder="Your username" name="username" required pattern="alpha_numeric">
+          <span class="form-error">A username is required.</span>
+        </label>
+
+        <label>Email Address:
+          <input class="form-registration-input" type="email" placeholder="Your email" name="email_address" required pattern="email">
+          <span class="form-error">A valid e-mail address is required.</span>
+        </label>
+
+        <label>Password:
+          <input class="form-registration-input" type="password" placeholder="Your password" name="password" required>
+          <span class="form-error">A password is required.</span>
+        </label>
+
+        <label>Birthday:
+          <input class="form-registration-input" type="date" placeholder="Your Birthday" name="birthday" required>
+          <span class="form-error">Your birthdate is required.</span>
+        </label>
+
+        <div class="text-center">
+
+        <label><input class="button" type="submit" value="Sign Up"></label>
+
+          <p class="or-divider"></p>
+
+          <!-- <p class="or-divider"><span>or</span></p>
+          <a class="form-registration-social-button" href="#"><i class="fa fa-facebook-official" aria-hidden="true"></i> Sign Up With facebook</a> -->
+          <p>Already have an account? <a href="/login">Sign in</a></p>
+
+          <p><a href="/rules">Site Rules</a> | <a href="/privacy">Privacy Policy</a></p>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
