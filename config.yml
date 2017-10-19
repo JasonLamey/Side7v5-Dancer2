@@ -50,6 +50,7 @@ auto_page: 1
 
 session: Cookie
 
+mailer_address: 'noreply@side7.com'
 datetime_format_short: '%d %b %Y, %I:%M %p'
 datetime_format_long: '%A, %d %B, %Y @ %I:%M %p'
 date_format_short: '%d %b %Y'

@@ -2,6 +2,6 @@
 
 BEGIN;
 
-SHOW GRANTS FOR side7;
+SHOW GRANTS FOR 'side7'@'localhost';
 
 ROLLBACK;

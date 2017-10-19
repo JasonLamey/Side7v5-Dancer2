@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP USER side7;
+DROP USER 'side7'@'localhost';
 
 COMMIT;

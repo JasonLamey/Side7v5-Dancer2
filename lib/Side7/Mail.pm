@@ -14,7 +14,7 @@ use Emailesque;
 use Const::Fast;
 
 const my $SCHEMA       => Side7::Schema->db_connect();
-const my $SYSTEM_FROM  => 'Quilt Patch <noreply@quiltpatchva.com>';
+const my $SYSTEM_FROM  => 'Side 7 <noreply@side7.com>';
 const my %EMAIL_CONFIG => ( driver => 'sendmail', path => '/usr/sbin/sendmail' );
 
 
@@ -131,7 +131,7 @@ sub send_welcome_email
   my $preflight = Side7::Mail->preflight_checklist(
                                                       username   => $new_user->username,
                                                       full_name  => $new_user->full_name,
-                                                      email      => $new_user->email,
+                                                      email      => $new_user->email_address,
                                                       email_type => 'Welcome Email',
                                                     );
   if ( ! $preflight->{'success'} )
@@ -147,7 +147,7 @@ sub send_welcome_email
                                     to     => Side7::Mail->format_address(
                                                                             username  => $new_user->username,
                                                                             full_name => $new_user->full_name,
-                                                                            email     => $new_user->email,
+                                                                            email     => $new_user->email_address,
                                                                            ),
                                     from    => $SYSTEM_FROM,
                                     subject => 'Thanks For Signing Up with The Quilt Patch!',
@@ -168,7 +168,7 @@ sub send_welcome_email
                     }
   );
 
-  info sprintf( 'Successfully sent Welcome Email to >%s<.', $new_user->email );
+  info sprintf( 'Successfully sent Welcome Email to >%s<.', $new_user->email_address );
   $return{'success'} = 1;
   return \%return;
 }
@@ -197,7 +197,7 @@ sub send_password_reset_email
   my $email = delete $params{'email'} // undef;
   my $code  = delete $params{'code'}  // undef;
 
-  my $user = $SCHEMA->resultset( 'User' )->find( { email => $email } ) if defined $email;
+  my $user = $SCHEMA->resultset( 'User' )->find( { email_address => $email } ) if defined $email;
 
   my $return = 0;
 
@@ -298,8 +298,8 @@ sub send_contact_us_notification
                                     driver => $EMAIL_CONFIG{'driver'},
                                     path   => $EMAIL_CONFIG{'path'},
                                     to     => Side7::Mail->format_address(
-                                                                            username  => 'Quilt Patch Contact Us',
-                                                                            full_name => 'The Quilt Patch',
+                                                                            username  => 'Side 7 Contact Us',
+                                                                            full_name => 'Side 7',
                                                                             email     => 'jasonlamey@gmail.com',
                                                                            ),
                                     from    => $SYSTEM_FROM,

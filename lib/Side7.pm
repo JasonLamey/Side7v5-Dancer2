@@ -31,6 +31,8 @@ const my $USER_SESSION_EXPIRE_TIME  => 172800; # 48 hours in seconds.
 const my $ADMIN_SESSION_EXPIRE_TIME => 600;    # 10 minutes in seconds.
 const my $DPAE_REALM                => 'site'; # Dancer2::Plugin::Auth::Extensible realm
 
+$SCHEMA->storage->debug(1); # Turns on DB debuging. Turn off for production.
+
 
 =head1 NAME
 
@@ -274,47 +276,51 @@ post '/signup' => sub
      )
   {
     flash( error => sprintf( 'Username <strong>%s</strong> is already in use.', body_parameters->get( 'username' ) ) );
-    redirect '/';
+    redirect '/signup';
   }
 
-  my $email_check = $SCHEMA->resultset( 'User' )->find( { email => body_parameters->get( 'email' ) } );
+  my $email_check = $SCHEMA->resultset( 'User' )->find( { email_address => body_parameters->get( 'email_address' ) } );
 
   if (
       defined $email_check
       &&
       ref( $email_check ) eq 'Side7::Schema::Result::User'
       &&
-      $email_check->email eq body_parameters->get( 'email' )
+      $email_check->email_address eq body_parameters->get( 'email_address' )
      )
   {
-    flash( error => sprintf( 'There is already an account associated to the email address <strong>%s</strong>.', body_parameters->get( 'email' ) ) );
-    redirect '/';
+    flash( error => sprintf( 'There is already an account associated to the email address <strong>%s</strong>.', body_parameters->get( 'email_address' ) ) );
+    redirect '/signup';
   }
 
-  my $now = DateTime->now( time_zone => 'America/New_York' )->datetime;
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
 
   # Create the user, and send the welcome e-mail.
   my $new_user = create_user(
-                              username      => body_parameters->get( 'username' ),
-                              realm         => $DPAE_REALM,
-                              password      => body_parameters->get( 'password' ),
-                              email         => body_parameters->get( 'email' ),
-                              confirmed     => 0,
-                              confirm_code  => Side7::Util->generate_random_string(),
-                              created_on    => $now,
-                              email_welcome => 1,
-                            );
+    username       => body_parameters->get( 'username' ),
+    #password       => body_parameters->get( 'password' ),
+    email_address  => body_parameters->get( 'email_address' ),
+    birthday       => body_parameters->get( 'birthday' ),
+    user_status_id => 1,
+    gender_id      => 1,
+    country_id     => 1,
+    confirmed      => 0,
+    confirm_code   => Side7::Util->generate_random_string(),
+    created_at     => $now,
+    realm          => $DPAE_REALM,
+    email_welcome  => 1,
+  );
 
   # Set the passord, encrypted.
   my $set_password = user_password( username => body_parameters->get( 'username' ), new_password => body_parameters->get( 'password' ) );
 
   # Set the initial user_role
-  my $unconfirmed_role = $SCHEMA->resultset( 'Role' )->find( { role => 'Unconfirmed' } );
+  my $base_role = $SCHEMA->resultset( 'Role' )->find( { role => 'New Signup' } );
 
   my $user_role = $SCHEMA->resultset( 'UserRole' )->new(
                                                         {
                                                           user_id => $new_user->id,
-                                                          role_id => $unconfirmed_role->id,
+                                                          role_id => $base_role->id,
                                                         }
                                                        );
   $SCHEMA->txn_do(
@@ -325,8 +331,6 @@ post '/signup' => sub
   );
 
   info sprintf( 'Created new user >%s<, ID: >%s<, on %s', body_parameters->get( 'username' ), $new_user->id, $now );
-
-  # Email confirmation message to the user.
 
   flash( success => sprintf("Thanks for signing up, %s! You have been logged in.", body_parameters->get( 'username' ) ) );
   my $logged = Side7::Log->user_log
@@ -400,12 +404,12 @@ get '/resend_confirmation' => sub
     (
       undef,
       user  => { username => logged_in_user->username }, # Expects a hashref for the user. Only needs username
-      email => logged_in_user->email,
+      email => logged_in_user->email_address,
     );
     if ( $sent->{'success'} )
     {
-      flash( success => sprintf( 'We have resent the confirmation email to your account at &quot;<strong>%s</strong>&quot;.', logged_in_user->email ) );
-      info sprintf( "Resent confirmation email at user's request to >%s<.", logged_in_user->email );
+      flash( success => sprintf( 'We have resent the confirmation email to your account at &quot;<strong>%s</strong>&quot;.', logged_in_user->email_address ) );
+      info sprintf( "Resent confirmation email at user's request to >%s<.", logged_in_user->email_address );
       my $logged = Side7::Log->user_log
       (
         user        => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
@@ -418,13 +422,13 @@ get '/resend_confirmation' => sub
     else
     {
       flash( error => 'An error has occurred and we could not resend the confirmation email. Please try again in a few minutes.' );
-      error sprintf( "Error occurred when trying to resend the confirmation code to >%s<: %s", logged_in_user->email, $sent->{'error'} );
+      error sprintf( "Error occurred when trying to resend the confirmation code to >%s<: %s", logged_in_user->email_address, $sent->{'error'} );
       my $logged = Side7::Log->user_log
       (
         user        => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
         ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
         log_level   => 'Error',
-        log_message => sprintf( 'Confirmation Email Resend failed to &gt;%s&lt;: %s', logged_in_user->email, $sent->{'error'} ),
+        log_message => sprintf( 'Confirmation Email Resend failed to &gt;%s&lt;: %s', logged_in_user->email_address, $sent->{'error'} ),
       );
       redirect '/user';
     }
@@ -451,7 +455,7 @@ Route to submit credentials for resending confirmation e-mails.
 post '/resend_confirmation' => sub
 {
   my $username = body_parameters->get( 'username ' ) // undef;
-  my $email    = body_parameters->get( 'email ' )    // undef;
+  my $email    = body_parameters->get( 'email' )     // undef;
 
   if
   (
@@ -467,8 +471,8 @@ post '/resend_confirmation' => sub
   my $user = $SCHEMA->resultset( 'User' )->find
   (
     {
-      username => $username,
-      email    => $email,
+      username      => $username,
+      email_address => $email,
     }
   );
 
@@ -494,31 +498,31 @@ post '/resend_confirmation' => sub
   my $sent = Side7::Mail::send_welcome_email
   (
     user  => $user->username,
-    email => $user->email,
+    email => $user->email_address,
   );
   if ( $sent->{'success'} )
   {
-    flash( success => sprintf( 'We have resent the confirmation email to your account at &quot;<strong>%s</strong>%quot;.', $user->email ) );
-    info sprintf( "Resent confirmation email at user's request to >%s<.", $user->email );
+    flash( success => sprintf( 'We have resent the confirmation email to your account at &quot;<strong>%s</strong>%quot;.', $user->email_address ) );
+    info sprintf( "Resent confirmation email at user's request to >%s<.", $user->email_address );
     my $logged = Side7::Log->user_log
     (
       user        => 'Unknown',
       ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
       log_level   => 'Info',
-      log_message => sprintf( 'Confirmation Email Resent: &gt;%s&lt;', $user->email ),
+      log_message => sprintf( 'Confirmation Email Resent: &gt;%s&lt;', $user->email_address ),
     );
     redirect '/';
   }
   else
   {
     flash( error => 'An error has occurred and we could not resend the confirmation email. Please try again in a few minutes.' );
-    error sprintf( "Error occurred when trying to resend the confirmation code to >%s<: %s", $user->email, $sent->{'error'} );
+    error sprintf( "Error occurred when trying to resend the confirmation code to >%s<: %s", $user->email_address, $sent->{'error'} );
     my $logged = Side7::Log->user_log
     (
       user        => 'Unknown',
       ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
       log_level   => 'Error',
-      log_message => sprintf( 'Resend Confirmation Failed: Email send failed - &gt;%s&lt;: &gt;%s&lt;', $user->email, $sent->{'error'} ),
+      log_message => sprintf( 'Resend Confirmation Failed: Email send failed - &gt;%s&lt;: &gt;%s&lt;', $user->email_address, $sent->{'error'} ),
     );
     redirect '/resend_confirmation';
   }

@@ -2,6 +2,6 @@
 
 BEGIN;
 
-REVOKE ALL PRIVILEGES ON side7_v5.* FROM side7;
+REVOKE ALL PRIVILEGES ON side7_v5.* FROM 'side7'@'localhost';
 
 COMMIT;

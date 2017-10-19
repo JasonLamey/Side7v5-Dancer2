@@ -2,6 +2,7 @@
 
 BEGIN;
 
-CREATE USER side7;
+CREATE USER 'side7'@'localhost';
+SET PASSWORD for 'side7'@'localhost' = 'ArtIsLife';
 
 COMMIT;

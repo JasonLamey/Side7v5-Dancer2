@@ -1,12 +1,12 @@
-package QP::Util;
+package Side7::Util;
 
-use Dancer2 appname => 'QP';
+use Dancer2 appname => 'Side7';
 use Dancer2::Plugin::Passphrase;
 
 use strict;
 use warnings;
 
-# QP modules
+# Side7 modules
 
 # Third Party modules
 use version; our $VERSION = qv( 'v0.1.0' );
@@ -14,7 +14,7 @@ use version; our $VERSION = qv( 'v0.1.0' );
 
 =head1 NAME
 
-QP::Util
+Side7::Util
 
 
 =head1 AUTHOR
@@ -24,7 +24,7 @@ Jason Lamey L<email:jasonlamey@gmail.com>
 
 =head1 SYNOPSIS AND USAGE
 
-This module provides helper utilities for the QP webapp.
+This module provides helper utilities for the Side7 webapp.
 
 
 =head1 METHODS
@@ -42,8 +42,8 @@ Generates a new random string for use with a new account or for a password reset
 
 =back
 
-    my $rand_pass = QP::Util->generate_random_string();
-    my $rand_pass = QP::Util->generate_random_string( string_length => 32, char_set => ['a'..'z', 'A'..'Z'] );
+    my $rand_pass = Side7::Util->generate_random_string();
+    my $rand_pass = Side7::Util->generate_random_string( string_length => 32, char_set => ['a'..'z', 'A'..'Z'] );
 
 =cut
 
@@ -70,7 +70,7 @@ Returns a hashref of rules for HTML::Restrict for public form-based input.
 
 =back
 
-  my $html_rules = QP::Util->get_allowed_html_rules();
+  my $html_rules = Side7::Util->get_allowed_html_rules();
 
 =cut
 

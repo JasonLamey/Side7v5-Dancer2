@@ -32,7 +32,7 @@
 
       <div class="grid-x">
         <div class="cell text-right login-signup">
-          [% IF logged_in_user %]
+          [% IF session.logged_in_user %]
           <ul class="vertical medium-horizontal dropdown menu" data-responsive-menu="accordion medium-dropdown">
             <li><a href="#">Inbox</a></li>
             <li>
@@ -48,7 +48,7 @@
               <ul class="menu vertical nested">
                 <li><a href="#">Your Account</a>
                 <li><a href="#">Settings</a>
-                <li><a href="#">Logout</a>
+                <li><a href="/logout">Logout</a>
               </ul>
             </li>
           </ul>

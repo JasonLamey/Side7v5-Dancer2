@@ -3,6 +3,6 @@
 
 BEGIN;
 
-GRANT ALL PRIVILEGES ON side7_v5.* TO side7;
+GRANT ALL PRIVILEGES ON side7_v5.* TO 'side7'@'localhost';
 
 COMMIT;
