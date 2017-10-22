@@ -1,0 +1,27 @@
+[% USE date %]
+
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+
+<div class="grid-container">
+  <div class="grid-x grid-margin-x">
+    <div class="cell small-12 medium-8 medium-offset-2">
+
+      <h1>News</h1>
+
+      <div class="grid-x">
+        <div class="cell">
+          <div class="callout primary">
+
+            <h2>[% data.item.title %]</h2>
+            <p><strong>Posted:</strong> [% date.format( data.item.posted_on, datetime_format_long ) %]<br>
+            <strong>Posted By:</strong> [% data.item.user.username %]</p>
+
+            [% data.item.article %]
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

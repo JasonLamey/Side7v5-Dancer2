@@ -84,6 +84,7 @@ print "\n";
 ######################################
 
 migrate_users();
+migrate_news();
 
 ######################################
 
@@ -232,5 +233,79 @@ sub migrate_users
   $progress->update( $num_rows ) if $num_rows >= $next_update;
 
   $sth->finish;
+  print "\n";
+}
 
+sub migrate_news
+{
+  print "News Table\n" if $verbose;
+  if ( $interactive )
+  {
+    if ( ! confirm_table( 'news' ) )
+    {
+      return;
+    }
+  }
+
+  # Cleanup the v5 tables from any previous migration attempts
+  print "- Truncating v5 table\n" if $verbose;
+  truncate_table( 'news' );
+
+  my $sth = $DBH->prepare(
+    'SELECT *
+       FROM news
+   ORDER BY id'
+  );
+  $sth->execute();
+  my $rv = $sth->fetchall_hashref( 'id' );
+
+  my $num_rows = scalar( keys ( %{$rv} ) );
+  printf "- v4 Rows found: %d\n", $num_rows if $verbose;
+
+  # Import
+  print "- Importing rows\n" if $verbose;
+
+  # Set Up Progress Bar
+  my $progress = Term::ProgressBar->new(
+    {
+      name  => 'News Table',
+      count => $num_rows,
+      ETA   => 'linear',
+    }
+  );
+  $progress->max_update_rate(1);
+  my $next_update = 0; my $i = 0;
+
+  foreach my $key ( sort keys ( %{$rv} ) )
+  {
+    my $row = $rv->{$key};
+
+    # Normalize values
+    my $news_type = 'Standard';
+    if ( $row->{'static'} ) { $news_type = 'Announcement'; }
+
+    # Insert new record
+    if ( ! $dryrun )
+    {
+      my $new_user = $SCHEMA->resultset( 'News' )->create(
+        {
+          id         => $row->{'id'},
+          user_id    => $row->{'user_account_id'},
+          title      => $row->{'title'},
+          article    => $row->{'article'},
+          news_type  => $news_type,
+          posted_on  => $row->{'timestamp'},
+          expires_on => $row->{'expires'},
+          views      => 0,
+        }
+      );
+    }
+
+    $next_update = $progress->update( $i ) if $i > $next_update;
+    $i++;
+  }
+  $progress->update( $num_rows ) if $num_rows >= $next_update;
+
+  $sth->finish;
+  print "\n";
 }

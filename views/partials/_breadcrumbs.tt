@@ -1,12 +1,13 @@
 [% IF breadcrumbs %]
-<div class="row column">
-  <div class="callout">
+<div class="grid-container">
+  <div class="grid-x grid-margin-x">
+    <div class="cell">
 
-    <div class="row">
-      <div class="small-12 columns">
+       <div class="callout secondary small">
+
         <nav aria-label="You are here:" role="navigation">
           <ul class="breadcrumbs">
-            <li><a href="/">Home</a></li>
+            <li><a href="/">Main</a></li>
             [% FOREACH crumb IN breadcrumbs %]
               [% IF crumb.disabled %]
             <li class="disabled">[% crumb.name %]</li>
@@ -20,9 +21,10 @@
             [% END %]
           </ul>
         </nav>
-      </div>
-    </div>
 
+      </div>
+
+    </div>
   </div>
 </div>
 [% END %]

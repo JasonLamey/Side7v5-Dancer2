@@ -1,0 +1,49 @@
+[% USE date %]
+
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+
+<div class="grid-container">
+  <div class="grid-x grid-margin-x">
+
+    <div class="cell small-12 medium-8 medium-offset-2">
+      <div class="grid-x">
+        <div class="cell">
+
+        <h1>News and Announcements</h1>
+
+        [% IF data.announcements.size > 0 %]
+        <h2>Announcements</h2>
+        <div class="grid-x">
+        [% END %]
+        [% FOREACH item IN data.announcements %]
+          <div class="cell">
+            <div class="callout primary">
+              <h3><a href="/news/item/[% item.id %]">[% item.title %]</a></h3>
+              <strong>Posted:</strong> [% date.format( item.posted_on, datetime_format_long ) %]
+              <strong>by</strong> [% item.user.username %]
+            </div>
+          </div><br>
+        [% END %]
+        [% IF data.announcements.size > 0 %]</div>[% END %]
+
+        [% IF data.news.size > 0 %]
+        <h2>News</h2>
+        <div class="grid-x">
+        [% END %]
+        [% FOREACH item IN data.news %]
+          <div class="cell">
+            <div class="callout secondary">
+              <h3><a href="/news/item/[% item.id %]">[% item.title %]</a></h3>
+              <strong>Posted:</strong> [% date.format( item.posted_on, datetime_format_long ) %]
+              <strong>by</strong> [% item.user.username %]
+            </div>
+          </div>
+        [% END %]
+        [% IF data.news.size > 0 %]</div>[% END %]
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

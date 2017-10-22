@@ -141,7 +141,152 @@ Route for index page.
 
 get '/' => sub
 {
-  template 'index';
+  my $today = DateTime->today;
+
+  my @news = $SCHEMA->resultset( 'News' )->search(
+    {
+      news_type => 'Standard',
+    },
+    {
+      order_by => { -desc => 'posted_on' },
+      rows     => 5
+    }
+  );
+
+  my @announcements = $SCHEMA->resultset( 'News' )->search(
+    {
+      news_type => 'Announcement',
+      expires_on => { '>' => $today->ymd },
+    },
+    {
+      order_by => { -desc => [ 'posted_on' ] },
+    }
+  );
+
+  template 'index',
+  {
+    data =>
+    {
+      announcements => \@announcements,
+      news          => \@news,
+    }
+  };
+};
+
+
+=head2 GET C</news/:page>
+
+Route to the news listing page.
+
+=cut
+
+get '/news/?:page?' => sub
+{
+  my $page  = route_parameters->get( 'page' ) // 1;
+  my $today = DateTime->today;
+
+  my @news = $SCHEMA->resultset( 'News' )->search(
+    {
+      news_type => 'Standard',
+    },
+    {
+      rows     => 10,
+      page     => $page,
+      order_by => { -desc => 'posted_on' },
+    }
+  );
+
+  my @announcements = $SCHEMA->resultset( 'News' )->search(
+    {
+      news_type => 'Announcement',
+      expires_on => { '>' => $today->ymd },
+    },
+    {
+      order_by => { -desc => [ 'posted_on' ] },
+    }
+  );
+
+  template 'news',
+  {
+    data =>
+    {
+      page          => $page,
+      news          => \@news,
+      announcements => \@announcements,
+    },
+    title => 'News',
+    breadcrumbs =>
+    [
+      { name => 'News', current => 1 },
+    ],
+  };
+};
+
+
+=head2 GET C</news/item/:news_id>
+
+Route for pulling up a specific news item.
+
+=cut
+
+get '/news/item/:news_id' => sub
+{
+  my $news_id = route_parameters->get( 'news_id' );
+
+  if
+  (
+    ! defined $news_id
+    or
+    $news_id < 1
+    or
+    $news_id !~ m/^\d+$/
+  )
+  {
+    flash( error => "<strong>Who moved my stuff!?</strong><br>Could not find the news item you requested." );
+    warning sprintf( 'Invalid or missing news id provided - ID: >%s<', $news_id );
+    my $logged = Side7::Log->admin_log
+    (
+      user        => ( ( logged_in_user ) ? sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ) : 'Unknown' ),
+      ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+      log_level   => 'Warning',
+      log_message => sprintf( 'Invalid or missing news_id provided for /news/:news_id - &quot;%s&quot;', $news_id ),
+    );
+  }
+
+  my $news = $SCHEMA->resultset( 'News' )->find( $news_id );
+
+  if
+  (
+    ! defined $news
+    or
+    ref( $news ) ne 'Side7::Schema::Result::News'
+  )
+  {
+    flash( error => "<strong>Who moved my stuff!?</strong><br>Could not find the news item you requested." );
+    warning sprintf( 'Bad news ID - Could not retrieve news item - ID: >%s<', $news_id );
+    my $logged = Side7::Log->admin_log
+    (
+      user        => ( ( logged_in_user ) ? sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ) : 'Unknown' ),
+      ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+      log_level   => 'Warning',
+      log_message => sprintf( 'Invalid news_id provided for /news/:news_id - &quot;%s&quot;', $news_id ),
+    );
+  }
+
+  template 'news_item',
+  {
+    data =>
+    {
+      item => $news,
+    },
+    title => $news->title,
+    breadcrumbs =>
+    [
+      { name => 'News', link => '/news' },
+      { name => $news->title, current => 1 },
+    ],
+  };
+
 };
 
 

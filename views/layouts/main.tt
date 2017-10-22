@@ -25,7 +25,6 @@
 
 </head>
 <body>
-  [% PROCESS 'partials/notifications_js.tt' %]
   [% PROCESS 'partials/main_menu.tt' %]
 
   <div class="grid-container fluid">

@@ -15,3 +15,4 @@ admin_logs [appuser] 2017-10-18T05:17:10Z Jason Lamey <jasonlamey@gmail.com> # C
 user_roles [roles users appuser] 2017-10-18T18:31:51Z Jason Lamey <jasonlamey@gmail.com> # Create User<->Role mapping table
 countries [appuser] 2017-10-18T21:27:08Z Jason Lamey <jasonlamey@gmail.com> # Countries lookup table.
 populate_countries [countries appuser] 2017-10-19T00:44:11Z Jason Lamey <jasonlamey@gmail.com> # Populate countries table.
+news [users appuser] 2017-10-20T22:46:07Z Jason Lamey <jasonlamey@gmail.com> # Create news table
