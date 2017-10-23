@@ -16,3 +16,7 @@ user_roles [roles users appuser] 2017-10-18T18:31:51Z Jason Lamey <jasonlamey@gm
 countries [appuser] 2017-10-18T21:27:08Z Jason Lamey <jasonlamey@gmail.com> # Countries lookup table.
 populate_countries [countries appuser] 2017-10-19T00:44:11Z Jason Lamey <jasonlamey@gmail.com> # Populate countries table.
 news [users appuser] 2017-10-20T22:46:07Z Jason Lamey <jasonlamey@gmail.com> # Create news table
+upload_categories [appuser] 2017-10-22T03:53:20Z Jason Lamey <jasonlamey@gmail.com> # Build user upload categories table.
+upload_types [appuser] 2017-10-22T04:16:16Z Jason Lamey <jasonlamey@gmail.com> # Create upload types lookup table.
+populate_upload_types [upload_types appuser] 2017-10-22T04:41:41Z Jason Lamey <jasonlamey@gmail.com> # Populate upload_types table.
+populate_upload_categories [upload_categories appuser] 2017-10-22T05:38:21Z Jason Lamey <jasonlamey@gmail.com> # Populate upload_categories table.
