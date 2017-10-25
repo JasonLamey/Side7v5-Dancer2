@@ -86,6 +86,8 @@ print "\n";
 migrate_users();
 migrate_news();
 migrate_images();
+migrate_faq_categories();
+migrate_faq_entries();
 
 ######################################
 
@@ -373,6 +375,138 @@ sub migrate_images
           description         => $row->{'description'},
           views               => $row->{'image_views'},
           uploaded_on         => $row->{'uploaded_date'},
+        }
+      );
+    }
+
+    $next_update = $progress->update( $i ) if $i > $next_update;
+    $i++;
+  }
+  $progress->update( $num_rows ) if $num_rows >= $next_update;
+
+  $sth->finish;
+  print "\n\n";
+}
+
+sub migrate_faq_categories
+{
+  print "FAQ Categories Table\n" if $verbose;
+  if ( $interactive )
+  {
+    if ( ! confirm_table( 'faq_categories' ) )
+    {
+      return;
+    }
+  }
+
+  # Cleanup the v5 tables from any previous migration attempts
+  print "- Truncating v5 table\n" if $verbose;
+  truncate_table( 'faq_categories' );
+
+  my $sth = $DBH->prepare(
+    'SELECT *
+       FROM faq_categories
+   ORDER BY id'
+  );
+  $sth->execute();
+  my $rv = $sth->fetchall_hashref( 'id' );
+
+  my $num_rows = scalar( keys ( %{$rv} ) );
+  printf "- v4 Rows found: %d\n", $num_rows if $verbose;
+
+  # Import
+  print "- Importing rows\n" if $verbose;
+
+  # Set Up Progress Bar
+  my $progress = Term::ProgressBar->new(
+    {
+      name  => 'FAQ Categories Table',
+      count => $num_rows,
+      ETA   => 'linear',
+    }
+  );
+  $progress->max_update_rate(1);
+  my $next_update = 0; my $i = 0;
+
+  foreach my $key ( sort keys ( %{$rv} ) )
+  {
+    my $row = $rv->{$key};
+
+    # Insert new record
+    if ( ! $dryrun )
+    {
+      my $new_user = $SCHEMA->resultset( 'FAQCategory' )->create(
+        {
+          id         => $row->{'id'},
+          category   => $row->{'name'},
+          sort_order => $row->{'priority'},
+        }
+      );
+    }
+
+    $next_update = $progress->update( $i ) if $i > $next_update;
+    $i++;
+  }
+  $progress->update( $num_rows ) if $num_rows >= $next_update;
+
+  $sth->finish;
+  print "\n\n";
+}
+
+sub migrate_faq_entries
+{
+  print "FAQ Entries Table\n" if $verbose;
+  if ( $interactive )
+  {
+    if ( ! confirm_table( 'faq_entries' ) )
+    {
+      return;
+    }
+  }
+
+  # Cleanup the v5 tables from any previous migration attempts
+  print "- Truncating v5 table\n" if $verbose;
+  truncate_table( 'faq_entries' );
+
+  my $sth = $DBH->prepare(
+    'SELECT *
+       FROM faq_entries
+   ORDER BY id'
+  );
+  $sth->execute();
+  my $rv = $sth->fetchall_hashref( 'id' );
+
+  my $num_rows = scalar( keys ( %{$rv} ) );
+  printf "- v4 Rows found: %d\n", $num_rows if $verbose;
+
+  # Import
+  print "- Importing rows\n" if $verbose;
+
+  # Set Up Progress Bar
+  my $progress = Term::ProgressBar->new(
+    {
+      name  => 'FAQ Entries Table',
+      count => $num_rows,
+      ETA   => 'linear',
+    }
+  );
+  $progress->max_update_rate(1);
+  my $next_update = 0; my $i = 0;
+
+  foreach my $key ( sort keys ( %{$rv} ) )
+  {
+    my $row = $rv->{$key};
+
+    # Insert new record
+    if ( ! $dryrun )
+    {
+      my $new_user = $SCHEMA->resultset( 'FAQEntry' )->create(
+        {
+          id              => $row->{'id'},
+          faq_category_id => $row->{'faq_category_id'},
+          question        => $row->{'question'},
+          answer          => $row->{'answer'},
+          sort_order      => $row->{'priority'},
         }
       );
     }
