@@ -1,4 +1,4 @@
-package Side7::Schema::Result::UploadCategory;
+package Side7::Schema::Result::UploadClass;
 
 use strict;
 use warnings;
@@ -11,7 +11,7 @@ our $VERSION = '1.0';
 
 =head1 NAME
 
-Side7::Schema::Result::UploadCategory
+Side7::Schema::Result::UploadClass
 
 
 =head1 AUTHOR
@@ -21,11 +21,11 @@ Jason Lamey L<email:jasonlamey@gmail.com>
 
 =head1 SYNOPSIS AND USAGE
 
-This module represents the UploadCategory object in the web app, as well as the interface to the C<upload_categories> table in the database.
+This module represents the UploadClass object in the web app, as well as the interface to the C<upload_classes> table in the database.
 
 =cut
 
-__PACKAGE__->table( 'upload_categories' );
+__PACKAGE__->table( 'upload_classes' );
 __PACKAGE__->add_columns(
                           id =>
                             {
@@ -34,7 +34,7 @@ __PACKAGE__->add_columns(
                               is_nullable       => 0,
                               is_auto_increment => 1,
                             },
-                          category =>
+                          class =>
                             {
                               data_type         => 'varchar',
                               size              => 255,
@@ -46,12 +46,6 @@ __PACKAGE__->add_columns(
                               is_nullable       => 1,
                               default_value     => undef,
                             },
-                          upload_type_id =>
-                            {
-                              data_type         => 'integer',
-                              size              => 3,
-                              is_nullable       => 0,
-                            },
                           sort_order =>
                             {
                               data_type         => 'integer',
@@ -62,9 +56,7 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key( 'id' );
 
-__PACKAGE__->belongs_to( 'upload_type' => 'Side7::Schema::Result::UploadType', 'upload_type_id' );
-
-__PACKAGE__->has_many( 'uploads' => 'Side7::Schema::Result::UserUpload', 'upload_category_id' );
+__PACKAGE__->has_many( 'uploads' => 'Side7::Schema::Result::UserUpload', 'upload_class_id' );
 
 
 =head1 METHODS

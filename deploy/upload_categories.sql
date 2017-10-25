@@ -6,6 +6,7 @@ BEGIN;
 CREATE TABLE upload_categories (
   id INT(10) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
   category VARCHAR(255) NOT NULL,
+  description TEXT,
   upload_type_id INT(3) UNSIGNED NOT NULL,
   sort_order INT(3) UNSIGNED NOT NULL
 );

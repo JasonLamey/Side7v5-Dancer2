@@ -212,15 +212,17 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key( 'id' );
 
-#__PACKAGE__->has_many( 'userroles' => 'Side7::Schema::Result::UserRole', 'user_id' );
-#
 __PACKAGE__->might_have( 'news' => 'Side7::Schema::Result::News', 'user_id' );
+
+__PACKAGE__->has_many( 'uploads'   => 'Side7::Schema::Result::Upload',   'user_id' );
+__PACKAGE__->has_many( 'userroles' => 'Side7::Schema::Result::UserRole', 'user_id' );
+
+__PACKAGE__->many_to_many( 'roles' => 'userroles', 'role' );
 
 __PACKAGE__->belongs_to( 'gender'  => 'Side7::Schema::Result::UserGender', 'gender_id' );
 __PACKAGE__->belongs_to( 'status'  => 'Side7::Schema::Result::UserStatus', 'user_status_id' );
 __PACKAGE__->belongs_to( 'country' => 'Side7::Schema::Result::Country',    'country_id' );
 
-#__PACKAGE__->many_to_many( 'roles' => 'userroles', 'role' );
 
 
 =head1 METHODS

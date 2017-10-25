@@ -30,34 +30,90 @@ __PACKAGE__->add_columns(
                           id =>
                             {
                               data_type         => 'integer',
-                              size              => 3,
+                              size              => 20,
                               is_nullable       => 0,
                               is_auto_increment => 1,
                             },
-                          type =>
+                          user_id =>
+                            {
+                              data_type         => 'integer',
+                              size              => 20,
+                              is_nullable       => 0,
+                            },
+                          upload_type_id =>
+                            {
+                              data_type         => 'integer',
+                              size              => 3,
+                              is_nullable       => 0,
+                            },
+                          filename =>
                             {
                               data_type         => 'varchar',
                               size              => 255,
                               is_nullable       => 0,
                             },
-                          mime_types =>
-                            {
-                              data_type         => 'varchar',
-                              size              => 255,
-                              is_nullable       => 0,
-                            },
-                          max_size =>
+                          filesize =>
                             {
                               data_type         => 'integer',
                               size              => 10,
                               is_nullable       => 0,
                             },
+                          upload_category_id =>
+                            {
+                              data_type         => 'integer',
+                              size              => 10,
+                              is_nullable       => 0,
+                            },
+                          upload_rating_id =>
+                            {
+                              data_type         => 'integer',
+                              size              => 10,
+                              is_nullable       => 0,
+                            },
+                          upload_class_id =>
+                            {
+                              data_type         => 'integer',
+                              size              => 10,
+                              is_nullable       => 0,
+                            },
+                          title =>
+                            {
+                              data_type         => 'varchar',
+                              size              => 255,
+                              is_nullable       => 0,
+                            },
+                          description =>
+                            {
+                              data_type         => 'text',
+                              is_nullable       => 1,
+                              default_value     => undef,
+                            },
+                          views =>
+                            {
+                              data_type         => 'integer',
+                              size              => 10,
+                              is_nullable       => 0,
+                              default_value     => 0,
+                            },
+                          uploaded_on =>
+                            {
+                              data_type         => 'datetime',
+                              is_nullable       => 0,
+                              default_value     => DateTime->now( time_zone => 'UTC' )->datetime,
+                            },
                         );
 
 __PACKAGE__->set_primary_key( 'id' );
 
-__PACKAGE__->has_many( 'uploads' => 'Side7::Schema::Result::UserUpload', 'upload_type_id' );
+__PACKAGE__->belongs_to( 'user'            => 'Side7::Schema::Result::User',           'user_id' );
+__PACKAGE__->belongs_to( 'upload_type'     => 'Side7::Schema::Result::UploadType',     'upload_type_id' );
+__PACKAGE__->belongs_to( 'upload_category' => 'Side7::Schema::Result::UploadCategory', 'upload_category_id' );
+__PACKAGE__->belongs_to( 'upload_rating'   => 'Side7::Schema::Result::UploadRating',   'upload_rating_id' );
+__PACKAGE__->belongs_to( 'upload_class'    => 'Side7::Schema::Result::UploadClass',    'upload_class_id' );
 
+__PACKAGE__->has_many( 'uploadqualifiers'  => 'Side7::Schema::Result::UploadQualifier', 'upload_id' );
+
+__PACKAGE__->many_to_many( 'rating_qualifiers' => 'uploadqualifiers', 'upload' );
 
 =head1 METHODS
 

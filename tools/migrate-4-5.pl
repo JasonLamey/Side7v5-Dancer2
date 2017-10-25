@@ -85,6 +85,7 @@ print "\n";
 
 migrate_users();
 migrate_news();
+migrate_images();
 
 ######################################
 
@@ -233,7 +234,7 @@ sub migrate_users
   $progress->update( $num_rows ) if $num_rows >= $next_update;
 
   $sth->finish;
-  print "\n";
+  print "\n\n";
 }
 
 sub migrate_news
@@ -307,5 +308,80 @@ sub migrate_news
   $progress->update( $num_rows ) if $num_rows >= $next_update;
 
   $sth->finish;
-  print "\n";
+  print "\n\n";
+}
+
+sub migrate_images
+{
+  print "Images Table\n" if $verbose;
+  if ( $interactive )
+  {
+    if ( ! confirm_table( 'images' ) )
+    {
+      return;
+    }
+  }
+
+  # Cleanup the v5 tables from any previous migration attempts
+  print "- Truncating v5 table\n" if $verbose;
+  truncate_table( 'user_uploads' );
+
+  # v4 data pull
+  my $sth = $DBH->prepare(
+    'SELECT i.*
+       FROM images i
+   ORDER BY id'
+  );
+  $sth->execute();
+  my $rv = $sth->fetchall_hashref( 'id' );
+
+  my $num_rows = scalar( keys ( %{$rv} ) );
+  printf "- v4 Rows found: %d\n", $num_rows if $verbose;
+
+  # Import
+  print "- Importing rows\n" if $verbose;
+
+  # Set Up Progress Bar
+  my $progress = Term::ProgressBar->new(
+    {
+      name  => 'Images Table',
+      count => $num_rows,
+      ETA   => 'linear',
+    }
+  );
+  $progress->max_update_rate(1);
+  my $next_update = 0; my $i = 0;
+
+  foreach my $key ( sort keys ( %{$rv} ) )
+  {
+    my $row = $rv->{$key};
+
+    # Insert new record
+    if ( ! $dryrun )
+    {
+      my $new_user = $SCHEMA->resultset( 'UserUpload' )->create(
+        {
+          id                  => $row->{'id'},
+          user_id             => $row->{'user_account_id'},
+          filename            => $row->{'filename'},
+          filesize            => $row->{'filesize'},
+          upload_type_id      => 1,
+          upload_category_id  => $row->{'image_category_id'},
+          upload_rating_id    => $row->{'image_rating_id'},
+          upload_class_id     => $row->{'image_class_id'},
+          title               => $row->{'title'},
+          description         => $row->{'description'},
+          views               => $row->{'image_views'},
+          uploaded_on         => $row->{'uploaded_date'},
+        }
+      );
+    }
+
+    $next_update = $progress->update( $i ) if $i > $next_update;
+    $i++;
+  }
+  $progress->update( $num_rows ) if $num_rows >= $next_update;
+
+  $sth->finish;
+  print "\n\n";
 }

@@ -20,3 +20,9 @@ upload_categories [appuser] 2017-10-22T03:53:20Z Jason Lamey <jasonlamey@gmail.c
 upload_types [appuser] 2017-10-22T04:16:16Z Jason Lamey <jasonlamey@gmail.com> # Create upload types lookup table.
 populate_upload_types [upload_types appuser] 2017-10-22T04:41:41Z Jason Lamey <jasonlamey@gmail.com> # Populate upload_types table.
 populate_upload_categories [upload_categories appuser] 2017-10-22T05:38:21Z Jason Lamey <jasonlamey@gmail.com> # Populate upload_categories table.
+upload_ratings [appuser] 2017-10-24T22:30:52Z Jason Lamey <jasonlamey@gmail.com> # Create upload_ratings table.
+upload_classes [appuser] 2017-10-24T22:33:04Z Jason Lamey <jasonlamey@gmail.com> # Creates the upload_classes table.
+populate_upload_ratings [upload_ratings appuser] 2017-10-25T00:35:33Z Jason Lamey <jasonlamey@gmail.com> # Populate upload ratings.
+upload_qualifiers [appuser] 2017-10-25T00:38:19Z Jason Lamey <jasonlamey@gmail.com> # Create the upload_qualifiers table.
+populate_upload_qualifiers [upload_qualifiers appuser] 2017-10-25T01:01:26Z Jason Lamey <jasonlamey@gmail.com> # Populate the upload_qualifiers table.
+user_uploads [users upload_categories upload_classes upload_qualifiers upload_ratings upload_types appuser] 2017-10-25T02:18:58Z Jason Lamey <jasonlamey@gmail.com> # Create user_uploads table.
