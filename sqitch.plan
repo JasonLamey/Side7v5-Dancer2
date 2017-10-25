@@ -26,3 +26,5 @@ populate_upload_ratings [upload_ratings appuser] 2017-10-25T00:35:33Z Jason Lame
 upload_qualifiers [appuser] 2017-10-25T00:38:19Z Jason Lamey <jasonlamey@gmail.com> # Create the upload_qualifiers table.
 populate_upload_qualifiers [upload_qualifiers appuser] 2017-10-25T01:01:26Z Jason Lamey <jasonlamey@gmail.com> # Populate the upload_qualifiers table.
 user_uploads [users upload_categories upload_classes upload_qualifiers upload_ratings upload_types appuser] 2017-10-25T02:18:58Z Jason Lamey <jasonlamey@gmail.com> # Create user_uploads table.
+faq_categories [appuser] 2017-10-25T16:14:06Z Jason Lamey <jasonlamey@gmail.com> # Create the faq_categories table.
+faq_entries [faq_categories appuser] 2017-10-25T16:14:45Z Jason Lamey <jasonlamey@gmail.com> # Create faq_entries table.
