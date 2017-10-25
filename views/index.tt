@@ -12,6 +12,11 @@
     <div class="grid-x">
       <div class="callout primary cell">
         <h3>Recent Submissions</h3>
+        <div class="grid-x grid-padding-x small-up-2 medium-up-4 large-up-6">
+          [% FOREACH item IN data.recents %]
+          <div class="cell">[% item.title %]</div>
+          [% END %]
+        </div>
       </div>
     </div>
 

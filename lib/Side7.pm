@@ -143,6 +143,16 @@ get '/' => sub
 {
   my $today = DateTime->today;
 
+  my @recents = $SCHEMA->resultset( 'UserUpload' )->search(
+    {
+      upload_rating_id => { 'not in' => [ 4, 8, 12 ] },
+    },
+    {
+      order_by => { -desc => 'uploaded_on' },
+      rows     => 12,
+    }
+  );
+
   my @news = $SCHEMA->resultset( 'News' )->search(
     {
       news_type => 'Standard',
@@ -169,6 +179,7 @@ get '/' => sub
     {
       announcements => \@announcements,
       news          => \@news,
+      recents       => \@recents,
     }
   };
 };
