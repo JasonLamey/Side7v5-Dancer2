@@ -1,0 +1,14 @@
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+
+<div class="grid-container">
+  <div class="grid-x grid-margin-x">
+    <div class="cell small-12 medium-8 medium-offset-2">
+
+      <h2>[% data.category.category %]</h2>
+      <h3>[% data.entry.question %]</h3>
+
+      <div class="callout primary">[% data.entry.answer %]</div>
+
+    </div>
+  </div>
+</div>

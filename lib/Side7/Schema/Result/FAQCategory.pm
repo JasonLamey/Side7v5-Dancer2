@@ -56,30 +56,35 @@ __PACKAGE__->has_many( 'entries' => 'Side7::Schema::Result::FAQEntry', 'faq_cate
 =head1 METHODS
 
 
-=head2 method_name()
+=head2 article_count()
 
-This is a description of the method and what it does.
+Returns an integer indicating how many articles are associated with the current category.
 
 =over 4
 
-=item Input: A description of what the method expects.
+=item Input: None
 
-=item Output: A description of what the method returns.
+=item Output: Integer
 
 =back
 
-  $var = Side7::PackageName->method_name();
+  $count = $faq_category->article_count();
 
 =cut
 
-sub method_name
+sub article_count
 {
+  my $self = shift;
+
+  my $count = $self->search_related( 'entries', {} )->count();
+
+  return $count;
 }
 
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2016, Infinite Monkeys Games L<http://www.infinitemonkeysgames.com>
+Copyright 2017, Side 7 L<http://www.side7.com>
 All rights reserved.
 
 =cut

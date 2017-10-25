@@ -1,0 +1,26 @@
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+
+<div class="grid-container">
+  <div class="grid-x grid-margin-x">
+    <div class="cell small-12 medium-8 medium-offset-2">
+
+      <h2>[% data.category.category %]</h2>
+
+      [% FOREACH entry IN data.entries %]
+
+        <ul class="accordion" data-accordion data-allow-all-closed="true">
+          <li class="accordion-item" data-accordion-item>
+            <a href="#" class="accordion-title"><h5>[% entry.question %]</h5></a>
+
+            <div class="accordion-content" data-tab-content>
+              <a href="/faq/[% data.category.id %]/[% entry.id %]" target="_blank"><i class="fa fa-link fa-fw"></i> Permalink</a><br>
+              [% entry.answer %]
+            </div>
+          </li>
+        </ul>
+
+      [% END %]
+
+    </div>
+  </div>
+</div>

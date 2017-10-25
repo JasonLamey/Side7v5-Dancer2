@@ -301,6 +301,153 @@ get '/news/item/:news_id' => sub
 };
 
 
+=head2 GET C</faq>
+
+Route to get the FAQ page.
+
+=cut
+
+get '/faq' => sub
+{
+  my @categories = $SCHEMA->resultset( 'FAQCategory' )->search(
+    {},
+    {
+      order_by => 'sort_order',
+    }
+  )->all;
+
+  template 'faq',
+  {
+    data =>
+    {
+      categories => \@categories,
+    },
+    title => 'Frequently Asked Questions',
+    breadcrumbs =>
+    [
+      { name => 'FAQ', current => 1 },
+    ]
+  }
+};
+
+
+=head2 GET C</faq/:category_id>
+
+Route to fetch all articles in a FAQ category.
+
+=cut
+
+get '/faq/:category_id' => sub
+{
+  my $category_id = route_parameters->get( 'category_id' );
+
+  if ( ! defined $category_id or $category_id =~ m/\D/ )
+  {
+    flash( warning => '<strong>Say what?</strong><br>Not sure what FAQ category you were looking for.' );
+    redirect '/faq';
+  }
+
+  my $category = $SCHEMA->resultset( 'FAQCategory' )->find( $category_id );
+
+  if
+  (
+    ! defined $category
+    or
+    ref( $category ) ne 'Side7::Schema::Result::FAQCategory'
+  )
+  {
+    flash( error => '<strong>Uh oh! Something went wrong!</strong><br>Could not find the FAQ category you were looking for.' );
+    redirect '/faq';
+  }
+
+  my @entries = $category->search_related( 'entries', {}, { order_by => 'sort_order' } )->all;
+
+  template 'faq_category',
+  {
+    data =>
+    {
+      category => $category,
+      entries  => \@entries,
+    },
+    title => sprintf( 'FAQ | %s', $category->category ),
+    breadcrumbs =>
+    [
+      { name => 'FAQ', link => '/faq' },
+      { name => $category->category, current => 1 },
+    ]
+  }
+
+};
+
+
+=head2 GET C</faq/:category_id/:entry_id>
+
+Route to fetch a specific article in a FAQ category.
+
+=cut
+
+get '/faq/:category_id/:entry_id' => sub
+{
+  my $category_id = route_parameters->get( 'category_id' );
+  my $entry_id    = route_parameters->get( 'entry_id' );
+
+  if ( ! defined $category_id or $category_id =~ m/\D/ )
+  {
+    flash( warning => '<strong>Say what?</strong><br>Not sure what FAQ category you were looking for.' );
+    redirect '/faq';
+  }
+
+  if ( ! defined $entry_id or $entry_id =~ m/\D/ )
+  {
+    flash( warning => '<strong>Say what?</strong><br>Not sure what FAQ entry you were looking for.' );
+    redirect '/faq';
+  }
+
+  my $category = $SCHEMA->resultset( 'FAQCategory' )->find( $category_id );
+
+  if
+  (
+    ! defined $category
+    or
+    ref( $category ) ne 'Side7::Schema::Result::FAQCategory'
+  )
+  {
+    flash( error => '<strong>Uh oh! Something went wrong!</strong><br>Could not find the FAQ category you were looking for.' );
+    redirect '/faq';
+  }
+
+  my $entry = $category->search_related( 'entries', { id => $entry_id } )->single;
+
+  if
+  (
+    ! defined $entry
+    or
+    ref( $entry ) ne 'Side7::Schema::Result::FAQEntry'
+  )
+  {
+    flash( error => '<strong>Uh oh! Something went wrong!</strong><br>Could not find the FAQ entry you were looking for.' );
+    redirect sprintf( '/faq/%d', $category_id );
+  }
+
+  template 'faq_entry',
+  {
+    data =>
+    {
+      category => $category,
+      entry    => $entry,
+    },
+    title => sprintf( 'FAQ | %s', $entry->question ),
+    breadcrumbs =>
+    [
+      { name => 'FAQ', link => '/faq' },
+      { name => $category->category, link => sprintf( '/faq/%d', $category->id ) },
+      { name => $entry->question, current => 1 },
+    ]
+  }
+
+};
+
+
 ################################################
 # ROUTES REQUIRING USER LOGIN
 ################################################
