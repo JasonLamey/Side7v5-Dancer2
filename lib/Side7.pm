@@ -22,6 +22,7 @@ use Side7::Schema;
 use Side7::Util;
 use Side7::Mail;
 use Side7::Log;
+use Side7::Crypt;
 
 our $VERSION = '5.0';
 
@@ -81,6 +82,17 @@ hook after_authenticate_user => sub
 
   if ( ! $success )
   {
+    my $user = $SCHEMA->resultset( 'User' )->search( { username => $username } )->single();
+    if ( defined $user and ref( $user ) eq 'Side7::Schema::Result::User' )
+    {
+      # See if its an old-style password
+      if ( Side7::Crypt::old_side7_crypt( $password ) eq $user->password )
+      {
+        user_password( username => $username, new_password => $password );
+        authenticate_user( $username, $password );
+      }
+    }
+
     flash( error => '<strong>Trying to pull a fast one, eh?</strong><br>Could not log you in as either your username or your password is invalid.' );
     warning sprintf( 'Invalid login attempt - Username: >%s<, Password: >%s<', $username, $password );
 
