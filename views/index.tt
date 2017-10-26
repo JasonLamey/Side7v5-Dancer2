@@ -68,5 +68,11 @@
 <div class="grid-x grid-margin-x">
   <div class="callout secondary small-12 cell">
     <h5>Site Stats &amp; Info</h5>
+
+    <div class="grid-x grid-padding-x align-center">
+      <div class="cell auto"><strong>Active Members:</strong> [% data.stats.active_users || 0 %]</div>
+      <div class="cell auto"><strong>Submissions:</strong> [% data.stats.submissions || 0 %]</div>
+    </div>
+
   </div>
 </div>

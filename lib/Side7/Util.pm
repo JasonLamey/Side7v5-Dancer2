@@ -130,9 +130,37 @@ sub permission_denied_page_handler
 }
 
 
+=head2 commify
+
+Routine to add commas to displayed numbers.
+
+=over
+
+=item INPUT: integer
+
+=item OUTPUT: string containing the number with commas.
+
+=back
+
+  my $number = Side7::Util->commify( $num_w_no_commas );
+
+=cut
+
+sub commify
+{
+  my ( $self, $number ) = @_;
+
+  my $text = reverse $number;
+
+  $text =~ s/(\d\d\d)(?=\d)(?!\d*\.)/$1,/g;
+
+  return scalar reverse $text;
+}
+
+
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2016, Infinite Monkeys Games L<http://www.infinitemonkeysgames.com>
+Copyright 2017, Side 7 L<http://www.side7.com>
 All rights reserved.
 
 =cut

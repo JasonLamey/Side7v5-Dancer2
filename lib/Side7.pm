@@ -155,6 +155,16 @@ get '/' => sub
 {
   my $today = DateTime->today;
 
+  my %stats = ();
+
+  $stats{active_users} = Side7::Util->commify( $SCHEMA->resultset( 'User' )->search(
+    { user_status_id => 2 },
+  )->count );
+
+  $stats{submissions}  = Side7::Util->commify( $SCHEMA->resultset( 'UserUpload' )->search(
+    {}
+  )->count );
+
   my @recents = $SCHEMA->resultset( 'UserUpload' )->search(
     {
       upload_rating_id => { 'not in' => [ 4, 8, 12 ] },
@@ -193,6 +203,7 @@ get '/' => sub
       announcements => \@announcements,
       news          => \@news,
       recents       => \@recents,
+      stats         => \%stats,
     }
   };
 };
