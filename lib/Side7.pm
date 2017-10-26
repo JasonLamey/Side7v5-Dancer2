@@ -160,6 +160,7 @@ get '/' => sub
       upload_rating_id => { 'not in' => [ 4, 8, 12 ] },
     },
     {
+      preload  => [ 'upload_rating', 'upload_category' ],
       order_by => { -desc => 'uploaded_on' },
       rows     => 12,
     }

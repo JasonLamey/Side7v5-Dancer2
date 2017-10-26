@@ -69,6 +69,7 @@ $('.upload-tooltip').tooltipster(
   contentAsHTML: true,
   theme: 'tooltipster-light',
   animation: 'fade',
+  interactive: true,
   // 'instance' is basically the tooltip. More details in the "Object-oriented Tooltipster" section.
   functionBefore: function(instance, helper)
   {

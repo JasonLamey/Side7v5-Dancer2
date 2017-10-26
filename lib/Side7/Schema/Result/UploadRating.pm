@@ -52,7 +52,7 @@ __PACKAGE__->add_columns(
                               is_nullable       => 1,
                               default_value     => undef,
                             },
-                          require_qualifier =>
+                          requires_qualifier =>
                             {
                               data_type         => 'boolean',
                               size              => 1,
