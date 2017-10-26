@@ -444,7 +444,35 @@ get '/faq/:category_id/:entry_id' => sub
       { name => $entry->question, current => 1 },
     ]
   }
+};
 
+
+=head2 GET C</upload-tooltip/:upload_id>
+
+Route to pull via AJAX the HTML contents for a thumbnail tooltip.
+
+=cut
+
+get '/upload-tooltip/:upload_id' => sub
+{
+  my $upload_id = route_parameters->get( 'upload_id' );
+
+  debug( sprintf( 'UPLOAD_ID: %s', $upload_id ) );
+
+  my $upload = $SCHEMA->resultset( 'UserUpload' )->find( $upload_id );
+
+  debug( sprintf( 'UPLOAD: %s', $upload->title ) );
+
+  template 'upload_tooltip',
+    {
+      data =>
+      {
+        upload => $upload,
+      },
+    },
+    {
+      layout => undef
+    };
 };
 
 

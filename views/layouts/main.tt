@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css?family=Athiti|Jockey+One|Share+Tech|Squada+One|Teko&amp;subset=latin-ext" rel="stylesheet">
   <link rel="stylesheet" href="/css/app.css">
   <link rel="stylesheet" href="/css/notifIt.min.css">
+  <link rel="stylesheet" href="/css/tooltipster-sideTip-light.min.css">
 
 <!-- Grab jQuery from a CDN, fall back to local if necessary -->
   <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
