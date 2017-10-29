@@ -34,20 +34,21 @@
         <div class="cell text-right login-signup">
           [% IF session.logged_in_user %]
           <ul class="vertical medium-horizontal dropdown menu" data-responsive-menu="accordion medium-dropdown">
-            <li><a href="#">Inbox</a></li>
+            <li><a href="/user/message_center">Inbox</a></li>
             <li>
               <a href="#">Quick Links</a>
               <ul class="menu vertical nested">
-                <li><a href="#">Your Profile</a>
-                <li><a href="#">Your Gallery</a>
-                <li><a href="#">Your Watchlist</a>
+                <li><a href="/user/profile">Your Feed</a>
+                <li><a href="/user/museum">Your Watchlist</a>
+                <li><a href="/user/gallery">Your Gallery</a>
               </ul>
             </li>
             <li>
-              <a href="#">[AVATAR]</a>
+              <a href="/user">[AVATAR]</a>
               <ul class="menu vertical nested">
-                <li><a href="#">Your Account</a>
-                <li><a href="#">Settings</a>
+                <li><a href="/user">Your Account</a>
+                <li><a href="/user/profile">Your Profile</a>
+                <li><a href="/user/settings">Settings</a>
                 <li><a href="/logout">Logout</a>
               </ul>
             </li>

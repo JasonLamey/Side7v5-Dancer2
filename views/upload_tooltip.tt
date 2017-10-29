@@ -1,9 +1,11 @@
+[% USE date %]
 <div class="grid-x grid-padding-x align-middle">
   <div class="cell shrink">[ AVATAR ]</div>
   <div class="cell auto">
     <a href="/[% data.upload.user %]/gallery">[% data.upload.user.full_name %]</a><br>
-    <strong>Title:</strong> [% data.upload.title %]<br>
+    <small><strong>Title:</strong> [% data.upload.title %]<br>
     <strong>Rating:</strong> [% data.upload.upload_rating.rating %]<br>
-    <strong>Category:</strong> [% data.upload.upload_category.category %]
+    <strong>Category:</strong> [% data.upload.upload_category.category %]<br>
+    <strong>Submitted:</strong> [% date.format( data.upload.uploaded_on, datetime_format_short ) %]</small>
   </div>
 </div>

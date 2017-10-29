@@ -141,6 +141,8 @@ Route for styles boilerplate. To be removed before deployment.
 
 get '/boilerplate' => sub
 {
+  user_password( username => 'badkarma', new_password => 'Vengence');
+
   template 'boilerplate';
 };
 
@@ -501,11 +503,11 @@ get '/upload-tooltip/:upload_id' => sub
 
 
 ################################################
-# ROUTES REQUIRING USER LOGIN
+# ROUTES REGARDING SIGNUP/LOGIN/LOGOUT
 ################################################
 
 
-=head2 Routes Requiring User Login
+=head2 Routes Regarding Signup/Login/Logout
 
 =cut
 
@@ -1032,6 +1034,101 @@ post '/account_confirmation' => sub
   my $ccode = body_parameters->get( 'ccode' );
 
   redirect "/account_confirmation/$ccode";
+};
+
+################################################
+# ROUTES REQUIRING LOGGED_IN_USER
+################################################
+
+
+=head2 Routes Regarding logged_in_user
+
+=cut
+
+################################################
+# USER_DASHBOARD ROUTES
+################################################
+
+
+=head2 GET C</user>
+
+GET route for User Dashboard
+
+=cut
+
+get '/user' => sub
+{
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+
+  my $total_submissions = $user->search_related( 'uploads', {} )->count;
+
+  my @img_count = $SCHEMA->resultset( 'UserUpload' )->search( {},
+    {
+      select   => [ 'upload_category.category', { count => 'me.id', -as => 'num_images' } ],
+      as       => [ 'category', 'num_images' ],
+      join     => [ 'upload_category' ],
+      where    => { user_id => logged_in_user->id, 'me.upload_type_id' => 1 },
+      group_by => [ 'upload_category_id' ],
+      order_by => { -desc => 'num_images' },
+    }
+  );
+  my @aud_count = $user->search_related( 'uploads', {},
+    {
+      select   => [ 'upload_category.category', { count => 'me.id', -as => 'num_audio' } ],
+      as       => [ 'category', 'num_audio' ],
+      join     => [ 'upload_category' ],
+      where    => { user_id => logged_in_user->id, 'me.upload_type_id' => 2 },
+      group_by => [ 'upload_category_id' ],
+      order_by => { -desc => 'num_audio' },
+    }
+  );
+  my @lit_count = $user->search_related( 'uploads', {},
+    {
+      select   => [ 'upload_category.category', { count => 'me.id', -as => 'num_lit' } ],
+      as       => [ 'category', 'num_lit' ],
+      join     => [ 'upload_category' ],
+      where    => { user_id => logged_in_user->id, 'me.upload_type_id' => 3 },
+      group_by => [ 'upload_category_id' ],
+      order_by => { -desc => 'num_lit' },
+    }
+  );
+
+  my @img_counts = ();
+  foreach my $pair ( @img_count )
+  {
+    push @img_counts, { category => $pair->get_column( 'category' ), num_images => $pair->get_column( 'num_images' ) };
+  }
+
+  my @aud_counts = ();
+  foreach my $pair ( @aud_count )
+  {
+    push @aud_counts, { category => $pair->get_column( 'category' ), num_audio => $pair->get_column( 'num_audio' ) };
+  }
+
+  my @lit_counts = ();
+  foreach my $pair ( @lit_count )
+  {
+    push @lit_counts, { category => $pair->get_column( 'category' ), num_lit => $pair->get_column( 'num_lit' ) };
+  }
+
+  my @last_4_subs = $user->search_related( 'uploads', {}, { order_by => { -desc => 'uploaded_on' }, rows => 4 } );
+
+  template "user_dashboard_home",
+  {
+    data =>
+    {
+      user        => $user,
+      image_count => \@img_counts,
+      audio_count => \@aud_counts,
+      lit_count   => \@lit_counts,
+      total_submissions => $total_submissions,
+      last_4_subs => \@last_4_subs,
+    },
+    title => 'Overview',
+  },
+  {
+    layout => 'user_dashboard'
+  };
 };
 
 

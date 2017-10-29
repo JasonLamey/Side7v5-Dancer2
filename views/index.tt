@@ -14,7 +14,7 @@
         <h3>Recent Submissions</h3>
         <div class="grid-x grid-padding-x small-up-2 medium-up-4 large-up-6">
           [% FOREACH item IN data.recents %]
-          <div class="cell"><span class="upload-tooltip" data-tooltipster='{"uid":"[% item.id %]"}'>[% item.title %]</span></div>
+          [% PROCESS 'partials/_upload_thumbnail.tt' %]
           [% END %]
         </div>
       </div>
