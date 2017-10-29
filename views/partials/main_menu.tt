@@ -10,11 +10,12 @@
       <ul class="vertical medium-horizontal dropdown menu" data-responsive-menu="accordion medium-dropdown">
         <li><img src="/images/Side 7 Logo Cropped-800x455.svg" height="40" width="70" alt="Side 7" title="Side 7" border="0"></li>
         <li><a href="/">Main</a></li>
+        <li><a href="/news">News</a></li>
         <li>
           <a href="#">Browse</a>
           <ul class="menu vertical nested">
             <li><a href="#">Recent Submissions</a></li>
-            <li><a href="#">User Profiles</a></li>
+            <li><a href="#">User Directory</a></li>
           </ul>
         </li>
         <li><a href="#">Forums</a></li>

@@ -1,1 +1,11 @@
-<div class="cell"><span class="upload-tooltip" data-tooltipster='{"uid":"[% item.id %]"}'>[% item.title %]</span></div>
+[% TRY %]
+  [% USE File( item.filename ) %]
+  [% thumbnail = item.filename %]
+[% CATCH File %]
+  [% thumbnail = '/images/defaults/original/default_' _ item.upload_type.type.lower _ '.jpg' %]
+[% END %]
+<div class="cell">
+  <span class="upload-tooltip" data-tooltipster='{"uid":"[% item.id %]"}'>
+    <img src="[% thumbnail %]" class="thumbnail">
+  </span>
+</div>
