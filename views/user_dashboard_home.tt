@@ -1,0 +1,275 @@
+[% USE date %]
+
+<div class="grid-container">
+  <div class="grid-x grid-padding-x small-up-1 medium-up-2">
+
+    <div class="cell">
+      <div class="card card-tabs">
+        <div class="card-divider">
+
+          <h6>Your Account Stats</h6>
+
+          <ul class="tabs menu align-right" data-active-collapse="true" data-tabs id="stats-tabs">
+            <li class="tabs-title is-active"><a href="#space" aria-selected="true">
+              <i class="fa fa-hdd-o" aria-hidden="true"></i>
+            </a></li>
+            <li class="tabs-title"><a href="#image">
+              <i class="fa fa-picture-o" aria-hidden="true"></i>
+            </a></li>
+            <li class="tabs-title"><a href="#audio">
+              <i class="fa fa-headphones" aria-hidden="true"></i>
+            </a></li>
+            <li class="tabs-title"><a href="#lit">
+              <i class="fa fa-book" aria-hidden="true"></i>
+            </a></li>
+          </ul>
+
+        </div>
+
+        <div class="tabs-content" data-tabs-content="stats-tabs">
+
+          <div class="tabs-panel is-active" id="space">
+            <div class="card-section align-center text-center">
+              <h5>Your Account Space
+                  <span class="info-tooltip" data-tooltip-content="#drive_space"><i class="fa fa-question-circle"></i></span></h5>
+
+              <div class="circle-graph float-center" data-circle-graph data-percent="35">
+                <div class="circle-graph-progress">
+                  <div class="circle-graph-progress-fill"></div>
+                </div>
+                <div class="circle-graph-percents">
+                  <div class="circle-graph-percents-wrapper">
+                    <span class="circle-graph-percents-number"></span>
+                    <span class="circle-graph-percents-units">Space Used</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="tabs-panel" id="image">
+            <div class="card-section align-center text-center">
+              <h5>Your Image Categories</h5>
+              <div class="float-center align-center text-center" style="height: 250px; width: 300px;">
+                [% IF data.image_count.size > 0 %]
+                <canvas id="img_graph" width="300" height="250"></canvas>
+                [% ELSE %]
+                <h6>You've Added No Images</h6>
+                [% END %]
+              </div>
+            </div>
+          </div>
+
+          <div class="tabs-panel" id="audio">
+            <div class="card-section align-center text-center">
+              <h5>Your Audio Categories</h5>
+              <div class="float-center align-center text-center" style="height: 250px; width: 300px;">
+                [% IF data.audio_count.size > 0 %]
+                <canvas id="aud_graph" width="300" height="250"></canvas>
+                [% ELSE %]
+                <h6>You've Added No Audio</h6>
+                [% END %]
+              </div>
+            </div>
+          </div>
+
+          <div class="tabs-panel" id="lit">
+            <div class="card-section align-center text-center">
+              <h5>Your Literature Categories</h5>
+              <div class="float-center align-center text-center" style="height: 250px; width: 300px;">
+                [% IF data.lit_count.size > 0 %]
+                <canvas id="lit_graph" width="300" height="250"></canvas>
+                [% ELSE %]
+                <h6>You've Added No Literature</h6>
+                [% END %]
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="card">
+
+        <div class="card-divider">
+          <h6>Account Summary</h6>
+        </div>
+
+        <div class="card-section">
+          <strong>Member Since:</strong> [% date.format( data.user.created_at, date_format_long ) %]<br>
+          <strong>Account Status:</strong> [% data.user.status.status %]
+            <span class="info-tooltip" data-tooltip-content="#acct_status_info"><i class="fa fa-question-circle"></i></span><br>
+          <strong>Total Submissions:</strong> [% data.total_submissions || 0 %]<br>
+          <strong>S7 Credits:</strong> [% data.total_credits || 0 %] &middot; <a href="/user/credits_history">View Credits History</a>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="card">
+
+        <div class="card-divider">
+          <h6>Your Last 4 Submissions</h6>
+        </div>
+
+        <div class="card-section">
+
+          <div class="grid-x grid-padding-x small-up-2">
+            [% FOREACH item IN data.last_4_subs %]
+            [% PROCESS 'partials/_upload_thumbnail.tt' %]
+            [% END %]
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="card">
+
+        <div class="card-divider">
+          <h6>Your Quick, Shareable Links</h6>
+        </div>
+
+        <div class="card-section">
+
+          <strong>Your Gallery:</strong>
+            <a href="/[% session.logged_in_user %]/gallery">[% domain_root %]/[% session.logged_in_user %]/gallery</a><br>
+          <strong>Your Profile:</strong>
+            <a href="/[% session.logged_in_user %]/profile">[% domain_root %]/[% session.logged_in_user %]/profile</a>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="tooltip_templates hide">
+  <span id="acct_status_info">
+    <strong>Account Status</strong> is the standing your account has on the site.<br><br>
+    <ul>
+      <li><strong>Active</strong> - Your account is fully accessible.<br></li>
+      <li><strong>Pending</strong> - Your account has not been fully activated. This is completed through following the activation link in the e-mail you were sent when you signed up. If you feel you did not receive that e-mail, check your e-mail account's Junk or Trash folders.<br></li>
+      <li><strong>Suspended</strong> - Your account has been temporarily suspended for administrative reasons.  If you have questions regarding this action, please contact the admins.<br></li>
+      <li><strong>Disabled</strong> - Your account has been permanently disabled for administrative reasons.  If you have questions regarding this action, please contact the admins.</li>
+    </ul>
+  </span>
+  <span id="drive_space">
+    The amount of drive space you have depends upon the type of account you have.<br><br>
+    <ul>
+      <li><strong>Basic Account</strong> - You have a total of 100MB of drive space to use.<br></li>
+      <li><strong>Perk Upgrade</strong> - You have a total of 300MB of drive space to use.<br></li>
+      <li><strong>Gold Account</strong> - You have a total of 500MB of drive space to use.</li>
+    </ul>
+    If you use all of your drive space, you will not be able to upload more submissions until you delete some.
+  </span>
+</div>
+
+<script>
+$(document).ready( function() {
+
+  $('.info-tooltip').tooltipster({
+    contentAsHTML: true,
+    theme: 'tooltipster-light',
+    animation: 'fade',
+    interactive: true,
+    maxWidth: 500
+  });
+
+  $("[data-circle-graph]").each(function() {
+    var $graph = $(this),
+        percent = parseInt($graph.data('percent'), 10),
+        deg = 360*percent/100;
+    if(percent > 50) {
+      $graph.addClass('gt-50');
+    }
+    $graph.find('.circle-graph-progress-fill').css('transform','rotate('+ deg +'deg)');
+    $graph.find('.circle-graph-percents-number').html(percent+'%');
+  });
+
+  var colors = [ '#502f4c', '#5f405b', '#6d526a', '#7c6379', '#8a7488', '#998697', '#a797a5', '#b6a8b4', '#c5bac3', '#d3cbd2', '#e2dce1', '#f0eef0' ];
+
+  var options = {
+    legend: {
+      position: 'bottom',
+      labels: {
+        boxWidth: 15,
+        fontFamily: 'Athiti'
+      }
+    }
+  };
+
+  var ictx = $("#img_graph");[% i = 0 %]
+  var img_data = {
+    datasets: [{
+      data: [[% FOREACH item IN data.image_count %][% item.num_images %][% i = i + 1; LAST IF i == data.image_count.size %],[% END %]],
+      backgroundColor: colors,
+      hoverBorderWidth: 4,
+      hoverBorderColor: colors
+    }],
+    labels: [[% i = 0 %]
+      [% FOREACH item IN data.image_count %]'[% item.category %]'[% i = i + 1; LAST IF i == data.image_count.size %],[% END %]
+    ]
+  };
+  var imgDoughnutChart = new Chart(
+    ictx,
+    {
+      type: 'doughnut',
+      data: img_data,
+      options: options
+    }
+  );
+
+  var actx = $("#aud_graph");[% i = 0 %]
+  var aud_data = {
+    datasets: [{
+      data: [[% FOREACH item IN data.audio_count %][% item.num_audio %][% i = i + 1; LAST IF i == data.audio_count.size %],[% END %]],
+      backgroundColor: colors,
+      hoverBorderWidth: 4,
+      hoverBorderColor: colors
+    }],
+    labels: [[% i = 0 %]
+      [% FOREACH item IN data.audio_count %]'[% item.category %]'[% i = i + 1; LAST IF i == data.audio_count.size %],[% END %]
+    ]
+  };
+  var audDoughnutChart = new Chart(
+    actx,
+    {
+      type: 'doughnut',
+      data: aud_data,
+      options: options
+    }
+  );
+
+  var lctx = $("#lit_graph");[% i = 0 %]
+  var lit_data = {
+    datasets: [{
+      data: [[% FOREACH item IN data.lit_count %][% item.num_lit %][% i = i + 1; LAST IF i == data.lit_count.size %],[% END %]],
+      backgroundColor: colors,
+      hoverBorderWidth: 4,
+      hoverBorderColor: colors
+    }],
+    labels: [[% i = 0 %]
+      [% FOREACH item IN data.lit_count %]'[% item.category %]'[% i = i + 1; LAST IF i == data.lit_count.size %],[% END %]
+    ]
+  };
+  var litDoughnutChart = new Chart(
+    actx,
+    {
+      type: 'doughnut',
+      data: lit_data,
+      options: options
+    }
+  );
+
+
+});
+</script>

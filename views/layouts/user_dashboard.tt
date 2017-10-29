@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="[% settings.charset %]">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>[% IF title %][% title %] | [% END %]Side 7</title>
+  <link href="https://fonts.googleapis.com/css?family=Athiti|Jockey+One|Share+Tech|Squada+One|Teko&amp;subset=latin-ext" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/notifIt.min.css">
+  <link rel="stylesheet" href="/css/tooltipster-sideTip-light.min.css">
+
+<!-- Grab jQuery from a CDN, fall back to local if necessary -->
+  <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js"></script>
+  <script type="text/javascript" src="/javascripts/vendor/notifIt.min.js"></script>
+
+  <!-- FAVICON -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="theme-color" content="#000000">
+  <!-- END FAVICON -->
+
+</head>
+<body>
+  [% PROCESS 'partials/main_menu.tt' %]
+
+  <div class="app-dashboard shrink-medium">
+    <div class="row expanded app-dashboard-top-nav-bar">
+      <div class="columns medium-2">
+        <button data-toggle="app-dashboard-sidebar" class="menu-icon hide-for-medium"></button>
+        <a class="app-dashboard-logo">Your Account</a>
+      </div>
+      <div class="columns show-for-medium text-center">
+        <a class="app-dashboard-logo">[% title %]</a>
+      </div>
+      <div class="columns shrink app-dashboard-top-bar-actions">
+      </div>
+    </div>
+
+    <div class="app-dashboard-body off-canvas-wrapper">
+      <div id="app-dashboard-sidebar" class="app-dashboard-sidebar position-left off-canvas off-canvas-absolute reveal-for-medium" data-off-canvas>
+        <div class="app-dashboard-sidebar-title-area">
+          <div class="app-dashboard-close-sidebar">
+            <h3 class="app-dashboard-sidebar-block-title">Menu</h3>
+            <!-- Close button -->
+            <button id="close-sidebar" data-app-dashboard-toggle-shrink class="app-dashboard-sidebar-close-button show-for-medium" aria-label="Close menu" type="button">
+              <span aria-hidden="true"><a href="#"><i class="large fa fa-angle-double-left"></i></a></span>
+            </button>
+          </div>
+          <div class="app-dashboard-open-sidebar">
+            <button id="open-sidebar" data-app-dashboard-toggle-shrink class="app-dashboard-open-sidebar-button show-for-medium" aria-label="open menu" type="button">
+              <span aria-hidden="true"><a href="#"><i class="large fa fa-angle-double-right"></i></a></span>
+            </button>
+          </div>
+        </div>
+        <div class="app-dashboard-sidebar-inner">
+          <ul class="menu vertical">
+            <li><a href="/user">
+              <i class="large fa fa-user-circle"></i><span class="app-dashboard-sidebar-text">Overview</span>
+            </a></li>
+            <li><a href="/user/feed">
+              <i class="large fa fa-globe"></i><span class="app-dashboard-sidebar-text">Friends Feed</span>
+            </a></li>
+            <li><a href="/user/museum">
+              <i class="large fa fa-bank"></i><span class="app-dashboard-sidebar-text">Museum</span>
+            </a></li>
+            <li><a href="/user/profile">
+              <i class="large fa fa-drivers-license"></i><span class="app-dashboard-sidebar-text">Profile</span>
+            </a></li>
+            <li><a href="/user/gallery">
+              <i class="large fa fa-picture-o"></i><span class="app-dashboard-sidebar-text">Gallery</span>
+            </a></li>
+            <li><a href="/user/message_center">
+              <i class="large fa fa-comments-o"></i><span class="app-dashboard-sidebar-text">Message Center</span>
+            </a></li>
+            <li><a href="/user/settings">
+              <i class="large fa fa-gear"></i><span class="app-dashboard-sidebar-text">Settings</span>
+            </a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="app-dashboard-body-content off-canvas-content" data-off-canvas-content>
+
+        <div class="grid-container fluid">
+
+          [% content %]
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  [% PROCESS 'partials/main-footer.tt' %]
+
+  [% IF flash.error.defined or flash.notify.defined or flash.success.defined or flash.warning.defined %]
+  <script>
+    $(document).ready( function () {
+      [% IF flash.error.defined %]
+      showError( '[% flash.error %]' );
+      [% END %]
+      [% IF flash.warning.defined %]
+      showWarning( '[% flash.warning %]' );
+      [% END %]
+      [% IF flash.notify.defined %]
+      showInfo( '[% flash.notify %]' );
+      [% END %]
+      [% IF flash.success.defined %]
+      showSuccess( '[% flash.success %]' );
+      [% END %]
+    });
+  </script>
+  [% END %]
+
+  <script>
+    $(document).ready( function() {
+      $('[data-app-dashboard-toggle-shrink]').on('click', function(e) {
+        e.preventDefault();
+        $(this).parents('.app-dashboard').toggleClass('shrink-medium').toggleClass('shrink-large');
+      });
+    });
+  </script>
+
+  <script type="text/javascript" src="https://use.fontawesome.com/bbc3509751.js"></script>
+  <script type="text/javascript" src="/javascripts/app.js"></script>
+  <script type="text/javascript" src="/javascripts/s7.js"></script>
+</body>
+</html>

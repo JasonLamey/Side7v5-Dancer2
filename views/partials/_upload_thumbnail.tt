@@ -1,0 +1,1 @@
+<div class="cell"><span class="upload-tooltip" data-tooltipster='{"uid":"[% item.id %]"}'>[% item.title %]</span></div>
