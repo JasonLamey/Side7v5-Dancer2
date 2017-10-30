@@ -31,10 +31,10 @@
         </li>
       </ul>
 
-      <div class="grid-x">
+      <div class="grid-x align-middle">
         <div class="cell text-right login-signup">
           [% IF session.logged_in_user %]
-          <ul class="vertical medium-horizontal dropdown menu" data-responsive-menu="accordion medium-dropdown">
+          <ul class="vertical medium-horizontal dropdown menu align-middle" data-responsive-menu="accordion medium-dropdown">
             <li><a href="/user/message_center">Inbox</a></li>
             <li>
               <a href="#">Quick Links</a>
@@ -45,7 +45,7 @@
               </ul>
             </li>
             <li>
-              <a href="/user">[AVATAR]</a>
+              <a href="/user">[% PROCESS 'partials/_avatar_main_menu.tt' %]</a>
               <ul class="menu vertical nested">
                 <li><a href="/user">Your Account</a>
                 <li><a href="/user/profile">Your Profile</a>

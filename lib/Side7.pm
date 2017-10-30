@@ -483,11 +483,7 @@ get '/upload-tooltip/:upload_id' => sub
 {
   my $upload_id = route_parameters->get( 'upload_id' );
 
-  debug( sprintf( 'UPLOAD_ID: %s', $upload_id ) );
-
   my $upload = $SCHEMA->resultset( 'UserUpload' )->find( $upload_id );
-
-  debug( sprintf( 'UPLOAD: %s', $upload->title ) );
 
   template 'upload_tooltip',
     {

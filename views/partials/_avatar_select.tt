@@ -1,0 +1,6 @@
+[% IF user.avatar_type == 'Gravatar' %]
+[% ELSIF user.avatar_type == 'Image' %]
+[% ELSIF user.avatar_type == 'System' %]
+[% ELSE %]
+  [% thumbnail = '/images/defaults/tiny/default_avatar.png' %]
+[% END %]

@@ -1,0 +1,3 @@
+[% user = session.logged_in_user; thumbnail = '' %]
+[% PROCESS 'partials/_avatar_select.tt' %]
+<img class="main_menu_avatar" src="[% thumbnail %]" alt="[% user.username %]">
