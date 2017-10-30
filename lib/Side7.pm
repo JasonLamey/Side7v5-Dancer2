@@ -113,7 +113,12 @@ hook after_authenticate_user => sub
 
   session 'logged_in_user'       => body_parameters->get( 'username' );
   session 'logged_in_user_realm' => $DPAE_REALM;
+  session 'logged_in_user_ip'    => ( request->header('X-Forwarded-For') // 'Unknown' );
   session->expires( $USER_SESSION_EXPIRE_TIME );
+
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  $user->lastlogin_ip( (request->header('X-Forwarded-For') // 'Unknown' ) );
+  $user->update;
 
   flash( success => sprintf( 'Welcome back, <strong>%s</strong>!', $username ) );
   info sprintf( 'User %s successfully logged in.', $username );
@@ -1109,6 +1114,14 @@ get '/user' => sub
 
   my @last_4_subs = $user->search_related( 'uploads', {}, { order_by => { -desc => 'uploaded_on' }, rows => 4 } );
 
+  my $credits_rs = $user->search_related( 'credits', {},
+    {
+      select => [ { sum => 'amount' } ],
+      as     => [ 'balance' ],
+    }
+  );
+  my $balance = $credits_rs->first->get_column('balance');
+
   template "user_dashboard_home",
   {
     data =>
@@ -1119,6 +1132,7 @@ get '/user' => sub
       lit_count   => \@lit_counts,
       total_submissions => $total_submissions,
       last_4_subs => \@last_4_subs,
+      balance     => $balance,
     },
     title => 'Overview',
   },

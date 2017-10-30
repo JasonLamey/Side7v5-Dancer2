@@ -83,11 +83,13 @@ print "\n";
 
 ######################################
 
-migrate_users();
 migrate_news();
-migrate_images();
 migrate_faq_categories();
 migrate_faq_entries();
+
+migrate_users();
+migrate_images();
+migrate_credits();
 
 ######################################
 
@@ -226,6 +228,74 @@ sub migrate_users
           confirmed           => ( ( uc($row->{'status'}) eq 'PENDING' ) ? 0 : 1 ),
           confirm_code        => $row->{'email_confirmation_code'},
           created_at          => $row->{'join_date'} . ' 00:00:00',
+        }
+      );
+    }
+
+    $next_update = $progress->update( $i ) if $i > $next_update;
+    $i++;
+  }
+  $progress->update( $num_rows ) if $num_rows >= $next_update;
+
+  $sth->finish;
+  print "\n\n";
+}
+
+sub migrate_credits
+{
+  print "S7 Credits Table\n" if $verbose;
+  if ( $interactive )
+  {
+    if ( ! confirm_table( 's7_credits' ) )
+    {
+      return;
+    }
+  }
+
+  # Cleanup the v5 tables from any previous migration attempts
+  print "- Truncating v5 table\n" if $verbose;
+  truncate_table( 's7_credits' );
+
+  # v4 data pull
+  my $sth = $DBH->prepare(
+    'SELECT *
+       FROM account_credit_transactions
+   ORDER BY id'
+  );
+  $sth->execute();
+  my $rv = $sth->fetchall_hashref( 'id' );
+
+  my $num_rows = scalar( keys ( %{$rv} ) );
+  printf "- v4 Rows found: %d\n", $num_rows if $verbose;
+
+  # Import
+  print "- Importing rows\n" if $verbose;
+
+  # Set Up Progress Bar
+  my $progress = Term::ProgressBar->new(
+    {
+      name  => 'S7 Credits Table',
+      count => $num_rows,
+      ETA   => 'linear',
+    }
+  );
+  $progress->max_update_rate(1);
+  my $next_update = 0; my $i = 0;
+
+  foreach my $key ( sort keys ( %{$rv} ) )
+  {
+    my $row = $rv->{$key};
+
+    # Insert new record
+    if ( ! $dryrun )
+    {
+      my $new_user = $SCHEMA->resultset( 'S7Credit' )->create(
+        {
+          id          => $row->{'id'},
+          user_id     => $row->{'user_account_id'},
+          timestamp   => $row->{'timestamp'},
+          amount      => $row->{'amount'},
+          description => $row->{'description'},
         }
       );
     }

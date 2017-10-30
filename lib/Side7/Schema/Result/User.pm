@@ -165,6 +165,12 @@ __PACKAGE__->add_columns(
                               is_nullable       => 1,
                               default_value     => undef,
                             },
+                          lastlogin_ip =>
+                            {
+                              data_type         => 'varchar',
+                              is_nullable       => 1,
+                              default_value     => undef,
+                            },
                           pw_changed =>
                             {
                               data_type         => 'DateTime',
@@ -216,6 +222,7 @@ __PACKAGE__->might_have( 'news' => 'Side7::Schema::Result::News', 'user_id' );
 
 __PACKAGE__->has_many( 'uploads'   => 'Side7::Schema::Result::UserUpload', 'user_id' );
 __PACKAGE__->has_many( 'userroles' => 'Side7::Schema::Result::UserRole',   'user_id' );
+__PACKAGE__->has_many( 'credits'   => 'Side7::Schema::Result::S7Credit',   'user_id' );
 
 __PACKAGE__->many_to_many( 'roles' => 'userroles', 'role' );
 
