@@ -48,7 +48,7 @@ Primary library and route handler for the Side 7 web app.
 =head1 HOOKS
 
 
-=head2 before_template_render
+=head3 before_template_render
 
 Hooks to execute before template renders
 
@@ -65,7 +65,7 @@ hook before_template_render => sub
 };
 
 
-=head2 after_authenticate_user
+=head3 after_authenticate_user
 
 Hooks to execute after a user is authenticated.
 
@@ -133,6 +133,23 @@ hook after_authenticate_user => sub
 
 
 =head1 ROUTES
+
+
+=head2 Redirection Routes
+
+
+=head3 GET C</image.cgim?image_id=nnnnnn>
+
+Old route to view an image.
+
+=cut
+
+get '/image.cgim' => sub
+{
+  my $image_id = query_parameters->get( 'image_id' );
+
+  redirect sprintf( '/content/%d', $image_id );
+};
 
 
 =head2 General Routes
@@ -216,7 +233,7 @@ get '/' => sub
 };
 
 
-=head2 GET C</news/:page>
+=head3 GET C</news/:page>
 
 Route to the news listing page.
 
@@ -265,7 +282,7 @@ get '/news/?:page?' => sub
 };
 
 
-=head2 GET C</news/item/:news_id>
+=head3 GET C</news/item/:news_id>
 
 Route for pulling up a specific news item.
 
@@ -332,7 +349,7 @@ get '/news/item/:news_id' => sub
 };
 
 
-=head2 GET C</faq>
+=head3 GET C</faq>
 
 Route to get the FAQ page.
 
@@ -362,7 +379,7 @@ get '/faq' => sub
 };
 
 
-=head2 GET C</faq/:category_id>
+=head3 GET C</faq/:category_id>
 
 Route to fetch all articles in a FAQ category.
 
@@ -411,7 +428,7 @@ get '/faq/:category_id' => sub
 };
 
 
-=head2 GET C</faq/:category_id/:entry_id>
+=head3 GET C</faq/:category_id/:entry_id>
 
 Route to fetch a specific article in a FAQ category.
 
@@ -478,7 +495,7 @@ get '/faq/:category_id/:entry_id' => sub
 };
 
 
-=head2 GET C</upload-tooltip/:upload_id>
+=head3 GET C</upload-tooltip/:upload_id>
 
 Route to pull via AJAX the HTML contents for a thumbnail tooltip.
 
@@ -513,7 +530,7 @@ get '/upload-tooltip/:upload_id' => sub
 =cut
 
 
-=head2 GET C</reset_password>
+=head3 GET C</reset_password>
 
 Route to reset a user's password.
 
@@ -525,7 +542,7 @@ get '/reset_password' => sub
 };
 
 
-=head2 POST C</reset_password>
+=head3 POST C</reset_password>
 
 Route for posting a username to the system to reset the password, and send out a reset code to the user.
 
@@ -563,7 +580,7 @@ post '/reset_password' => sub
 };
 
 
-=head2 GET C</reset_my_password/:code>
+=head3 GET C</reset_my_password/:code>
 
 Route to submit password reset request code and confirm the request.
 
@@ -603,7 +620,7 @@ get '/reset_my_password/?:code?' => sub
 };
 
 
-=head2 GET C</signup>
+=head3 GET C</signup>
 
 Route to the sign-up form.
 
@@ -615,7 +632,7 @@ get '/signup' => sub
 };
 
 
-=head2 POST C</signup>
+=head3 POST C</signup>
 
 Process sign-up information, and error-check.
 
@@ -711,7 +728,7 @@ post '/signup' => sub
 };
 
 
-=head2 GET C</signed_up>
+=head3 GET C</signed_up>
 
 Successful sign-up page, with next-step instructions for account confirmation.
 
@@ -747,7 +764,7 @@ get '/signed_up' => require_login sub
 };
 
 
-=head2 GET C</resend_confirmation>
+=head3 GET C</resend_confirmation>
 
 Route for a User to request that their confirmation e-mail be resent to them.
 
@@ -804,7 +821,7 @@ get '/resend_confirmation' => sub
 };
 
 
-=head2 POST C</resend_confirmation>
+=head3 POST C</resend_confirmation>
 
 Route to submit credentials for resending confirmation e-mails.
 
@@ -887,7 +904,7 @@ post '/resend_confirmation' => sub
 };
 
 
-=head2 GET C</login>
+=head3 GET C</login>
 
 Login page for redirection, login errors, reattempt, etc.
 
@@ -913,7 +930,7 @@ get '/login' => sub
 };
 
 
-=head2 POST C</login>
+=head3 POST C</login>
 
 Authenticates user, and logs them in.  Otherwise, redirects them to the login page.
 
@@ -934,7 +951,7 @@ post '/login' => sub
 };
 
 
-=head2 ANY C</logout>
+=head3 ANY C</logout>
 
 Logout route, for killing user sessions, and redirecting to the index page.
 
@@ -947,7 +964,7 @@ any '/logout' => sub
 };
 
 
-=head2 ANY C</login/denied>
+=head3 ANY C</login/denied>
 
 User denied access route for authentication failures.
 
@@ -959,7 +976,7 @@ any '/login/denied' => sub
 };
 
 
-=head2 GET C</account_confirmation>
+=head3 GET C</account_confirmation>
 
 GET route for confirmation code submission from welcome e-mails.
 
@@ -1024,7 +1041,7 @@ get '/account_confirmation/:ccode' => sub
 };
 
 
-=head2 POST C</account_confirmation>
+=head3 POST C</account_confirmation>
 
 POST route for confirmation code resubmission.
 
@@ -1051,7 +1068,7 @@ post '/account_confirmation' => sub
 ################################################
 
 
-=head2 GET C</user>
+=head3 GET C</user>
 
 GET route for User Dashboard
 
@@ -1142,7 +1159,7 @@ get '/user' => require_login sub
 };
 
 
-=head2 GET C</user/credit_history>
+=head3 GET C</user/credit_history>
 
 Route to pull up the user's account credit transaction history.
 

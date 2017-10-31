@@ -31,3 +31,4 @@ faq_entries [faq_categories appuser] 2017-10-25T16:14:45Z Jason Lamey <jasonlame
 s7_credits [users appuser] 2017-10-30T02:06:54Z Jason Lamey <jasonlamey@gmail.com> # Creates the s7_credits table.
 user_login_ip [users appuser] 2017-10-30T14:38:00Z Jason Lamey <jasonlamey@gmail.com> # Add a lastlogin_ip field to the users table.
 credit_values [appuser] 2017-10-31T05:10:14Z Jason Lamey <jasonlamey@gmail.com> # Create credit_values lookup table.
+populate_credit_values [credit_values appuser] 2017-10-31T16:46:56Z Jason Lamey <jasonlamey@gmail.com> # Populate the credit_values table.
