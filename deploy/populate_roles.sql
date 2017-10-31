@@ -5,6 +5,6 @@
 BEGIN;
 
 INSERT INTO roles ( role, created_on )
-     VALUES ( 'New Signup', NOW() ), ( 'User', NOW() ), ( 'Moderator', NOW() ), ( 'Admin', NOW() );
+     VALUES ( 'New Signup', NOW() ), ( 'User', NOW() ), ( 'Subscriber', NOW() ), ( 'Moderator', NOW() ), ( 'Admin', NOW() ), ( 'Owner', NOW() );
 
 COMMIT;
