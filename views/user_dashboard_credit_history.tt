@@ -1,0 +1,51 @@
+[% USE date %]
+<div class="grid-container">
+  <div class="grid-x grid-margin-x">
+    <div class="cell">
+
+      <h3>Your S7 Credit Transaction History</h3>
+
+      <table class="hover" id="credit_records">
+
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Amount</th>
+          <th>Balance</th>
+        </tr>
+      </thead>
+
+      <tbody>
+      [% current_balance = data.balance %]
+      [% FOREACH record IN data.transactions %]
+        <tr>
+          <td>[% date.format( record.timestamp, datetime_format_short ) %]</td>
+          <td>[% record.description %]</td>
+          <td class="text-right"><span class="[% IF record.amount >= 0 %]positive_credit[% ELSE %]negative_credit[% END %]">[% record.amount %]</span></td>
+          <td class="text-right"><span class="[% IF current_balance >= 0 %]positive_credit[% ELSE %]negative_credit[% END %]">[% current_balance %]</span></td>
+        </tr>
+        [% current_balance = current_balance - record.amount %]
+      [% END %]
+      </tbody>
+
+      </table>
+
+      <div id="table-nav-wrapper"></div>
+
+    </div>
+  </div>
+</div>
+<script>
+  $(document).ready( function($) {
+    $('#credit_records').paginate(
+      {
+        limit: 20,
+        optional: true,
+        firstText: 'First',
+        lastText: 'Last',
+        navigationWrapper: $('div#table-nav-wrapper')
+      }
+    );
+  });
+</script>

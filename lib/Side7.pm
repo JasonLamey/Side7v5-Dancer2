@@ -1057,7 +1057,7 @@ GET route for User Dashboard
 
 =cut
 
-get '/user' => sub
+get '/user' => require_login sub
 {
   my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
 
@@ -1135,6 +1135,41 @@ get '/user' => sub
       balance     => $balance,
     },
     title => 'Overview',
+  },
+  {
+    layout => 'user_dashboard'
+  };
+};
+
+
+=head2 GET C</user/credit_history>
+
+Route to pull up the user's account credit transaction history.
+
+=cut
+
+get '/user/credit_history' => require_login sub
+{
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+
+  my @transactions = $user->search_related( 'credits', {}, { order_by => { -desc => 'timestamp' } } )->all;
+
+  my $credits_rs = $user->search_related( 'credits', {},
+    {
+      select => [ { sum => 'amount' } ],
+      as     => [ 'balance' ],
+    }
+  );
+  my $balance = $credits_rs->first->get_column('balance');
+
+  template 'user_dashboard_credit_history',
+  {
+    data =>
+    {
+      transactions => \@transactions,
+      balance      => $balance,
+    },
+    title => 'Credit History',
   },
   {
     layout => 'user_dashboard'
