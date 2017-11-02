@@ -1,0 +1,42 @@
+<div class="grid-container">
+  <div class="grid-x grid-margin-x">
+    <div class="cell">
+      <section aria-label="Submission">
+        <h3>[% data.upload.title %] <small>By [% data.upload.user.full_name %]</small></h3>
+
+        [% filename = 'partials/_user_upload_' _ data.upload.upload_type.type.lower _ '.tt' %]
+        [% PROCESS $filename %]
+
+        <div id="share" class="cell small-12 text-center"></div>
+
+        <div class="cell small-12 medium-10 medium-offset-1">
+          <div class="callout primary">
+            <h6>
+              [% data.upload.title %] by
+              <a href="/[% data.upload.user.username %]/gallery">[% data.upload.user.full_name %]
+              (@[% data.upload.user.username %])</a>
+            </h6>
+            [% data.upload.description %]
+          </div>
+        </div>
+      </section>
+
+      <hr>
+
+      <section aria-label="Comments and Critiques">
+        [% PROCESS 'partials/_comment_section.tt' %]
+      </section>
+      <br>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready( function($) {
+    $("#share").jsSocials({
+      shares: ["facebook", "twitter", "pinterest", "googleplus", "stumbleupon", "email"],
+      showCount: "inside"
+    });
+  });
+</script>

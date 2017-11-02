@@ -1,0 +1,75 @@
+[% USE date %]
+<div class="grid-container">
+  <div class="grid-x grid-padding-x text-center align-center">
+    <div class="cell small-12 medium-9">
+      [% TRY %]
+        [% USE File( data.upload.full_filepath ) %]
+      <img src="/galleries/[% data.upload.user.dirpath %]/[% data.upload.filename %]" alt="[% data.upload.title %]" title="[% data.upload.title %]">
+      [% CATCH %]
+      <img src="/images/defaults/original/default_image.jpg">
+      [% END %]
+    </div>
+    <div class="cell small-12 medium-3">
+
+      <div class="callout primary text-left">
+        <div class="grid-x grid-padding-x">
+          <div class="cell small-4">
+            <strong>Category:</strong>
+          </div>
+          <div class="cell small-8">
+            [% data.upload.upload_category.category %]
+          </div>
+          <div class="cell small-4">
+            <strong>Rating:</strong>
+          </div>
+          <div class="cell small-8">
+            [% data.upload.upload_rating.rating %]
+          </div>
+          <div class="cell small-4">
+            <strong>Class:</strong>
+          </div>
+          <div class="cell small-8">
+            [% data.upload.upload_class.class || 'Unclassified' %]
+          </div>
+          <div class="cell small-4">
+            <strong>Submitted:</strong>
+          </div>
+          <div class="cell small-8">
+            [% data.upload.age %]
+          </div>
+          <div class="cell small-4">
+            <strong>Tags:</strong>
+          </div>
+          <div class="cell small-8">
+            [% IF data.upload.tags.defined && data.upload.tags.size > 0 %]
+            [% FOREACH tag IN data.upload.tags %]<span class="label">[% tag.tag %]</span>[% END %]
+            [% ELSE %]None[% END %]
+          </div>
+        </div>
+      </div>
+
+      [% PROCESS 'partials/_user_upload_vote_stats.tt' %]
+
+      <div class="callout secondary">
+        <div class="grid-x grid-padding-x">
+          <div class="cell small-12">
+            <strong>Other Work By [% data.upload.user.full_name %]</strong>
+          </div>
+          <div class="cell small-6">
+            [% IF data.prev_upload.defined %]<a href="/content/[% data.prev_upload.id %]" class="button primary hollow">[% ELSE %]<button class="button primary hollow disabled">[% END %]
+              <i class="fa fa-arrow-left"></i> Previous
+            [% IF data.prev_upload.defined %]</a><br>[% item = data.prev_upload %][% PROCESS 'partials/_upload_thumbnail.tt' %][% ELSE %]</button>[% END %]
+          </div>
+          <div class="cell small-6">
+            [% IF data.next_upload.defined %]<a href="/content/[% data.next_upload.id %]" class="button primary hollow">[% ELSE %]<button class="button primary hollow disabled">[% END %]
+              Next <i class="fa fa-arrow-right"></i>
+            [% IF data.next_upload.defined %]</a><br>[% item = data.next_upload %][% PROCESS 'partials/_upload_thumbnail.tt' %][% ELSE %]</button>[% END %]
+          </div>
+        </div>
+      </div>
+
+      [% PROCESS 'partials/_user_upload_owner_tools.tt' %]
+
+    </div>
+  </div>
+</div>

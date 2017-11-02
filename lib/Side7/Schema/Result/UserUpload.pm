@@ -6,6 +6,9 @@ use warnings;
 # Third Party modules
 use base 'DBIx::Class::Core';
 use DateTime;
+use Cwd;
+use Date::Manip;
+use Time::Duration;
 our $VERSION = '1.0';
 
 
@@ -118,26 +121,59 @@ __PACKAGE__->many_to_many( 'rating_qualifiers' => 'uploadqualifiers', 'upload' )
 =head1 METHODS
 
 
-=head2 method()
+=head2 full_filepath()
 
-TODO: method description
+Returns the full filepath to the upload's file.
 
 =over 4
 
 =item Input: None.
 
-=item Output: None.
+=item Output: String containing the full filepath to the upload file.
 
 =back
 
-  $result = $object->method;
+  my $filepath = $upload->full_filepath;
 
 =cut
 
-sub method
+sub full_filepath
 {
   my ( $self ) = @_;
 
+  my $app_path  = Cwd::getcwd();
+  my $user_path = $self->user->dirpath;
+
+  return sprintf( '%s/public/galleries%s/%s', $app_path, $user_path, $self->filename );
+}
+
+
+=head2 age()
+
+Returns the age of a submission in years, months, days, hours, minutes, colloquially.
+
+=over 4
+
+=item Input: None.
+
+=item Output: String containing the age of the submission.
+
+=back
+
+  my $age = $upload->age;
+
+=cut
+
+sub age
+{
+  my ( $self ) = @_;
+
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+
+  my @seconds = map Date::Manip::UnixDate( $_, '%s'), $now, $self->uploaded_on;
+  my $delta = ( $seconds[0] - $seconds[1] );
+
+  return Time::Duration::ago( $delta, 2 );
 }
 
 

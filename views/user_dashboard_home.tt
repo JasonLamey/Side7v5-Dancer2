@@ -106,8 +106,10 @@
           <strong>Total Submissions:</strong> [% data.total_submissions || 0 %]<br>
           <strong>S7 Credits:</strong> [% data.balance || 0 %] &middot; <a href="/user/credit_history">View Credits History</a><br>
           <br>
-          <strong>Last Login:</strong> [% date.format( data.user.lastlogin, datetime_format_long ) _ ' UTC' || 'Unknown' %]<br>
-          <strong>Last Login IP:</strong>  [% data.user.lastlogin_ip %]
+          <small>
+            <strong>Last Login:</strong> [% date.format( data.user.lastlogin, datetime_format_long ) _ ' UTC' || 'Unknown' %]<br>
+            <strong>Last Login IP:</strong>  [% data.user.lastlogin_ip %]
+          </small>
         </div>
 
       </div>

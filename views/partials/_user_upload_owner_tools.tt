@@ -1,0 +1,12 @@
+[% IF data.upload.user.username.lower == session.logged_in_user.lower %]
+      <div class="callout alert-callout-border warning radius">
+        <div class="grid-x grid-padding-x text-center align-center">
+          <div class="cell small-6">
+            <button class="button warning"><i class="fa fa-pencil"></i> Edit</button>
+          </div>
+          <div class="cell small-6">
+            <button class="button alert"><i class="fa fa-trash"></i> Delete</button>
+          </div>
+        </div>
+      </div>
+[% END %]

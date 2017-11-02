@@ -1,0 +1,35 @@
+      <div class="callout secondary text-left">
+        <div class="grid-x grid-margin-x">
+          <div class="cell small-12 text-center">
+            <ul class="stats-list">
+              <li class="stats-list-positive">
+                <i class="fa fa-thumbs-up"></i> <span id="upvote-count">[% data.upload.votes.upvotes || 0 %]</span>
+              </li>
+              <li class="stats-list-negative">
+                <i class="fa fa-thumbs-down"></i> <span id="downvote-count">[% data.upload.votes.downvotes || 0 %]</span>
+              </li>
+              <li>
+                <i class="fa fa-heart"></i> <span id="favorites-count">[% data.upload.favorites.count || 0 %]</span>
+              </li>
+              <li>
+                <i class="fa fa-eye"></i> [% data.upload.views || 0 %]
+              </li>
+            </ul>
+          </div>
+          <div class="cell small-4 text-center align-center">
+            <button class="button">&nbsp;<i class="fa fa-thumbs-up"></i>&nbsp;</button>
+          </div>
+          <div class="cell small-4 text-center align-center">
+            <button class="button">&nbsp;<i class="fa fa-thumbs-down"></i>&nbsp;</button>
+          </div>
+          <div class="cell small-4 text-center align-center">
+            <button class="button">&nbsp;<i class="fa fa-heart"></i>&nbsp;</button>
+          </div>
+          <div class="cell small-12">
+            <a href="/content/[% data.upload.id %]/watchlist/add"><i class="fa fa-bank"></i> Add Member To Museum</a>
+          </div>
+          <div class="cell small-12">
+            <a href="/content/[% data.upload.id %]/report"><i class="fa fa-flag"></i> Report Submission</a>
+          </div>
+        </div>
+      </div>

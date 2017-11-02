@@ -259,6 +259,30 @@ sub full_name
 }
 
 
+=head2 dirpath()
+
+This method returns the user's directory path based on the user's ID.
+
+=over 4
+
+=item Input: None
+
+=item Output: string containing the user's dirpath
+
+=back
+
+  my $dirpath = $user->dirpath();
+
+=cut
+
+sub dirpath
+{
+  my ( $self ) = @_;
+
+  return sprintf( '/%s/%s/%s', substr( $self->id, 0, 1 ), substr( $self->id, 0, 3 ), $self->id );
+}
+
+
 =head1 COPYRIGHT & LICENSE
 
 Copyright 2017, Side 7 L<http://www.side7.com>

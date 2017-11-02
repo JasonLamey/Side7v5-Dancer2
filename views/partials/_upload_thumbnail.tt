@@ -1,7 +1,7 @@
-[% IF item.upload_type.type == 'Image' %]
+[% IF item.upload_type.type.lower == 'image' %]
   [% TRY %]
-    [% USE File( item.filename ) %]
-    [% thumbnail = item.filename %]
+    [% USE File( item.full_filepath ) %]
+    [% thumbnail = '/galleries' _ item.user.dirpath _ '/' _ item.filename %]
   [% CATCH File %]
     [% thumbnail = '/images/defaults/original/default_image.jpg' %]
   [% END %]
@@ -10,6 +10,6 @@
 [% END %]
 <div class="cell">
   <span class="upload-tooltip" data-tooltipster='{"uid":"[% item.id %]"}'>
-    <img src="[% thumbnail %]" class="thumbnail">
+    <a href="/content/[% item.id %]"><img src="[% thumbnail %]" class="thumbnail"></a>
   </span>
 </div>

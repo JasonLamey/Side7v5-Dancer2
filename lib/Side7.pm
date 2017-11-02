@@ -27,12 +27,13 @@ use Side7::Crypt;
 our $VERSION = '5.0';
 
 const my $DOMAIN_ROOT               => 'http://www.side7.com';
+const my $GALLERIES_ROOT            => '/public/galleries';
 const my $SCHEMA                    => Side7::Schema->db_connect();
 const my $USER_SESSION_EXPIRE_TIME  => 172800; # 48 hours in seconds.
 const my $ADMIN_SESSION_EXPIRE_TIME => 600;    # 10 minutes in seconds.
 const my $DPAE_REALM                => 'site'; # Dancer2::Plugin::Auth::Extensible realm
 
-$SCHEMA->storage->debug(1); # Turns on DB debuging. Turn off for production.
+$SCHEMA->storage->debug(0); # Turns on DB debuging. Turn off for production.
 
 
 =head1 NAME
@@ -493,6 +494,69 @@ get '/faq/:category_id/:entry_id' => sub
     ]
   }
 };
+
+
+=head3 GET C</content/:content_id>
+
+Route to display user-uploaded content.
+
+=cut
+
+get '/content/:content_id' => sub
+{
+  my $content_id = route_parameters->get( 'content_id' );
+
+  if ( ! defined $content_id or $content_id !~ /^\d+$/ )
+  {
+    warning sprintf( 'Invalid content_id provided for /content/:content_id : >%s<', $content_id );
+    send_error( 'Content not found.', 404 );
+  }
+
+  my $upload = $SCHEMA->resultset( 'UserUpload' )->find( $content_id );
+  my $next_upload = $upload->user->search_related( 'uploads',
+      { id => { '>' => $content_id } },
+      { order_by => 'id', rows => 1 } )->single;
+  my $prev_upload = $upload->user->search_related( 'uploads',
+      { id => { '<' => $content_id } },
+      { order_by => { -desc => 'id' }, rows => 1 } )->single;
+
+  if
+  (
+    ! defined $upload
+    or
+    ref( $upload ) ne 'Side7::Schema::Result::UserUpload'
+  )
+  {
+    send_error( 'Content not found.', 404 );
+  }
+
+  $upload->views( $upload->views + 1 );
+  $upload->update;
+
+  template 'user_upload_base.tt',
+  {
+    data =>
+    {
+      upload => $upload,
+      next_upload => $next_upload,
+      prev_upload => $prev_upload,
+    },
+    og =>
+    {
+      url         => sprintf( '%s/content/%d', $DOMAIN_ROOT, $content_id ),
+      description => $upload->description,
+      image       => sprintf( '%s/galleries%s/%s', $DOMAIN_ROOT, $upload->user->dirpath, $upload->filename ),
+    },
+    title => sprintf( '%s By %s', $upload->title, $upload->user->full_name ),
+  };
+};
+
+################################################
+# ROUTES THAT USE AJAX
+################################################
+
+
+=head2 AJAX Routes
 
 
 =head3 GET C</upload-tooltip/:upload_id>
@@ -1201,7 +1265,27 @@ get '/user/credit_history' => require_login sub
 
 =head1 ADDITIONAL METHODS
 
+
+=head3 get_full_user_dirpath()
+
+Returns a string containing a complete user file path.
+
+  my $user_filepath = get_full_user_dirpath( $user );
+
 =cut
+
+sub get_full_user_dirpath
+{
+  my ( $user ) = @_;
+
+  if ( ! defined $user or ref( $user ) ne 'Side7::Schema::Result::User' )
+  {
+    error sprintf( 'Invalid User object passed to "get_full_user_dirpath". >%s<', $user );
+    return;
+  }
+
+  return sprintf( '%s%s%s', path( app->location ), $GALLERIES_ROOT, $user->dirpath );
+}
 
 
 =head1 COPYRIGHT & LICENSE
