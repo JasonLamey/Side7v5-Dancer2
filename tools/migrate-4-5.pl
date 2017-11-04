@@ -9,6 +9,7 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 
 use DateTime;
+use DateTime::Duration;
 use DBI;
 use DBIx::Class;
 use Const::Fast;
@@ -24,8 +25,8 @@ const my $DBH5   => $SCHEMA->storage->dbh;
 const my $DBH    => DBI->connect(
                       "dbi:mysql:database=side7_v4;host=localhost", "webowner", "s7web",
                       {
-                        RaiseError => 0,
-                        PrintError => 0
+                        RaiseError => 1,
+                        PrintError => 1
                       }
                     );
 const my $TODAY  => DateTime->today( time_zone => 'UTC' );
@@ -89,6 +90,8 @@ migrate_faq_entries();
 
 migrate_users();
 migrate_images();
+update_upload_view_totals();
+migrate_upload_views();
 migrate_credits();
 
 ######################################
@@ -156,7 +159,7 @@ sub migrate_users
 
   # Cleanup the v5 tables from any previous migration attempts
   print "- Truncating v5 table\n" if $verbose;
-  truncate_table( 'users' );
+  truncate_table( 'users' ) if ! $dryrun;
 
   # v4 data pull
   my $sth = $DBH->prepare(
@@ -201,8 +204,8 @@ sub migrate_users
       my ( $year, $mon, $day ) = split( /-/, $row->{'birthdate'} );
 
       if ( $year eq '0000' ) { $year = $TODAY->year; }
-      if ( $mon eq '00' )    { $mon  = $TODAY->mon; }
-      if ( $day eq '00' )    { $day  = $TODAY->day; }
+      if ( $mon eq '00' )    { $mon  = $TODAY->mon; $day = '01'; }
+      if ( $day eq '00' )    { $day  = '01' }
 
       $birthday = join( '-', $year, $mon, $day );
     }
@@ -254,7 +257,7 @@ sub migrate_credits
 
   # Cleanup the v5 tables from any previous migration attempts
   print "- Truncating v5 table\n" if $verbose;
-  truncate_table( 's7_credits' );
+  truncate_table( 's7_credits' ) if ! $dryrun;
 
   # v4 data pull
   my $sth = $DBH->prepare(
@@ -322,7 +325,7 @@ sub migrate_news
 
   # Cleanup the v5 tables from any previous migration attempts
   print "- Truncating v5 table\n" if $verbose;
-  truncate_table( 'news' );
+  truncate_table( 'news' ) if ! $dryrun;
 
   my $sth = $DBH->prepare(
     'SELECT *
@@ -396,7 +399,7 @@ sub migrate_images
 
   # Cleanup the v5 tables from any previous migration attempts
   print "- Truncating v5 table\n" if $verbose;
-  truncate_table( 'user_uploads' );
+  truncate_table( 'user_uploads' ) if ! $dryrun;
 
   # v4 data pull
   my $sth = $DBH->prepare(
@@ -458,6 +461,167 @@ sub migrate_images
   print "\n\n";
 }
 
+sub update_upload_view_totals
+{
+  print "Update Upload Views\n" if $verbose;
+  if ( $interactive )
+  {
+    if ( ! confirm_table( 'update_image_views' ) )
+    {
+      return;
+    }
+  }
+
+  # v4 data pull
+  my $sth = $DBH->prepare(
+    'SELECT image_id, SUM(`count`) AS total
+       FROM image_views
+   GROUP BY image_id
+   ORDER BY image_id'
+  );
+  $sth->execute();
+  my $rv = $sth->fetchall_hashref( 'image_id' );
+
+  my $num_rows = scalar( keys ( %{$rv} ) );
+  printf "- v4 Rows found: %d\n", $num_rows if $verbose;
+
+  # Import
+  print "- Importing rows\n" if $verbose;
+
+  # Set Up Progress Bar
+  my $progress = Term::ProgressBar->new(
+    {
+      name  => 'Update Uploads Table',
+      count => $num_rows,
+      ETA   => 'linear',
+    }
+  );
+  $progress->max_update_rate(1);
+  my $next_update = 0; my $i = 0;
+
+  foreach my $key ( sort keys ( %{$rv} ) )
+  {
+    my $row = $rv->{$key};
+
+    # Insert new record
+    if ( ! $dryrun )
+    {
+      my $upload = $SCHEMA->resultset( 'UserUpload' )->find( $row->{'image_id'} );
+
+      if ( ! defined $upload or ref( $upload ) ne 'Side7::Schema::Result::UserUpload' )
+      {
+        $next_update = $progress->update( $i ) if $i > $next_update;
+        $i++;
+        next;
+      }
+
+      $upload->views( $row->{'total'} );
+      $upload->update;
+    }
+
+    $next_update = $progress->update( $i ) if $i > $next_update;
+    $i++;
+  }
+  $progress->update( $num_rows ) if $num_rows >= $next_update;
+
+  $sth->finish;
+  print "\n\n";
+}
+
+sub migrate_upload_views
+{
+  print "Upload Views Table\n" if $verbose;
+  if ( $interactive )
+  {
+    if ( ! confirm_table( 'image_views' ) )
+    {
+      return;
+    }
+  }
+
+  # Cleanup the v5 tables from any previous migration attempts
+  print "- Truncating v5 table\n" if $verbose;
+  truncate_table( 'upload_views' ) if ! $dryrun;
+
+  # v4 data pull
+
+  # Only pulling view data from up to 3 years ago.
+  my $today    = DateTime->today;
+  my $old_date = $today->subtract( years => 3 );
+  print "- Only pulling records from " . $old_date->ymd . " or newer.\n" if $verbose;
+
+  my $rowcount = $DBH->selectrow_hashref(
+    "SELECT COUNT(*) AS num_records
+       FROM image_views
+      WHERE date >= '$old_date->ymd'"
+  );
+  printf "- v4 Rows found: %d\n", $rowcount->{'num_records'} if $verbose;
+
+  my $rvs = {};
+
+  for ( my $i = 0; $i <= $rowcount->{'num_records'}; $i += 1000 )
+  {
+    printf "-- Selecting %s-%s\n", $i, $i+999 if $verbose;
+    my $sth = $DBH->prepare(
+      "SELECT /*+ MAX_EXECUTION_TIME(300000) */ *
+         FROM image_views
+        WHERE date >= '$old_date->ymd'
+     ORDER BY id
+        LIMIT $i, 1000"
+    );
+    $sth->execute();
+    my $rv = $sth->fetchall_hashref( 'id' );
+    foreach my $key ( sort keys ( %{$rv} ) )
+    {
+      $rvs->{$key} = $rv->{$key};
+    }
+    $sth->finish;
+
+    if ( $i != 0 && $i % 2000 == 0 )
+    {
+      # Import
+      print "- Importing rows\n" if $verbose;
+      my $num_rows = scalar( keys( %{$rvs} ) );
+
+      # Set Up Progress Bar
+      my $progress = Term::ProgressBar->new(
+        {
+          name  => 'Upload Views Table',
+          count => $num_rows,
+          ETA   => 'linear',
+        }
+      );
+      $progress->max_update_rate(1);
+      my $next_update = 0; my $j = 0;
+
+      foreach my $key ( sort keys ( %{$rvs} ) )
+      {
+        my $row = $rvs->{$key};
+
+        # Insert new record
+        if ( ! $dryrun )
+        {
+          my $new_user = $SCHEMA->resultset( 'UploadView' )->create(
+            {
+              id                  => $row->{'id'},
+              upload_id           => $row->{'image_id'},
+              views               => $row->{'count'},
+              date                => $row->{'date'},
+            }
+          );
+        }
+
+        $next_update = $progress->update( $j ) if $j > $next_update;
+        $j++;
+      }
+      $progress->update( $num_rows ) if $num_rows >= $next_update;
+      $rvs = {};
+      print "\n";
+    }
+  }
+  print "\n";
+}
+
 sub migrate_faq_categories
 {
   print "FAQ Categories Table\n" if $verbose;
@@ -471,7 +635,7 @@ sub migrate_faq_categories
 
   # Cleanup the v5 tables from any previous migration attempts
   print "- Truncating v5 table\n" if $verbose;
-  truncate_table( 'faq_categories' );
+  truncate_table( 'faq_categories' ) if ! $dryrun;
 
   my $sth = $DBH->prepare(
     'SELECT *
@@ -536,7 +700,7 @@ sub migrate_faq_entries
 
   # Cleanup the v5 tables from any previous migration attempts
   print "- Truncating v5 table\n" if $verbose;
-  truncate_table( 'faq_entries' );
+  truncate_table( 'faq_entries' ) if ! $dryrun;
 
   my $sth = $DBH->prepare(
     'SELECT *

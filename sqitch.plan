@@ -32,3 +32,4 @@ s7_credits [users appuser] 2017-10-30T02:06:54Z Jason Lamey <jasonlamey@gmail.co
 user_login_ip [users appuser] 2017-10-30T14:38:00Z Jason Lamey <jasonlamey@gmail.com> # Add a lastlogin_ip field to the users table.
 credit_values [appuser] 2017-10-31T05:10:14Z Jason Lamey <jasonlamey@gmail.com> # Create credit_values lookup table.
 populate_credit_values [credit_values appuser] 2017-10-31T16:46:56Z Jason Lamey <jasonlamey@gmail.com> # Populate the credit_values table.
+upload_views [user_uploads appuser] 2017-11-03T00:13:30Z Jason Lamey <jasonlamey@gmail.com> # Create upload_views table.

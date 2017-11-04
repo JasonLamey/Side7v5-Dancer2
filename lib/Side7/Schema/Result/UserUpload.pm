@@ -114,6 +114,7 @@ __PACKAGE__->belongs_to( 'upload_category' => 'Side7::Schema::Result::UploadCate
 __PACKAGE__->belongs_to( 'upload_rating'   => 'Side7::Schema::Result::UploadRating',   'upload_rating_id' );
 __PACKAGE__->belongs_to( 'upload_class'    => 'Side7::Schema::Result::UploadClass',    'upload_class_id' );
 
+__PACKAGE__->has_many( 'views'             => 'Side7::Schema::Result::UploadView',      'upload_id' );
 __PACKAGE__->has_many( 'uploadqualifiers'  => 'Side7::Schema::Result::UploadQualifier', 'upload_id' );
 
 __PACKAGE__->many_to_many( 'rating_qualifiers' => 'uploadqualifiers', 'upload' );
