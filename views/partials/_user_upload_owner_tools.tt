@@ -1,12 +1,67 @@
 [% IF data.upload.user.username.lower == session.logged_in_user.lower %]
-      <div class="callout alert-callout-border warning radius">
-        <div class="grid-x grid-padding-x text-center align-center">
-          <div class="cell small-6">
-            <button class="button warning"><i class="fa fa-pencil"></i> Edit</button>
-          </div>
-          <div class="cell small-6">
-            <button class="button alert"><i class="fa fa-trash"></i> Delete</button>
+  <ul class="accordion" data-accordion data-allow-all-closed="true">
+    <li class="accordion-item" data-accordion-item>
+      <a href="#" class="accordion-title">Submission Owner Tools &amp; Stats</a>
+
+      <div class="accordion-content" data-tab-content>
+        <div class="callout alert-callout-border warning radius">
+          <div class="grid-x grid-padding-x text-center align-center">
+            <div class="cell small-12 medium-3">
+              <h6>Edit Submission</h6>
+              <button class="button warning"><i class="fa fa-pencil"></i> Edit</button>
+              <button class="button alert"><i class="fa fa-trash"></i> Delete</button>
+            </div>
+
+            <div class="cell small-12 medium-9">
+              <canvas id="view_graph" height="400" width="600"></canvas>
+            </div>
           </div>
         </div>
       </div>
+
+    </li>
+  </ul>
+
+  <script>
+    $(document).ready( function()
+      {
+        var ctx = $('#view_graph');
+        var data = {
+          datasets: [{
+            label: 'Views',
+            data: [[% i = 0; FOREACH pair IN data.view_dates; FOREACH value IN pair.values %][% value %][% IF i != data.view_dates.max %],[% END; END; i = i + 1; END; %]],
+            backgroundColor: '#998697',
+            borderColor: '#502f4c'
+          }],
+          labels: [[% i = 0; FOREACH pair IN data.view_dates; FOREACH key IN pair.keys %]'[% key %]'[% IF i != data.view_dates.max %],[% END; END; i = i + 1; END; %]]
+        };
+        var options = {
+          label: 'Views',
+          spanGaps: true,
+          title:
+          {
+            display: true,
+            text: 'Views Over Last 30 Days'
+          },
+          scales:
+          {
+            yAxes:
+            [{
+              ticks:
+              {
+                beginAtZero: true
+              }
+            }]
+          }
+        };
+        var myLineChart = new Chart( ctx,
+          {
+            type: 'line',
+            data: data,
+            options: options
+          }
+        );
+      }
+    );
+  </script>
 [% END %]

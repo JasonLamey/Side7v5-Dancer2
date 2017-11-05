@@ -1,18 +1,19 @@
+[% USE Util %]
       <div class="callout secondary text-left">
         <div class="grid-x grid-margin-x">
           <div class="cell small-12 text-center">
             <ul class="stats-list">
               <li class="stats-list-positive">
-                <i class="fa fa-thumbs-up"></i> <span id="upvote-count">[% data.upload.votes.upvotes || 0 %]</span>
+                <i class="fa fa-thumbs-up"></i> <span id="upvote-count">[% Util.commify( data.upload.votes.upvotes ) || 0 %]</span>
               </li>
               <li class="stats-list-negative">
-                <i class="fa fa-thumbs-down"></i> <span id="downvote-count">[% data.upload.votes.downvotes || 0 %]</span>
+                <i class="fa fa-thumbs-down"></i> <span id="downvote-count">[% Util.commify( data.upload.votes.downvotes ) || 0 %]</span>
               </li>
               <li>
-                <i class="fa fa-heart"></i> <span id="favorites-count">[% data.upload.favorites.count || 0 %]</span>
+                <i class="fa fa-heart"></i> <span id="favorites-count">[% Util.commify( data.upload.favorites.count ) || 0 %]</span>
               </li>
               <li>
-                <i class="fa fa-eye"></i> [% data.upload.views || 0 %]
+                <i class="fa fa-eye"></i> [% Util.commify( data.upload.views ) || 0 %]
               </li>
             </ul>
           </div>

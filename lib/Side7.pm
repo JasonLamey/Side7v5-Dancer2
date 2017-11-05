@@ -20,6 +20,7 @@ use Data::Dumper;
 # Side 7 modules
 use Side7::Schema;
 use Side7::Util;
+use Side7::Util::Text;
 use Side7::Mail;
 use Side7::Log;
 use Side7::Crypt;
@@ -513,12 +514,6 @@ get '/content/:content_id' => sub
   }
 
   my $upload = $SCHEMA->resultset( 'UserUpload' )->find( $content_id );
-  my $next_upload = $upload->user->search_related( 'uploads',
-      { id => { '>' => $content_id } },
-      { order_by => 'id', rows => 1 } )->single;
-  my $prev_upload = $upload->user->search_related( 'uploads',
-      { id => { '<' => $content_id } },
-      { order_by => { -desc => 'id' }, rows => 1 } )->single;
 
   if
   (
@@ -530,16 +525,66 @@ get '/content/:content_id' => sub
     send_error( 'Content not found.', 404 );
   }
 
+  my $now = DateTime->today( time_zone => 'UTC' )->ymd;
+
   $upload->views( $upload->views + 1 );
   $upload->update;
+
+  my $upload_views = $upload->search_related( 'view_records', {} );
+  $upload_views->update_or_create(
+    {
+      date      => $now,
+      views     => \'views + 1',
+      upload_id => $content_id
+    },
+    { key => 'upload_views_upload_id_date' }
+  );
+
+  my $next_upload = $upload->user->search_related( 'uploads',
+      { id => { '>' => $content_id } },
+      { order_by => 'id', rows => 1 } )->single;
+  my $prev_upload = $upload->user->search_related( 'uploads',
+      { id => { '<' => $content_id } },
+      { order_by => { -desc => 'id' }, rows => 1 } )->single;
+
+  my @view_dates = ();
+  if ( logged_in_user )
+  {
+    if ( logged_in_user->id == $upload->user->id )
+    {
+      my @last_30_days = $upload->search_related( 'view_records', {}, { order_by => { -desc => 'date' }, rows => 30 } );
+
+      my $stop = DateTime->today;
+      my $start = $stop->clone();
+      $start->subtract( days => 31 );
+      while ( $start->add( days => 1 ) < $stop )
+      {
+        my $found = 0;
+        foreach my $date ( @last_30_days )
+        {
+          if ( $start->ymd('-') eq $date->date )
+          {
+            push @view_dates, { $start->strftime('%d %b') => $date->views };
+            $found = 1;
+            last;
+          }
+        }
+        if ( $found == 0 )
+        {
+          push @view_dates, { $start->strftime('%d %b') => 0 };
+        }
+      }
+    }
+  }
 
   template 'user_upload_base.tt',
   {
     data =>
     {
-      upload => $upload,
+      upload      => $upload,
       next_upload => $next_upload,
       prev_upload => $prev_upload,
+      view_dates  => \@view_dates,
     },
     og =>
     {

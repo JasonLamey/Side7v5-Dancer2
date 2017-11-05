@@ -545,9 +545,9 @@ sub migrate_upload_views
 
   # v4 data pull
 
-  # Only pulling view data from up to 3 years ago.
+  # Only pulling view data from up to 1 year ago.
   my $today    = DateTime->today;
-  my $old_date = $today->subtract( years => 3 );
+  my $old_date = $today->subtract( years => 1 );
   print "- Only pulling records from " . $old_date->ymd . " or newer.\n" if $verbose;
 
   my $rowcount = $DBH->selectrow_hashref(

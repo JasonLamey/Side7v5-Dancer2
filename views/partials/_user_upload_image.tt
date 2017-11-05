@@ -68,8 +68,6 @@
         </div>
       </div>
 
-      [% PROCESS 'partials/_user_upload_owner_tools.tt' %]
-
     </div>
   </div>
 </div>
