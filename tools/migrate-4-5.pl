@@ -89,10 +89,12 @@ migrate_faq_categories();
 migrate_faq_entries();
 
 migrate_users();
+migrate_credits();
+migrate_user_mail();
+
 migrate_images();
 update_upload_view_totals();
 migrate_upload_views();
-migrate_credits();
 
 ######################################
 
@@ -120,7 +122,7 @@ sub confirm_table
 {
   my $table = shift;
 
-  printf "- Migrate table '%s' [Y/n]: ", $table;
+  printf "- Migrate v4 table '%s' [Y/n]: ", $table;
   my $confirm = <STDIN>;
 
   chomp $confirm;
@@ -146,20 +148,49 @@ sub truncate_table
   return;
 }
 
-sub migrate_users
+sub prep_step
 {
-  print "Users Table\n" if $verbose;
+  my ( %params ) = @_;
+
+  my $step        = delete $params{'step'}        // undef;
+  my $v4table     = delete $params{'v4table'}     // undef;
+  my $v5table     = delete $params{'v5table'}     // undef;
+  my $no_truncate = delete $params{'no_truncate'} // 0;
+
+  if
+  (
+    ! defined $step
+    or
+    ! defined $v4table
+    or
+    ! defined $v5table
+  )
+  {
+    die 'Invalid or missing parameters in prep_step.';
+  }
+
+  print "$step\n" if $verbose;
+
+  # If in interactive mode, check if we want to do this step.
   if ( $interactive )
   {
-    if ( ! confirm_table( 'users' ) )
+    if ( ! confirm_table( $v4table ) )
     {
-      return;
+      return 0;
     }
   }
 
   # Cleanup the v5 tables from any previous migration attempts
-  print "- Truncating v5 table\n" if $verbose;
-  truncate_table( 'users' ) if ! $dryrun;
+  print "- Truncating v5 table '$v5table'\n" if $verbose;
+  truncate_table( $v5table ) unless $dryrun or $no_truncate;
+
+  return 1;
+}
+
+sub migrate_users
+{
+  my $prepped = prep_step( step => "Import User's Table", v4table => 'user_accounts', v5table => 'users' );
+  return if $prepped == 0;
 
   # v4 data pull
   my $sth = $DBH->prepare(
@@ -246,18 +277,8 @@ sub migrate_users
 
 sub migrate_credits
 {
-  print "S7 Credits Table\n" if $verbose;
-  if ( $interactive )
-  {
-    if ( ! confirm_table( 's7_credits' ) )
-    {
-      return;
-    }
-  }
-
-  # Cleanup the v5 tables from any previous migration attempts
-  print "- Truncating v5 table\n" if $verbose;
-  truncate_table( 's7_credits' ) if ! $dryrun;
+  my $prepped = prep_step( step => "Import S7 Credits", v4table => 'account_credit_transactions', v5table => 's7_credits' );
+  return if $prepped == 0;
 
   # v4 data pull
   my $sth = $DBH->prepare(
@@ -314,18 +335,8 @@ sub migrate_credits
 
 sub migrate_news
 {
-  print "News Table\n" if $verbose;
-  if ( $interactive )
-  {
-    if ( ! confirm_table( 'news' ) )
-    {
-      return;
-    }
-  }
-
-  # Cleanup the v5 tables from any previous migration attempts
-  print "- Truncating v5 table\n" if $verbose;
-  truncate_table( 'news' ) if ! $dryrun;
+  my $prepped = prep_step( step => "Import News", v4table => 'news', v5table => 'news' );
+  return if $prepped == 0;
 
   my $sth = $DBH->prepare(
     'SELECT *
@@ -388,18 +399,8 @@ sub migrate_news
 
 sub migrate_images
 {
-  print "Images Table\n" if $verbose;
-  if ( $interactive )
-  {
-    if ( ! confirm_table( 'images' ) )
-    {
-      return;
-    }
-  }
-
-  # Cleanup the v5 tables from any previous migration attempts
-  print "- Truncating v5 table\n" if $verbose;
-  truncate_table( 'user_uploads' ) if ! $dryrun;
+  my $prepped = prep_step( step => "Import Images", v4table => 'images', v5table => 'user_uploads' );
+  return if $prepped == 0;
 
   # v4 data pull
   my $sth = $DBH->prepare(
@@ -463,14 +464,8 @@ sub migrate_images
 
 sub update_upload_view_totals
 {
-  print "Update Upload Views\n" if $verbose;
-  if ( $interactive )
-  {
-    if ( ! confirm_table( 'update_image_views' ) )
-    {
-      return;
-    }
-  }
+  my $prepped = prep_step( step => "Populate Total Upload Views", v4table => 'image_views', v5table => 'upload_views', no_truncate => 1 );
+  return if $prepped == 0;
 
   # v4 data pull
   my $sth = $DBH->prepare(
@@ -530,6 +525,8 @@ sub update_upload_view_totals
 
 sub migrate_upload_views
 {
+  my $prepped = prep_step( step => "Import Upload Daily Views", v4table => 'image_views', v5table => 'upload_views' );
+  return if $prepped == 0;
   print "Upload Views Table\n" if $verbose;
   if ( $interactive )
   {
@@ -624,18 +621,8 @@ sub migrate_upload_views
 
 sub migrate_faq_categories
 {
-  print "FAQ Categories Table\n" if $verbose;
-  if ( $interactive )
-  {
-    if ( ! confirm_table( 'faq_categories' ) )
-    {
-      return;
-    }
-  }
-
-  # Cleanup the v5 tables from any previous migration attempts
-  print "- Truncating v5 table\n" if $verbose;
-  truncate_table( 'faq_categories' ) if ! $dryrun;
+  my $prepped = prep_step( step => "Import FAQ Categories", v4table => 'faq_categories', v5table => 'faq_categories' );
+  return if $prepped == 0;
 
   my $sth = $DBH->prepare(
     'SELECT *
@@ -689,18 +676,8 @@ sub migrate_faq_categories
 
 sub migrate_faq_entries
 {
-  print "FAQ Entries Table\n" if $verbose;
-  if ( $interactive )
-  {
-    if ( ! confirm_table( 'faq_entries' ) )
-    {
-      return;
-    }
-  }
-
-  # Cleanup the v5 tables from any previous migration attempts
-  print "- Truncating v5 table\n" if $verbose;
-  truncate_table( 'faq_entries' ) if ! $dryrun;
+  my $prepped = prep_step( step => "Import FAQ Entries", v4table => 'faq_entries', v5table => 'faq_entries' );
+  return if $prepped == 0;
 
   my $sth = $DBH->prepare(
     'SELECT *
@@ -741,6 +718,67 @@ sub migrate_faq_entries
           question        => $row->{'question'},
           answer          => $row->{'answer'},
           sort_order      => $row->{'priority'},
+        }
+      );
+    }
+
+    $next_update = $progress->update( $i ) if $i > $next_update;
+    $i++;
+  }
+  $progress->update( $num_rows ) if $num_rows >= $next_update;
+
+  $sth->finish;
+  print "\n\n";
+}
+
+sub migrate_user_mail
+{
+  my $prepped = prep_step( step => "Import User Mail", v4table => 'forum_private_messages', v5table => 'user_mail' );
+  return if $prepped == 0;
+
+  my $sth = $DBH->prepare(
+    'SELECT *
+       FROM forum_private_messages
+   ORDER BY id'
+  );
+  $sth->execute();
+  my $rv = $sth->fetchall_hashref( 'id' );
+
+  my $num_rows = scalar( keys ( %{$rv} ) );
+  printf "- v4 Rows found: %d\n", $num_rows if $verbose;
+
+  # Import
+  print "- Importing rows\n" if $verbose;
+
+  # Set Up Progress Bar
+  my $progress = Term::ProgressBar->new(
+    {
+      name  => 'User Mail Table',
+      count => $num_rows,
+      ETA   => 'linear',
+    }
+  );
+  $progress->max_update_rate(1);
+  my $next_update = 0; my $i = 0;
+
+  foreach my $key ( sort keys ( %{$rv} ) )
+  {
+    my $row = $rv->{$key};
+
+    # Insert new record
+    if ( ! $dryrun )
+    {
+      my $new_user = $SCHEMA->resultset( 'UserMail' )->create(
+        {
+          id            => $row->{'id'},
+          sender_id     => $row->{'sender_user_account_id'},
+          recipient_id  => $row->{'recipient_user_account_id'},
+          timestamp     => $row->{'timestamp'},
+          subject       => $row->{'subject'},
+          body          => $row->{'body'},
+          is_read       => ( lc($row->{'is_read'})       eq 'true' ) ? 1 : 0,
+          is_replied_to => ( lc($row->{'is_replied_to'}) eq 'true' ) ? 1 : 0,
+          is_deleted    => ( lc($row->{'is_read'})       eq 'true' ) ? 1 : 0,
         }
       );
     }

@@ -220,16 +220,17 @@ __PACKAGE__->set_primary_key( 'id' );
 
 __PACKAGE__->might_have( 'news' => 'Side7::Schema::Result::News', 'user_id' );
 
-__PACKAGE__->has_many( 'uploads'   => 'Side7::Schema::Result::UserUpload', 'user_id' );
-__PACKAGE__->has_many( 'userroles' => 'Side7::Schema::Result::UserRole',   'user_id' );
-__PACKAGE__->has_many( 'credits'   => 'Side7::Schema::Result::S7Credit',   'user_id' );
+__PACKAGE__->has_many( 'uploads'       => 'Side7::Schema::Result::UserUpload', 'user_id' );
+__PACKAGE__->has_many( 'userroles'     => 'Side7::Schema::Result::UserRole',   'user_id' );
+__PACKAGE__->has_many( 'credits'       => 'Side7::Schema::Result::S7Credit',   'user_id' );
+__PACKAGE__->has_many( 'sent_msgs'     => 'Side7::Schema::Result::UserMail',   'sender_id' );
+__PACKAGE__->has_many( 'received_msgs' => 'Side7::Schema::Result::UserMail',   'recipient_id' );
 
 __PACKAGE__->many_to_many( 'roles' => 'userroles', 'role' );
 
 __PACKAGE__->belongs_to( 'gender'  => 'Side7::Schema::Result::UserGender', 'gender_id' );
 __PACKAGE__->belongs_to( 'status'  => 'Side7::Schema::Result::UserStatus', 'user_status_id' );
 __PACKAGE__->belongs_to( 'country' => 'Side7::Schema::Result::Country',    'country_id' );
-
 
 
 =head1 METHODS
