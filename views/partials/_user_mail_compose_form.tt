@@ -1,0 +1,73 @@
+<script type="text/javascript" src="/javascripts/vendor/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="/javascripts/vendor/ckeditor/adapters/jquery.js"></script>
+<div class="grid-x">
+  <div class="cell small-12 medium-10 medium-offset-1">
+
+    <h4>Compose Message</h4>
+
+    <form action="/user/mail/send" method="post" id="user-mail-form" data-abide novalidate>
+
+      <div class="grid-x grid-margin-x">
+
+        <div class="cell small-12">
+          <label for="recipient">To:
+            <input type="text" name="recipient" placeholder="JoeCool1980" id="username_ac" value="[% data.reply_to_mail.sender.username %]" required>
+            <span class="form-error"><i class="fa fa-exclamation-circle"></i> You must input a member's username to send a message.</span>
+          </label>
+
+          <label for="subject">Subject:
+            <input type="text" name="subject" placeholder="Love Your Art!"
+              value="[% IF data.reply_to_mail.defined %][% 'RE: ' UNLESS data.reply_to_all.subject.match('^RE:') %][% data.reply_to_mail.subject %][% END %]">
+          </label>
+        </div>
+
+        <div class="cell small-12">
+          <label for="body">Message:
+            <textarea name="body" id="message_body" rows="10" required>[% IF data.reply_to_mail.defined %]<strong>[% data.reply_to_mail.sender.full_name %] wrote:</strong><blockquote>[% data.reply_to_mail.body %]</blockquote>[% END %]</textarea>
+            <span class="form-error"><i class="fa fa-exclamation-circle"></i> You must have a message in your message.</span>
+          </label>
+        </div>
+      </div>
+
+      <br>
+
+      <div class="cell small-12">
+        <button type="submit" form="#user-mail-form" class="button expanded"><i class="fa fa-paper-plane"></i> Send Message</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<script>
+  $( document ).ready( function($)
+    {
+      CKEDITOR.replace( 'message_body',
+        {
+          uiColor: '#8a7488',
+          toolbarCanCollapse: true
+        }
+      );
+
+    }
+  );
+
+  $('input[name="recipient"]').autoComplete(
+  {
+    source: function(term, response)
+    {
+      try { xhr.abort(); } catch(e){}
+      xhr = $.getJSON(
+        '/util/username_ac',
+        {
+          username: term
+        },
+        function(data)
+        {
+          response(data);
+        }
+      );
+    }
+  });
+</script>

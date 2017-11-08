@@ -1,0 +1,36 @@
+    <meta charset="[% settings.charset %]">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>[% IF title %][% title %] | [% END %]Side 7</title>
+
+    [% IF og.defined %]
+    <meta property="og:url"           content="[% og.url %]" />
+    <meta property="og:type"          content="website" />
+    <meta property="og:description"   content="[% og.description %]" />
+    <meta property="og:image"         content="[% og.image %]" />
+    [% END %]
+
+    <link href="https://fonts.googleapis.com/css?family=Athiti|Jockey+One|Share+Tech|Squada+One|Teko&amp;subset=latin-ext" rel="stylesheet">
+    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/css/notifIt.min.css">
+    <link rel="stylesheet" href="/css/tooltipster-sideTip-light.min.css">
+    <link rel="stylesheet" href="/css/jssocials.css">
+    <link rel="stylesheet" href="/css/jssocials-theme-flat.css">
+    <link rel="stylesheet" href="/css/jquery.auto-complete.css">
+
+  <!-- Grab jQuery from a CDN, fall back to local if necessary -->
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js"></script>
+    <script type="text/javascript" src="/javascripts/vendor/notifIt.min.js"></script>
+    <script type="text/javascript" src="/javascripts/vendor/jquery-paginate.min.js"></script>
+    <script type="text/javascript" src="/javascripts/vendor/jssocials.min.js"></script>
+    <script type="text/javascript" src="/javascripts/vendor/jquery.floatThead.min.js"></script>
+    <script type="text/javascript" src="/javascripts/vendor/jquery.auto-complete.min.js"></script>
+
+    <!-- FAVICON -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#000000">
+    <!-- END FAVICON -->

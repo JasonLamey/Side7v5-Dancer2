@@ -35,7 +35,11 @@
         <div class="cell text-right login-signup">
           [% IF session.logged_in_user %]
           <ul class="vertical medium-horizontal dropdown menu align-middle" data-responsive-menu="accordion medium-dropdown">
-            <li><a href="/user/message_center">Inbox</a></li>
+            <li>
+              <a href="/user/message_center" class="button-badge"><i class="fa fa-envelope"></i>
+              [% IF new_mail_count > 0 %]<span class="badge alert" id="notification-count">[% IF new_mail_count > 99 %]99+[% ELSE %][% new_mail_count %][% END %]</span>[% END %]
+              </a>
+            </li>
             <li>
               <a href="#">Quick Links</a>
               <ul class="menu vertical nested">

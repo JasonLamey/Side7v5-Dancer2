@@ -223,8 +223,8 @@ __PACKAGE__->might_have( 'news' => 'Side7::Schema::Result::News', 'user_id' );
 __PACKAGE__->has_many( 'uploads'       => 'Side7::Schema::Result::UserUpload', 'user_id' );
 __PACKAGE__->has_many( 'userroles'     => 'Side7::Schema::Result::UserRole',   'user_id' );
 __PACKAGE__->has_many( 'credits'       => 'Side7::Schema::Result::S7Credit',   'user_id' );
-__PACKAGE__->has_many( 'sent_msgs'     => 'Side7::Schema::Result::UserMail',   'sender_id' );
-__PACKAGE__->has_many( 'received_msgs' => 'Side7::Schema::Result::UserMail',   'recipient_id' );
+__PACKAGE__->has_many( 'sent_mail'     => 'Side7::Schema::Result::UserMail',   'sender_id' );
+__PACKAGE__->has_many( 'received_mail' => 'Side7::Schema::Result::UserMail',   'recipient_id' );
 
 __PACKAGE__->many_to_many( 'roles' => 'userroles', 'role' );
 
@@ -281,6 +281,30 @@ sub dirpath
   my ( $self ) = @_;
 
   return sprintf( '/%s/%s/%s', substr( $self->id, 0, 1 ), substr( $self->id, 0, 3 ), $self->id );
+}
+
+
+=head2 new_mail_count()
+
+This method returns the user's count of new mail items.
+
+=over 4
+
+=item Input: None
+
+=item Output: integer representing a count of the number of new mail items.
+
+=back
+
+  my $new_mail_count = $user->new_mail_count();
+
+=cut
+
+sub new_mail_count
+{
+  my ( $self ) = @_;
+
+  return $self->search_related( 'received_mail', { is_read => 0 } )->count;
 }
 
 

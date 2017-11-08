@@ -64,6 +64,11 @@ hook before_template_render => sub
   $tokens->{datetime_format_long}  = config->{datetime_format_long};
   $tokens->{date_format_short}     = config->{date_format_short};
   $tokens->{date_format_long}      = config->{date_format_long};
+  if ( logged_in_user )
+  {
+    my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+    $tokens->{new_mail_count} = $user->new_mail_count // 0;
+  }
 };
 
 
@@ -1303,9 +1308,300 @@ get '/user/credit_history' => require_login sub
 };
 
 
+=head3 GET C</user/message_center>
+
+Route to pull up the user's message center page.
+
+=cut
+
+get '/user/message_center' => require_login sub
+{
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+
+  my $mail_rs = $user->received_mail( {}, { order_by => { -desc => 'timestamp' } } );
+  my $mail_count = $mail_rs->count();
+  my $unread_count = $mail_rs->search( { is_read => 0 } )->count();
+  my @all_mail = $mail_rs->all();
+
+  template 'user_dashboard_message_center',
+  {
+    data =>
+    {
+      all_mail     => \@all_mail,
+      mail_count   => $mail_count,
+      unread_count => $unread_count,
+      folder       => 'Inbox',
+    },
+    title => 'Messages',
+  },
+  {
+    layout => 'user_dashboard'
+  };
+};
+
+
+################################################
+# ROUTES THAT USE AJAX
+################################################
+
+
+=head3 GET C</user/mail_folder/:folder>
+
+Route to retrieve a specific message, its details, and return it templetized.
+
+=cut
+
+get '/user/mail_folder/:folder' => require_login sub
+{
+  my $folder  = route_parameters->get( 'folder' ) // 'Inbox';
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+
+  my @all_mail = ();
+  my $mail_count = 0;
+  my $unread_count = 0;
+
+  if ( lc( $folder ) eq 'trash' )
+  {
+    my $mail_rs = $SCHEMA->resultset( 'UserMail' )->search(
+      {
+        -and =>
+        [
+          is_deleted => 1,
+          -or =>
+          [
+            {recipient_id => $user->id}, {sender_id => $user->id}
+          ],
+        ],
+      },
+      { order_by => { -desc => 'timestamp' } }
+    );
+    $mail_count = $mail_rs->count();
+    $unread_count = $mail_rs->search( { is_read => 0 } )->count();
+    @all_mail = $mail_rs->all();
+
+  }
+  elsif ( lc( $folder ) eq 'sent' )
+  {
+    my $mail_rs = $user->sent_mail( {}, { order_by => { -desc => 'timestamp' } } );
+    $mail_count = $mail_rs->count();
+    $unread_count = $mail_rs->search( { is_read => 0 } )->count();
+    @all_mail = $mail_rs->all();
+  }
+  else
+  {
+    my $mail_rs = $user->received_mail( {}, { order_by => { -desc => 'timestamp' } } );
+    $mail_count = $mail_rs->count();
+    $unread_count = $mail_rs->search( { is_read => 0 } )->count();
+    @all_mail = $mail_rs->all();
+  }
+
+
+  my @json = ();
+
+  my $output = template 'partials/_user_mail_list_table.tt',
+  {
+    data =>
+    {
+      all_mail     => \@all_mail,
+      folder       => $folder,
+    },
+  },
+  {
+    layout => '',
+  };
+
+  push( @json,
+    {
+      success      => 1,
+      mail_list    => $output,
+      mail_count   => $mail_count,
+      unread_count => $unread_count,
+    }
+  );
+  return to_json( \@json );
+};
+
+
+=head3 GET C</user/mail/:mail_id/:folder>
+
+Route to retrieve a specific message, its details, and return it templetized.
+
+=cut
+
+get '/user/mail/:mail_id/:folder' => require_login sub
+{
+  my $mail_id = route_parameters->get( 'mail_id' );
+  my $folder  = route_parameters->get( 'folder' ) // 'Inbox';
+
+  my @json = ();
+
+  if ( ! $mail_id or $mail_id =~ m/\D/ )
+  {
+    warn( sprintf( 'Invalid or bad mail_id in /user/mail/:mail_id/:folder : %s', $mail_id ) );
+    push( @json,
+      {
+        message => 'Could not find the mail message you were requesting.',
+        success => 0,
+      }
+    );
+    return to_json( \@json );
+  }
+
+
+  my $related = 'received_mail';
+  my $deleted = 0;
+  if ( $folder eq 'Sent'  ) { $related = 'sent_mail'; }
+  if ( $folder eq 'Trash' ) { $deleted = 1; }
+
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $message = $user->search_related( $related, { id => $mail_id } )->single;
+
+  my $increment = 0;
+  if ( $message->is_read == 0 ) { $increment = 1; }
+
+  if
+  (
+    ( ( lc($folder) eq 'inbox' or lc($folder) eq 'trash' ) and $message->recipient_id != $user->id )
+    or
+    ( lc($folder) eq 'sent' and $message->sender_id != $user->id )
+  )
+  {
+    warn( sprintf( 'User %s attempted to access mail not associated to their account: ID:%s', $user->username, $message->id ) );
+    push( @json,
+      {
+        message => 'Could not find the mail message you were requesting.',
+        success => 0,
+      }
+    );
+    return to_json( \@json );
+  }
+
+  my $next_msg = $user->search_related( $related,
+      { id => { '>' => $mail_id }, is_deleted => $deleted },
+      { order_by => 'id', rows => 1 } )->single;
+  my $prev_msg = $user->search_related( $related,
+      { id => { '<' => $mail_id }, is_deleted => $deleted },
+      { order_by => { -desc => 'id' }, rows => 1 } )->single;
+
+  my $output = template 'user_mail_body',
+  {
+    data =>
+    {
+      message      => $message,
+      next_message => $next_msg,
+      prev_message => $prev_msg,
+      folder       => $folder,
+    },
+  },
+  { layout => '' };
+
+  $message->is_read( 1 );
+  $message->update;
+
+  push( @json,
+    {
+      success   => 1,
+      content   => $output,
+      increment => $increment,
+    }
+  );
+  return to_json( \@json );
+};
+
+
+=head3 GET C</user/newmail/?:mail_id?>
+
+Route to fetch and display the compose mail function, with our without reply quote.
+
+=cut
+
+get '/user/newmail/?:mail_id?' => require_login sub
+{
+  my $mail_id = route_parameters->get( 'mail_id' ) // undef;
+
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+
+  my $mail = $SCHEMA->resultset( 'UserMail' )->find( $mail_id ) if defined $mail_id and $mail_id =~ /^\d+$/;
+
+  if ( defined $mail and ref( $mail ) eq 'Side7::Schema::Result::UserMail' )
+  {
+    if ( $mail->recipient_id ne logged_in_user->id )
+    {
+      warn( sprintf( 'User %s attempted to quote and reply to mail not associated to their account: ID:%s', $user->username, $mail->id ) );
+      $mail = undef;
+    }
+  }
+
+  my @json = ();
+
+  my $output = template 'partials/_user_mail_compose_form.tt',
+  {
+    data =>
+    {
+      user          => $user,
+      reply_to_mail => $mail,
+    },
+  },
+  {
+    layout => '',
+  };
+
+  push( @json,
+    {
+      success => 1,
+      content => $output,
+    }
+  );
+  return to_json( \@json );
+};
+
+
+=head3 GET C</util/username_ac>
+
+Route to fetch a suggestion list for auto-complete.
+
+=cut
+
+get '/util/username_ac' => require_login sub
+{
+  my $username = body_parameters->get( 'username' );
+
+  my @usernames = $SCHEMA->resultset( 'User' )->search( undef,
+    {
+      columns => [ 'username' ],
+      where   =>
+      {
+        username       => { 'like' => $username },
+        user_status_id => 2
+      },
+    }
+  );
+
+  my @suggestions = ();
+  if ( scalar( @usernames ) > 0 )
+  {
+    foreach my $record ( @usernames )
+    {
+      push @suggestions, $record->username;
+    }
+  }
+
+  return to_json( \@suggestions );
+};
+
+
+################################################
+# ADMIN ROUTES
+################################################
+
+
 =head2 Admin Routes
 
 =cut
+
+################################################
+# ADDITIONAL METHODS
+################################################
 
 
 =head1 ADDITIONAL METHODS
