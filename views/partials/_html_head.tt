@@ -15,7 +15,6 @@
     <link rel="stylesheet" href="/css/tooltipster-sideTip-light.min.css">
     <link rel="stylesheet" href="/css/jssocials.css">
     <link rel="stylesheet" href="/css/jssocials-theme-flat.css">
-    <link rel="stylesheet" href="/css/jquery.auto-complete.css">
 
   <!-- Grab jQuery from a CDN, fall back to local if necessary -->
     <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
@@ -24,7 +23,8 @@
     <script type="text/javascript" src="/javascripts/vendor/jquery-paginate.min.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/jssocials.min.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/jquery.floatThead.min.js"></script>
-    <script type="text/javascript" src="/javascripts/vendor/jquery.auto-complete.min.js"></script>
+    <script type="text/javascript" src="/javascripts/vendor/ckeditor/ckeditor.js"></script>
+    <script type="text/javascript" src="/javascripts/vendor/ckeditor/adapters/jquery.js"></script>
 
     <!-- FAVICON -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">

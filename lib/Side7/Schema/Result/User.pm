@@ -304,7 +304,7 @@ sub new_mail_count
 {
   my ( $self ) = @_;
 
-  return $self->search_related( 'received_mail', { is_read => 0 } )->count;
+  return $self->search_related( 'received_mail', { is_read => 0, is_deleted => 0 } )->count;
 }
 
 

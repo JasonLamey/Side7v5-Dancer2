@@ -4,25 +4,32 @@
 
     <div class="cell small-12">
       <div class="grid-x">
-        <div class="cell small-3">
+        <div class="cell small-12 medium-6">
           <div class="button-group">
-            <a class="button small" onClick="selectFolder( 'Inbox' );">Inbox</a>
-            <a class="button small" onClick="selectFolder( 'Sent' );">Sent</a>
-            <a class="button small" onClick="selectFolder( 'Trash' );">Trash</a>
+            <a class="button small" onClick="selectFolder( 'Inbox' );"><i class="fa fa-inbox"></i> Inbox</a>
+            <a class="button small" onClick="selectFolder( 'Sent' );"><i class="fa fa-paper-plane-o"></i> Sent</a>
+            <a class="button small" onClick="selectFolder( 'Trash' );"><i class="fa fa-trash"></i> Trash</a>
           </div>
         </div>
-        <div class="cell small-4">
+        <div class="cell small-12 medium-6">
           <div class="button-group">
             <a class="button small" onClick="composeMessage();"><i class="fa fa-pencil"></i> New Message</a>
-            <a class="button small"><i class="fa fa-trash"></i> Delete Checked</a>
+            <a class="button small" onClick="deleteMessages( getCheckedBoxes() );"><i class="fa fa-trash"></i> Delete Checked</a>
           </div>
         </div>
+        <div class="cell small-12 medium-8">
+          <h5 id="folder-name">Folder: <small>[% data.folder %] ( Messages: [% data.mail_count %] | Unread: <span id="unread-count">[% data.unread_count %]</span> )</small></h5>
+        </div>
+        <div class="cell small-12 medium-4" id="filter-mail">
+          <a class="button tiny warning" id="filter-button" onClick="filterFolder( '[% data.folder %]', 1 );">Hide System Messages</a>
+        </div>
       </div>
-      <h5 id="folder-name">Folder: <small>[% data.folder %] ( Messages: [% data.mail_count %] | Unread: <span id="unread-count">[% data.unread_count %]</span> )</small></h5>
     </div>
 
     <div class="cell small-12 user-mail-list-wrapper">
+      <form id="user-mail-list-table" method="post" action="/user/mail/delete">
       [% PROCESS 'partials/_user_mail_list_table.tt' %]
+      </form>
     </div>
 
     <div class="cell small-12" id="user-mail-display">

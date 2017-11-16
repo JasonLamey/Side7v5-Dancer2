@@ -1,5 +1,3 @@
-<script type="text/javascript" src="/javascripts/vendor/ckeditor/ckeditor.js"></script>
-<script type="text/javascript" src="/javascripts/vendor/ckeditor/adapters/jquery.js"></script>
 <div class="grid-x">
   <div class="cell small-12 medium-10 medium-offset-1">
 
@@ -32,7 +30,7 @@
       <br>
 
       <div class="cell small-12">
-        <button type="submit" form="#user-mail-form" class="button expanded"><i class="fa fa-paper-plane"></i> Send Message</button>
+        <button type="submit" id="sendUserMail" form="user-mail-form" class="button expanded"><i class="fa fa-paper-plane"></i> Send Message</button>
       </div>
 
     </form>
@@ -43,6 +41,7 @@
 <script>
   $( document ).ready( function($)
     {
+
       CKEDITOR.replace( 'message_body',
         {
           uiColor: '#8a7488',
@@ -50,24 +49,31 @@
         }
       );
 
+      input_autocomplete( '#username_ac' );
+
+      $("#user-mail-form").bind( "submit",
+        function(e)
+        {
+          e.preventDefault();
+          validateAndSend( '#user-mail-form' );
+
+          //var url = $('#user-mail-form').attr('action');
+
+          //$.ajax(
+          //{
+            //type: "POST",
+            //url: url,
+            //data: $('#user-mail-form').serialize(),
+            //success: function(data)
+            //{
+              //$('#user-mail-display').html( data[0].content );
+            //}
+          //});
+
+        }
+      );
+
     }
   );
 
-  $('input[name="recipient"]').autoComplete(
-  {
-    source: function(term, response)
-    {
-      try { xhr.abort(); } catch(e){}
-      xhr = $.getJSON(
-        '/util/username_ac',
-        {
-          username: term
-        },
-        function(data)
-        {
-          response(data);
-        }
-      );
-    }
-  });
 </script>

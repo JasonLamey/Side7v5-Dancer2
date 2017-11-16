@@ -13,8 +13,8 @@
         [% FOREACH mail IN data.all_mail %]
           [% NEXT IF data.folder != 'Trash' && mail.is_deleted %]
           [% NEXT IF data.folder == 'Trash' && ! mail.is_deleted %]
-          <tr>
-            <td class="text-center align-center"><input type="checkbox" value="1" name="delete-[% mail.id %]"></td>
+          <tr id="[% mail.id %]">
+            <td class="text-center align-center"><input type="checkbox" value="[% mail.id %]" name="delete_mail"></td>
             <td class="text-center align-center" id="icon-[% mail.id %]">
             [% IF mail.is_replied_to %]
               <i class="fa fa-reply"></i>

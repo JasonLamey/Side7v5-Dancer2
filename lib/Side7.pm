@@ -16,6 +16,7 @@ use DBICx::Sugar;
 use DateTime;
 use Const::Fast;
 use Data::Dumper;
+use URL::Encode;
 
 # Side 7 modules
 use Side7::Schema;
@@ -615,7 +616,7 @@ Route to pull via AJAX the HTML contents for a thumbnail tooltip.
 
 =cut
 
-get '/upload-tooltip/:upload_id' => sub
+ajax '/upload-tooltip/:upload_id' => sub
 {
   my $upload_id = route_parameters->get( 'upload_id' );
 
@@ -1318,10 +1319,10 @@ get '/user/message_center' => require_login sub
 {
   my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
 
-  my $mail_rs = $user->received_mail( {}, { order_by => { -desc => 'timestamp' } } );
-  my $mail_count = $mail_rs->count();
+  my $mail_rs      = $user->received_mail( { is_deleted => 0 }, { order_by => { -desc => 'timestamp' } } );
+  my $mail_count   = $mail_rs->count();
   my $unread_count = $mail_rs->search( { is_read => 0 } )->count();
-  my @all_mail = $mail_rs->all();
+  my @all_mail     = $mail_rs->all();
 
   template 'user_dashboard_message_center',
   {
@@ -1345,28 +1346,39 @@ get '/user/message_center' => require_login sub
 ################################################
 
 
-=head3 GET C</user/mail_folder/:folder>
+=head3 GET C</user/mail_folder/:folder/:filtered>
 
-Route to retrieve a specific message, its details, and return it templetized.
+Route to retrieve a mail messages from a folder.
 
 =cut
 
-get '/user/mail_folder/:folder' => require_login sub
+ajax '/user/mail_folder/:folder/?:filtered?' => require_login sub
 {
-  my $folder  = route_parameters->get( 'folder' ) // 'Inbox';
+  my $folder   = route_parameters->get( 'folder' )   // 'Inbox';
+  my $filtered = route_parameters->get( 'filtered' ) // 0;
   my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
 
-  my @all_mail = ();
-  my $mail_count = 0;
+  debug sprintf( 'Folder: >%s< / Filtered: >%s<', $folder, $filtered );
+
+  my @all_mail     = ();
+  my $mail_count   = 0;
   my $unread_count = 0;
 
+  my %filter_search = ();
+  if ( $filtered == 1 )
+  {
+    %filter_search = ( sender_id => { '!=' => 0 } );
+  }
+
+  my $mail_rs = '';
   if ( lc( $folder ) eq 'trash' )
   {
-    my $mail_rs = $SCHEMA->resultset( 'UserMail' )->search(
+    $mail_rs = $SCHEMA->resultset( 'UserMail' )->search(
       {
         -and =>
         [
           is_deleted => 1,
+          %filter_search,
           -or =>
           [
             {recipient_id => $user->id}, {sender_id => $user->id}
@@ -1375,26 +1387,21 @@ get '/user/mail_folder/:folder' => require_login sub
       },
       { order_by => { -desc => 'timestamp' } }
     );
-    $mail_count = $mail_rs->count();
-    $unread_count = $mail_rs->search( { is_read => 0 } )->count();
-    @all_mail = $mail_rs->all();
 
   }
   elsif ( lc( $folder ) eq 'sent' )
   {
-    my $mail_rs = $user->sent_mail( {}, { order_by => { -desc => 'timestamp' } } );
-    $mail_count = $mail_rs->count();
-    $unread_count = $mail_rs->search( { is_read => 0 } )->count();
-    @all_mail = $mail_rs->all();
+    $mail_rs = $user->sent_mail( { is_deleted => 0, %filter_search }, { order_by => { -desc => 'timestamp' } } );
   }
   else
   {
-    my $mail_rs = $user->received_mail( {}, { order_by => { -desc => 'timestamp' } } );
-    $mail_count = $mail_rs->count();
-    $unread_count = $mail_rs->search( { is_read => 0 } )->count();
-    @all_mail = $mail_rs->all();
+    $mail_rs = $user->received_mail( { is_deleted => 0, %filter_search }, { order_by => { -desc => 'timestamp' } } );
   }
+  $mail_count   = $mail_rs->count();
+  $unread_count = $mail_rs->search( { is_read => 0 } )->count();
+  @all_mail     = $mail_rs->all();
 
+  debug sprintf( 'Mail Count: %s / Unread Count: %s', ($mail_count // 0), ($unread_count // 0) );
 
   my @json = ();
 
@@ -1428,7 +1435,7 @@ Route to retrieve a specific message, its details, and return it templetized.
 
 =cut
 
-get '/user/mail/:mail_id/:folder' => require_login sub
+ajax '/user/mail/:mail_id/:folder' => require_login sub
 {
   my $mail_id = route_parameters->get( 'mail_id' );
   my $folder  = route_parameters->get( 'folder' ) // 'Inbox';
@@ -1515,7 +1522,7 @@ Route to fetch and display the compose mail function, with our without reply quo
 
 =cut
 
-get '/user/newmail/?:mail_id?' => require_login sub
+ajax '/user/newmail/?:mail_id?' => require_login sub
 {
   my $mail_id = route_parameters->get( 'mail_id' ) // undef;
 
@@ -1556,25 +1563,163 @@ get '/user/newmail/?:mail_id?' => require_login sub
 };
 
 
-=head3 GET C</util/username_ac>
+=head3 AJAX C</user/mail/send>
+
+Route for sending a mail message from one user to another.
+
+=cut
+
+ajax '/user/mail/send' => require_login sub
+{
+  my $recipient_un = query_parameters->get( 'recipient' );
+  my $subject      = query_parameters->get( 'subject' );
+  my $body         = query_parameters->get( 'body' );
+
+  my @json = ();
+
+  if ( ! defined $recipient_un or $recipient_un eq '' )
+  {
+    error sprintf( 'Could not send user message. Invalid or undefined recipient: %s', $recipient_un );
+    @json = (
+      {
+        success => 0,
+        message => '<strong>I am not a mind reader.</strong><br>Your message could not be sent because you didn\'t tell me who to send it to.',
+      }
+    );
+    return to_json( \@json );
+  }
+
+  if ( ! defined $subject or $subject eq '' )
+  {
+    error sprintf( 'Could not send user message. Invalid or undefined subject %s', $subject );
+    @json = (
+      {
+        success => 0,
+        message => '<strong>You seem confused.</strong><br>Your message could not be sent because you didn\'t define a subject.',
+      }
+    );
+    return to_json( \@json );
+  }
+
+  if ( ! defined $body or $body eq '' )
+  {
+    error sprintf( 'Could not send user message. Invalid body %s', $body );
+    @json = (
+      {
+        success => 0,
+        message => '<strong>Shall I make the message up?</strong><br>Sorry, but your message could not be sent as you have not written a message.',
+      }
+    );
+    return to_json( \@json );
+  }
+
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $recipient = $SCHEMA->resultset( 'User' )->search( { username => $recipient_un } )->single;
+
+  if ( ! defined $recipient or ref( $recipient ) ne 'Side7::Schema::Result::User' )
+  {
+    error sprintf( 'Could not send user message. Invalid recipient: %s', $recipient_un );
+    @json = (
+      {
+        success => 0,
+        message => 'Sorry, but your message could not be sent as we could not find the recipient you indicated.',
+      }
+    );
+    return to_json( \@json );
+  }
+
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+
+  my $sent = $user->create_related( 'sent_mail',
+    {
+      sender_id    => $user->id,
+      recipient_id => $recipient->id,
+      subject      => $subject,
+      body         => $body,
+      timestamp    => $now,
+    }
+  );
+
+  @json = (
+    {
+      success => 1,
+      content => sprintf( '<div class="text-center"><h3>Your message has been sent to %s!</h3> Hope they respond soon!</div>', $recipient->username ),
+    }
+  );
+  return to_json( \@json );
+};
+
+
+=head3 AJAX C</user/mail/delete>
+
+Route to delete one or more user mail messages.
+
+=cut
+
+ajax '/user/mail/delete' => require_login sub
+{
+  my @delete_ids = split( ',', query_parameters->get( 'delete_ids' ) );
+
+  my $total_deletions = 0;
+
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+
+  my @emails = $user->search_related( 'received_mail', { id => { '-in' => \@delete_ids }, is_deleted => 0 } );
+  foreach my $email ( @emails )
+  {
+    $email->is_deleted( 1 );
+    $email->update;
+    $total_deletions++;
+  }
+
+  undef @emails;
+  @emails = $user->search_related( 'sent_mail', { id => { '-in' => \@delete_ids }, is_deleted => 0 } );
+  foreach my $email ( @emails )
+  {
+    $email->is_deleted( 1 );
+    $email->update;
+    $total_deletions++;
+  }
+
+  my @json = ();
+  if ( $total_deletions > 0 )
+  {
+    @json = (
+      {
+        success => 1,
+        message => sprintf( '<strong>Dust in the wind.</strong><br>Successfully deleted %d messages.', $total_deletions ),
+      }
+    );
+  }
+  else
+  {
+    @json = (
+      {
+        success => 0,
+        message => '<strong>Uh oh.</strong><br>For some reason, nothing was deleted. If that was expected, ignore this.',
+      }
+    );
+  }
+  return to_json( \@json );
+};
+
+
+=head3 POST C</util/username_ac>
 
 Route to fetch a suggestion list for auto-complete.
 
 =cut
 
-get '/util/username_ac' => require_login sub
+ajax '/util/username_ac' => require_login sub
 {
-  my $username = body_parameters->get( 'username' );
+  my $username = query_parameters->get( 'phrase' );
+  return to_json( [] ) if ! defined $username;
 
-  my @usernames = $SCHEMA->resultset( 'User' )->search( undef,
+  my @usernames = $SCHEMA->resultset( 'User' )->search(
     {
-      columns => [ 'username' ],
-      where   =>
-      {
-        username       => { 'like' => $username },
-        user_status_id => 2
-      },
-    }
+      username       => { like => '%' . $username . '%' },
+      user_status_id => 2
+    },
   );
 
   my @suggestions = ();
@@ -1582,7 +1727,7 @@ get '/util/username_ac' => require_login sub
   {
     foreach my $record ( @usernames )
     {
-      push @suggestions, $record->username;
+      push @suggestions, { username => $record->username, full_name => $record->full_name };
     }
   }
 

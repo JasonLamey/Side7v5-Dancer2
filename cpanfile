@@ -12,6 +12,7 @@ requires "HTML::Escape"                       => '1.10';
 requires "Parse::BBCode"                      => '0.15';
 requires "Regexp::Common"                     => '2017060201';
 requires "Regexp::Common::profanity_us"       => '4.112150';
+requires "URL::Encode"                        => '0.03';
 
 recommends "YAML"             => "0";
 recommends "URL::Encode::XS"  => "0";
