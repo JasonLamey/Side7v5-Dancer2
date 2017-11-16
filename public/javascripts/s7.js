@@ -409,6 +409,7 @@ function deleteMessages( ids )
         $('#' + v).remove();
       });
 
+      $('#user-mail-display').html( '<div class="text-center"><h3>No Mail Selected</h3></div>' );
       showSuccess( rtnData[0].message );
     },
     error: function()
