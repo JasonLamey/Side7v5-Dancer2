@@ -72,9 +72,9 @@
 
   [% PROCESS 'partials/main-footer.tt' %]
 
-  [% IF flash.error.defined or flash.notify.defined or flash.success.defined or flash.warning.defined %]
   <script>
     $(document).ready( function () {
+    [% IF flash.error.defined or flash.notify.defined or flash.success.defined or flash.warning.defined %]
       [% IF flash.error.defined %]
       showError( '[% flash.error %]' );
       [% END %]
@@ -87,9 +87,18 @@
       [% IF flash.success.defined %]
       showSuccess( '[% flash.success %]' );
       [% END %]
+    [% END %]
+
+      $('.lazy').Lazy(
+        {
+          combined: true,
+          effect: 'fadeIn',
+          visibleOnly: true,
+          delay: 5000
+        }
+      );
     });
   </script>
-  [% END %]
 
   <script>
     $(document).ready( function() {
