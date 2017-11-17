@@ -2,7 +2,7 @@
 <div class="grid-x grid-padding-x align-middle">
   <div class="small-3 cell">[% PROCESS 'partials/_avatar_thumbnail.tt' %]</div>
   <div class="small-9 cell">
-    <a href="/[% data.upload.user %]/gallery">[% data.upload.user.full_name %]</a><br>
+    <a href="/[% data.upload.user.username %]/gallery">[% data.upload.user.full_name %]</a><br>
     <small><strong>Title:</strong> [% data.upload.title %]<br>
     <strong>Rating:</strong> [% data.upload.upload_rating.rating %]<br>
     <strong>Category:</strong> [% data.upload.upload_category.category %]<br>
