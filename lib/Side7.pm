@@ -616,7 +616,7 @@ Route to pull via AJAX the HTML contents for a thumbnail tooltip.
 
 =cut
 
-ajax '/upload-tooltip/:upload_id' => sub
+get '/upload-tooltip/:upload_id' => sub
 {
   my $upload_id = route_parameters->get( 'upload_id' );
 
