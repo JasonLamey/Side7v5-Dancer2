@@ -11,6 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^1.0.0-alpha.1",
+    "chart.js": "^2.7.1",
     "foundation-sites": "~6.4.1",
     "jquery": ">=3.0.0",
     "motion-ui": "~1.2.2",

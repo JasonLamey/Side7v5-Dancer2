@@ -418,3 +418,160 @@ function deleteMessages( ids )
     }
   });
 }
+
+function saveComment( form )
+{
+  var url = $( form ).attr('action');
+  var values = {
+    thread_id:  ( typeof document.querySelector('[name="reply_thread_id"]').value !== 'undefined' )
+                ? document.querySelector('[name="reply_thread_id"]').value : '',
+    rating:     ( typeof document.querySelector('[name="rating"]').value !== 'undefined' )
+                ? document.querySelector('[name="rating"]').value : 0,
+    private:    ( $('input[name="private"]').prop('checked') == true )
+                ? 1 : 0,
+    comment:    CKEDITOR.instances['new_comment'].getData()
+  };
+
+  $.ajax(
+  {
+    url: url,
+    data: values,
+    dataType: "json",
+    method: "POST",
+    success: function(rtnData)
+    {
+      if ( rtnData[0].success < 1 )
+      {
+        showError( rtnData[0].message );
+        return false;
+      }
+
+      if ( typeof thread_id !== 'undefined' && thread_id !== '' )
+      {
+        $( '#t' + thread_id ).append( rtnData[0].content );
+      }
+      else
+      {
+        $( '#comment-container' ).append( '<div id="' + rtnData[0].thread_id + '">' + rtnData[0].content + '</div>' );
+      }
+      jQuery( '#rating-' + rtnData[0].comment_id ).starrr({ readOnly: true, rating: values.rating });
+      $( '#comment_count' ).html( function( i, val ) { return val*1 + 1 } );
+
+      jQuery('#new_comment_rating').starrr({ rating: 0 });
+      $('input[name="reply_thread_id"]').val( '' );
+      $('input[name="private"]').prop("checked", false);
+      CKEDITOR.instances['new_comment'].setData('');
+      showSuccess( rtnData[0].message );
+    },
+    error: function()
+    {
+      showError( '<strong>Oh, man!</strong><br>An error occurred, and we could not save your comment. Please try again later.' );
+    }
+  });
+}
+
+function quoteComment( thread_id, comment_id, is_private, commenter )
+{
+  var quote = $( '#comment-' + comment_id ).html();
+  if ( typeof commenter == 'undefined' ) { commenter = 'Unknown User'; }
+
+  CKEDITOR.instances['new_comment'].setData( commenter + ' wrote:<br>\n<blockquote>' + quote + '</blockquote>', function()
+    {
+      this.checkDirty();  // true
+    }
+  );
+
+  if ( is_private == 1 )
+  {
+    $('input[name="private"]').prop("checked", true);
+  }
+  else
+  {
+    $('input[name="private"]').prop("checked", false);
+  }
+
+  $('input[name="reply_thread_id"]').val( thread_id );
+
+  scrollToAnchor( '#comment-form' );
+}
+
+function deleteComment( content_id, comment_id )
+{
+  var url = '/content/' + content_id + '/comment/' + comment_id + '/delete';
+
+  $.ajax(
+  {
+    url: url,
+    method: "GET",
+    dataType: 'json',
+    success: function( data )
+    {
+      if (  data[0].success < 1 )
+      {
+        showError(  data[0].message );
+        return false;
+      }
+
+      $( '#c' + comment_id ).remove();
+      $( '#comment_count' ).html( function( i, val ) { return val*1 - 1 } );
+
+      showSuccess(  data[0].message );
+    },
+    error: function()
+    {
+      showError( '<strong>Oh, man!</strong><br>An error occurred, and we could not delete your comment. Please try again later.' );
+    }
+  });
+}
+
+function togglePublic( comment_id, mode )
+{
+  if ( typeof comment_id == 'undefined' )
+  {
+    return false;
+  }
+
+  if ( typeof mode == 'undefined' ) { mode = 1; }
+
+  var url = '/comment/toggle_privacy/' + comment_id + '/' + mode;
+
+  $.ajax(
+  {
+    url: url,
+    method: "GET",
+    dataType: 'json',
+    success: function( data )
+    {
+      if (  data[0].success < 1 )
+      {
+        showError(  data[0].message );
+        return false;
+      }
+
+      if ( mode == 1 )
+      {
+        $( '#c' + comment_id ).addClass( 'comment-section-body-private' );
+        $( '#private-tag-' + comment_id ).html( '<h6>PRIVATE COMMENT</h6>' );
+        $( '#privacy-' + comment_id ).html( '<a class="button warning tiny" onClick="togglePublic(' + comment_id + ', 0);"><i class="fa fa-eye"></i> Make Public</a>' );
+      }
+      else
+      {
+        $( '#c' + comment_id ).removeClass( 'comment-section-body-private' );
+        $( '#private-tag-' + comment_id ).html( '' );
+        $( '#privacy-' + comment_id ).html( '<a class="button warning tiny" onClick="togglePublic(' + comment_id + ', 1);"><i class="fa fa-eye-slash"></i> Make Private</a>' );
+      }
+
+      showSuccess(  data[0].message );
+    },
+    error: function()
+    {
+      showError( '<strong>Oh, man!</strong><br>An error occurred, and we could not change the privacy your comment. Please try again later.' );
+    }
+  });
+}
+
+function scrollToAnchor( aid )
+{
+  var aTag = $( aid );
+  $('html,body').animate({scrollTop: aTag.offset().top},'slow');
+}

@@ -220,11 +220,12 @@ __PACKAGE__->set_primary_key( 'id' );
 
 __PACKAGE__->might_have( 'news' => 'Side7::Schema::Result::News', 'user_id' );
 
-__PACKAGE__->has_many( 'uploads'       => 'Side7::Schema::Result::UserUpload', 'user_id' );
-__PACKAGE__->has_many( 'userroles'     => 'Side7::Schema::Result::UserRole',   'user_id' );
-__PACKAGE__->has_many( 'credits'       => 'Side7::Schema::Result::S7Credit',   'user_id' );
-__PACKAGE__->has_many( 'sent_mail'     => 'Side7::Schema::Result::UserMail',   'sender_id' );
-__PACKAGE__->has_many( 'received_mail' => 'Side7::Schema::Result::UserMail',   'recipient_id' );
+__PACKAGE__->has_many( 'uploads'         => 'Side7::Schema::Result::UserUpload',          'user_id' );
+__PACKAGE__->has_many( 'userroles'       => 'Side7::Schema::Result::UserRole',            'user_id' );
+__PACKAGE__->has_many( 'credits'         => 'Side7::Schema::Result::S7Credit',            'user_id' );
+__PACKAGE__->has_many( 'sent_mail'       => 'Side7::Schema::Result::UserMail',            'sender_id' );
+__PACKAGE__->has_many( 'received_mail'   => 'Side7::Schema::Result::UserMail',            'recipient_id' );
+__PACKAGE__->has_many( 'comment_threads' => 'Side7::Schema::Result::UploadCommentThread', 'creator_id' );
 
 __PACKAGE__->many_to_many( 'roles' => 'userroles', 'role' );
 

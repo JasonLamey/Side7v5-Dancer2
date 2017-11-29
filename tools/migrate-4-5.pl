@@ -95,6 +95,8 @@ migrate_user_mail();
 migrate_images();
 update_upload_view_totals();
 migrate_upload_views();
+migrate_comment_threads();
+migrate_comments();
 
 ######################################
 
@@ -617,6 +619,145 @@ sub migrate_upload_views
     }
   }
   print "\n";
+}
+
+sub migrate_comment_threads
+{
+  my $prepped = prep_step( step => "Import Comment Threads", v4table => 'image_comment_threads', v5table => 'upload_comment_threads' );
+  return if $prepped == 0;
+
+  # v4 data pull
+  my $sth = $DBH->prepare(
+    'SELECT ict.*, ic.user_account_id
+    FROM image_comment_threads ict
+    LEFT JOIN image_comments ic ON ic.id = (
+      SELECT MIN(ic.id)
+      FROM image_comments ic
+      WHERE ic.image_comment_thread_id = ict.id
+    )'
+  );
+  $sth->execute();
+  my $rv = $sth->fetchall_hashref( 'id' );
+
+  my $num_rows = scalar( keys ( %{$rv} ) );
+  printf "- v4 Rows found: %d\n", $num_rows if $verbose;
+
+  # Import
+  print "- Importing rows\n" if $verbose;
+
+  # Set Up Progress Bar
+  my $progress = Term::ProgressBar->new(
+    {
+      name  => 'Comment Threads Table',
+      count => $num_rows,
+      ETA   => 'linear',
+    }
+  );
+  $progress->max_update_rate(1);
+  my $next_update = 0; my $i = 0;
+
+  foreach my $key ( sort keys ( %{$rv} ) )
+  {
+    my $row = $rv->{$key};
+
+    # Insert new record
+    if ( ! $dryrun )
+    {
+      my $new_user = $SCHEMA->resultset( 'UploadCommentThread' )->create(
+        {
+          id         => $row->{'id'},
+          upload_id  => $row->{'image_id'},
+          creator_id => ( $row->{'user_account_id'} // 0 ),
+          created_on => $row->{'timestamp'},
+        }
+      );
+    }
+
+    $next_update = $progress->update( $i ) if $i > $next_update;
+    $i++;
+  }
+  $progress->update( $num_rows ) if $num_rows >= $next_update;
+
+  $sth->finish;
+  print "\n\n";
+}
+
+sub migrate_comments
+{
+  my $prepped = prep_step( step => "Import Comments", v4table => 'image_comments', v5table => 'upload_comments' );
+  return if $prepped == 0;
+
+  # v4 data pull
+  my $sth = $DBH->prepare(
+    'SELECT c.*, u.username
+       FROM image_comments c
+  LEFT JOIN user_accounts u ON c.user_account_id = u.id
+   ORDER BY c.id'
+  );
+  $sth->execute();
+  my $rv = $sth->fetchall_hashref( 'id' );
+
+  my $num_rows = scalar( keys ( %{$rv} ) );
+  printf "- v4 Rows found: %d\n", $num_rows if $verbose;
+
+  # Import
+  print "- Importing rows\n" if $verbose;
+
+  # Set Up Progress Bar
+  my $progress = Term::ProgressBar->new(
+    {
+      name  => 'Comments Table',
+      count => $num_rows,
+      ETA   => 'linear',
+    }
+  );
+  $progress->max_update_rate(1);
+  my $next_update = 0; my $i = 0;
+
+  foreach my $key ( sort keys ( %{$rv} ) )
+  {
+    my $row = $rv->{$key};
+
+    # Normalize rating:
+    my $rating = 0;
+    if ( $row->{'rating'} eq 'bronze' )
+    {
+      $rating = 1;
+    }
+    elsif ( $row->{'rating'} eq 'silver' )
+    {
+      $rating = 3;
+    }
+    elsif ( $row->{'rating'} eq 'gold' )
+    {
+      $rating = 5;
+    }
+
+    # Insert new record
+    if ( ! $dryrun )
+    {
+      my $new_user = $SCHEMA->resultset( 'UploadComment' )->create(
+        {
+          id                       => $row->{'id'},
+          upload_comment_thread_id => $row->{'image_comment_thread_id'},
+          user_id                  => $row->{'user_account_id'},
+          username                 => ( defined $row->{'anonymous_name'} ? $row->{'anonymous_name'} : $row->{'username'} ),
+          comment                  => $row->{'comment'},
+          private                  => ( $row->{'private'} eq 'true' ? 1 : 0 ),
+          rating                   => $rating,
+          ip_address               => ( $row->{'ip_address'} ? $row->{'ip_address'} : 'Unknown' ),
+          timestamp                => $row->{'timestamp'},
+        }
+      );
+    }
+
+    $next_update = $progress->update( $i ) if $i > $next_update;
+    $i++;
+  }
+  $progress->update( $num_rows ) if $num_rows >= $next_update;
+
+  $sth->finish;
+  print "\n\n";
 }
 
 sub migrate_faq_categories

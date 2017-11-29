@@ -1,0 +1,44 @@
+[% USE date %]
+    [% disabled = ( session.logged_in_user.defined && session.logged_in_user != '' ? '' : ' disabled' ) %]
+    [% IF item.private == 0 || ( item.private == 1 && data.upload.user.username.lower == session.logged_in_user.lower ) %]
+      [% IF i > 1; class = 'comment-section-body-reply'; ELSE; class = 'comment-section-body'; END; %]
+      [% IF item.private; private = ' comment-section-body-private'; ELSE; private = ''; END; %]
+    <div class="[% class %][% private %]" id="c[% item.id %]">
+      <div class="comment-section-author">
+        <img src="https://placehold.it/50x50" alt="">
+        <div class="comment-section-name">
+          [% IF item.user.full_name != '' %]
+          <h5><a href="/[% item.user.username %]">[% item.user.full_name %]</a></h5>
+          [% ELSE %]
+          <h5>[% item.username || '<em>Unknown</em>' %]</h5>
+          [% END %]
+          [% date.format( item.timestamp, datetime_format_long ) %]
+        </div>
+      </div>
+      <div>
+        <a class="button tiny[% disabled %]"[% IF disabled == '' %] onClick="quoteComment([% item.upload_comment_thread_id %],[% item.id %],[% item.private %],'[% item.user.full_name %]');"[% END %]><i class="fa fa-reply"></i> Reply</a>
+        <a class="button secondary tiny[% disabled %]"><i class="fa fa-flag"></i> Report</a>
+        [% IF data.upload.user.username.lower == session.logged_in_user.lower %]
+          [% IF item.private == 1 %]
+        <span id="privacy-[% item.id %]"><a class="button warning tiny[% disabled %]" onClick="togglePublic([% item.id %], 0);"><i class="fa fa-eye"></i> Make Public</a></span>
+          [% ELSE %]
+        <span id="privacy-[% item.id %]"><a class="button warning tiny[% disabled %]" onClick="togglePublic([% item.id %], 1);"><i class="fa fa-eye-slash"></i> Make Private</a></span>
+          [% END %]
+        <a class="button alert tiny[% disabled %]"><i class="fa fa-ban"></i> Block User</a>
+        <a class="button alert tiny[% disabled %]"[% IF disabled == '' %] onClick="deleteComment([% data.upload.id %],[% item.id %]);"[% END %]><i class="fa fa-trash"></i> Delete Comment</a>
+        [% END %]
+      </div>
+      [% IF item.rating > 0 %]
+      <div>
+        Rating: <div id="rating-[% item.id %]" class="starrr"></div> ([% item.rating %])
+      </div>
+      [% END %]
+      <div class="comment-section-text">
+        <span id="private-tag-[% item.id %]">[% IF item.private %]<h6>PRIVATE COMMENT</h6>[% END %]</span>
+        <div id="comment-[% item.id %]">[% item.comment %]</div>
+      </div>
+    </div>
+      [% IF item.rating > 0 && ! no_jquery %]
+    <script>$(document).ready( function($){ $('#rating-[% item.id %]').starrr({ readOnly: true, rating: [% item.rating || 0 %] }); });</script>
+      [% END %]
+    [% END %]

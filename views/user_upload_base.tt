@@ -12,16 +12,6 @@
 
         [% PROCESS 'partials/_user_upload_owner_tools.tt' %]
 
-        <div class="cell small-12 medium-10 medium-offset-1">
-          <div class="callout primary">
-            <h6>
-              [% data.upload.title %] by
-              <a href="/[% data.upload.user.username %]/gallery">[% data.upload.user.full_name %]
-              (@[% data.upload.user.username %])</a>
-            </h6>
-            [% Util.parse_bbcode( data.upload.description ) %]
-          </div>
-        </div>
       </section>
 
       <hr>

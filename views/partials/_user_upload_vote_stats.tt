@@ -18,13 +18,13 @@
             </ul>
           </div>
           <div class="cell small-4 text-center align-center">
-            <button class="button">&nbsp;<i class="fa fa-thumbs-up"></i>&nbsp;</button>
+            <button class="button"><i class="fa fa-thumbs-up"></i></button>
           </div>
           <div class="cell small-4 text-center align-center">
-            <button class="button">&nbsp;<i class="fa fa-thumbs-down"></i>&nbsp;</button>
+            <button class="button"><i class="fa fa-thumbs-down"></i></button>
           </div>
           <div class="cell small-4 text-center align-center">
-            <button class="button">&nbsp;<i class="fa fa-heart"></i>&nbsp;</button>
+            <button class="button"><i class="fa fa-heart"></i></button>
           </div>
           <div class="cell small-12">
             <a href="/content/[% data.upload.id %]/watchlist/add"><i class="fa fa-bank"></i> Add Member To Museum</a>

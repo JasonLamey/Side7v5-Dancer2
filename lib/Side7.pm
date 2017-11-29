@@ -519,7 +519,17 @@ get '/content/:content_id' => sub
     send_error( 'Content not found.', 404 );
   }
 
-  my $upload = $SCHEMA->resultset( 'UserUpload' )->find( $content_id );
+  my $upload = $SCHEMA->resultset( 'UserUpload' )->find(
+    {
+      id => $content_id
+    },
+    {
+      prefetch =>
+      {
+        comment_threads => 'comments',
+      }
+    }
+  );
 
   if
   (
@@ -1700,6 +1710,254 @@ ajax '/user/mail/delete' => require_login sub
       }
     );
   }
+  return to_json( \@json );
+};
+
+
+=head3 AJAX C</content/:content_id/comment/create/?:thread_id?>
+
+Route to save a new comment, whether it's a new thread or a reply to an existing one.
+
+=cut
+
+ajax '/content/:content_id/comment/create/?:thread_id?' => require_login sub
+{
+  my $content_id = route_parameters->get( 'content_id' );
+
+  my $thread_id = body_parameters->get( 'thread_id' ) // undef;
+  my $comment   = body_parameters->get( 'comment' )   // undef;
+  my $rating    = body_parameters->get( 'rating')     // 0;
+  my $private   = body_parameters->get( 'private')    // 0;
+
+  my @json = ();
+
+  if ( ! defined logged_in_user )
+  {
+    push @json, { success => 0, message => '<strong>Who are you?</strong><br>You need to be logged in to leave a comment.' };
+    warning sprintf( 'Attempt to post a comment without being logged in: Request: >%s< / Comment: >%s<', Data::Dumper::Dumper( request ), Data::Dumper::Dumper( query_parameters ) );
+    return to_json( \@json );
+  }
+
+  if ( ! defined $comment or $comment eq '' )
+  {
+    push @json, { success => 0, message => '<strong>Do you think I\'m a mind reader?</strong><br>What do you want me to post as your comment?' };
+    return to_json( \@json );
+  }
+
+  if ( ! defined $content_id or $content_id !~ /^\d+$/ )
+  {
+    push @json, { success => 0, message => '<strong>Say what?</strong><br>We could not save your comment as an error occurred. Please try again later.' };
+    warning sprintf( 'Invalid or undefined content_id provided when attempting to save a new comment: >%s<', $content_id );
+    return to_json( \@json );
+  }
+
+  my $user    = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $content = $SCHEMA->resultset( 'UserUpload' )->find( $content_id );
+
+  if ( ! defined $content or ref( $content ) ne 'Side7::Schema::Result::UserUpload' )
+  {
+    push @json, { success => 0, message => '<strong>Say what?</strong><br>We could not save your comment as an error occurred. Please try again later.' };
+    warning sprintf( 'Invalid or undefined content returned from content_id when attempting to save a new comment: >%s<', $content_id );
+    return to_json( \@json );
+  }
+
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+
+  my $thread = '';
+  # If no thread_id is passed in, we need to create a new thread.
+  if ( defined $thread_id and $thread_id =~ /^\d+$/ )
+  {
+    $thread = $content->find_related( 'comment_threads', { id => $thread_id } );
+  }
+  else
+  {
+    $thread = $content->create_related( 'comment_threads',
+      {
+        creator_id => logged_in_user->id,
+        created_on => $now
+      }
+    );
+  }
+
+  if ( ! defined $thread or ref( $thread ) ne 'Side7::Schema::Result::UploadCommentThread' )
+  {
+    push @json, { success => 0, message => '<strong>Say what?</strong><br>We could not save your comment as an error occurred. Please try again later.' };
+    warning sprintf( 'Invalid or undefined thread returned from thread_id or new thread creationg when attempting to save a new comment: >%s<', $thread_id );
+    return to_json( \@json );
+  }
+
+  # Create comment, linked to the new thread or the reply_to thread.
+  my $new_comment = $thread->create_related( 'comments',
+    {
+      user_id    => logged_in_user->id,
+      username   => logged_in_user->username,
+      comment    => $comment,
+      private    => $private,
+      rating     => $rating,
+      ip_address => ( request->host // 'Unknown' ),
+      timestamp  => $now
+    }
+  );
+
+  my $output = template 'partials/_comment_block.tt',
+  {
+    data =>
+    {
+      upload => $content
+    },
+    item => $new_comment,
+    no_jquery => 1,
+  },
+  {
+    layout => undef
+  };
+
+  push @json, {
+    success    => 1,
+    message    => '<strong>Comment Posted!</strong><br>Your comment has been successfully posted.',
+    content    => $output,
+    thread_id  => $thread->id,
+    comment_id => $new_comment->id,
+  };
+  return to_json( \@json );
+};
+
+
+=head3 AJAX C</content/:content_id/comment/:comment_id/delete>
+
+Route to delete a comment from a User Upload.
+
+=cut
+
+ajax '/content/:content_id/comment/:comment_id/delete' => require_login sub
+{
+  my $content_id = route_parameters->get( 'content_id' );
+  my $comment_id = route_parameters->get( 'comment_id' );
+
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+
+  my @json = ();
+
+  if ( ! defined $user or ref( $user ) ne 'Side7::Schema::Result::User' )
+  {
+    push @json, { success => 0, message => '<strong>Who are you?</strong><br>You need to be logged in to delete a comment.' };
+    warning sprintf( 'Attempt to delete a comment without being logged in: Request: >%s< / Comment: >%s<', Data::Dumper::Dumper( request ), Data::Dumper::Dumper( route_parameters ) );
+    return to_json( \@json );
+  }
+
+  my $upload = $user->find_related( 'uploads', { id => $content_id } );
+
+  if ( ! defined $upload or ref( $upload ) ne 'Side7::Schema::Result::UserUpload' )
+  {
+    push @json, { success => 0, message => '<strong>Not Your Content</strong><br>The comment you are attempting to delete is not on one of your items. You do not have permission to do so.' };
+    warning sprintf( 'Attempt to delete a comment on someone else\'s content: User: >%s< / Comment: >%s< / Content: >%s<', logged_in_user->username . '(' . logged_in_user->id . ')', $comment_id, $content_id );
+    return to_json( \@json );
+  }
+
+  my $comment = $SCHEMA->resultset( 'UploadComment' )->search(
+    { 'me.id' => $comment_id },
+    {
+      prefetch => { 'thread' => 'upload' },
+    }
+  )->single;
+
+  if ( ! defined $comment or ref( $comment ) ne 'Side7::Schema::Result::UploadComment' )
+  {
+    push @json, { success => 0, message => '<strong>Where did it go?</strong><br>The comment you are attempting to delete could not be found.' };
+    warning sprintf( 'Invalid comment retrieved when attempting to delete comment: User: >%s< / Comment: >%s< / Content: >%s<', logged_in_user->username . '(' . logged_in_user->id . ')', $comment_id, $content_id );
+    return to_json( \@json );
+  }
+
+  if ( $comment->thread->upload->id != $content_id )
+  {
+    push @json, { success => 0, message => '<strong>Trying to pull a fast one?</strong><br>The comment you are attempting to delete does not belong to the indicated content.' };
+    warning sprintf( 'Comment not associated to indicated content when attempting to delete comment: User: >%s< / Comment: >%s< / Content: >%s<', logged_in_user->username . '(' . logged_in_user->id . ')', $comment_id, $content_id );
+    return to_json( \@json );
+  }
+
+  my $thread_id = $comment->thread->id;
+  my $thread    = $comment->find_related( 'thread', { id => $thread_id } );
+
+  # Delete comment.
+  $comment->delete();
+
+  # Was this comment the only one in the thread? If so, delete the thread also.
+  if ( $thread->search_related( 'comments', {} )->count < 1 )
+  {
+    $thread->delete();
+  }
+
+  # Return Success.
+  push @json,
+  {
+    success => 1,
+    message => '<strong>And like that... it\'s gone.</strong><br>The comment has been deleted.'
+  };
+  return to_json( \@json );
+};
+
+
+=head3 AJAX C</comment/toggle_privacy/:comment_id/:mode>
+
+Route to toggle the privacy/visibility of a comment on user content.
+
+=cut
+
+ajax '/comment/toggle_privacy/:comment_id/:mode' => require_login sub
+{
+  my $comment_id = route_parameters->get( 'comment_id' );
+  my $mode       = route_parameters->get( 'mode' );
+
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+
+  my @json = ();
+
+  if ( ! defined $user or ref( $user ) ne 'Side7::Schema::Result::User' )
+  {
+    push @json, { success => 0, message => '<strong>Who are you?</strong><br>You need to be logged in to delete a comment.' };
+    warning sprintf( 'Attempt to delete a comment without being logged in: Request: >%s< / Comment: >%s<', Data::Dumper::Dumper( request ), Data::Dumper::Dumper( route_parameters ) );
+    return to_json( \@json );
+  }
+
+  my $comment = $SCHEMA->resultset( 'UploadComment' )->search(
+    { 'me.id' => $comment_id },
+    {
+      prefetch => { 'thread' => 'upload' },
+    }
+  )->single;
+
+  if ( ! defined $comment or ref( $comment ) ne 'Side7::Schema::Result::UploadComment' )
+  {
+    push @json, { success => 0, message => '<strong>Where did it go?</strong><br>The comment you are attempting to update could not be found.' };
+    warning sprintf( 'Invalid comment retrieved when attempting to change the visibility of the comment: User: >%s< / Comment: >%s< ', logged_in_user->username . '(' . logged_in_user->id . ')', $comment_id );
+    return to_json( \@json );
+  }
+
+  my $upload = $SCHEMA->resultset( 'UserUpload' )->find( $comment->thread->upload->id );
+
+  if ( ! defined $upload or ref( $upload ) ne 'Side7::Schema::Result::UserUpload' )
+  {
+    push @json, { success => 0, message => '<strong>Where did it go?</strong><br>The comment you are attempting to update could not be found.' };
+    warning sprintf( 'Invalid comment retrieved when attempting to change the visibility of the comment: User: >%s< / Comment: >%s< ', logged_in_user->username . '(' . logged_in_user->id . ')', $comment_id );
+    return to_json( \@json );
+  }
+
+  if ( $upload->user->id != logged_in_user->id )
+  {
+    push @json, { success => 0, message => '<strong>Not Your Content</strong><br>The comment you are attempting to delete is not on one of your items. You do not have permission to do so.' };
+    warning sprintf( 'Attempt to delete a comment on someone else\'s content: User: >%s< / Comment: >%s<', logged_in_user->username . '(' . logged_in_user->id . ')', $comment_id );
+    return to_json( \@json );
+  }
+
+  $comment->private( $mode );
+  $comment->update;
+
+  push @json,
+  {
+    success => 1,
+    message => '<strong>Alakazam!</strong><br>The comment\'s privacy setting has been updated.'
+  };
+
   return to_json( \@json );
 };
 

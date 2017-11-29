@@ -56,20 +56,6 @@
         {
           e.preventDefault();
           validateAndSend( '#user-mail-form' );
-
-          //var url = $('#user-mail-form').attr('action');
-
-          //$.ajax(
-          //{
-            //type: "POST",
-            //url: url,
-            //data: $('#user-mail-form').serialize(),
-            //success: function(data)
-            //{
-              //$('#user-mail-display').html( data[0].content );
-            //}
-          //});
-
         }
       );
 

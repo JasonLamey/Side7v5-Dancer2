@@ -1,56 +1,106 @@
-[% USE date %]
+[% USE date; USE Math; %][% comment_count = 0 %][% avg_rating = 0; total_rating = 0; num_ratings = 0; %]
 <div class="grid-x grid-margin-x">
-  <div class="cell small-12 medium-8 medium-offset-2">
+  <div class="cell small-12 medium-10 medium-offset-1">
+  [% FOREACH thread IN data.upload.comment_threads %]
+    [% FOREACH comment IN thread.comments %]
+      [% comment_count = comment_count + 1 %]
+      [% IF comment.rating > 0; num_ratings = num_ratings + 1; total_rating = total_rating + comment.rating; END; %]
+    [% END %]
+  [% END %][% IF num_ratings > 0; avg_rating = Math.int( total_rating / num_ratings ); END; %]
 
     <!-- comments -->
-    <div class="comment-section-container">
-      <h3>Comments &amp; Critiques (2)</h3>
-      <div class="comment-section-author">
-        <img src="https://placehold.it/50x50" alt="">
-        <div class="comment-section-name">
-          <h5><a href="">Janice Jones</a></h5>
-          <p>March 12, 2017 at 1:28pm</p>
-        </div>
+    <div class="comment-section-container" id="comment-container">
+      <h3>Comments &amp; Critiques (<span id="comment_count">[% comment_count %]</span>) [% IF avg_rating > 0 %] <small>Average Rating:<div class="starrr" id='avg-rating'></div> ([% avg_rating %])</small>[% END %]</h3>
+    [% IF avg_rating > 0 %]
+    <script>$(document).ready( function($){ $('#avg-rating').starrr({ readOnly: true, rating: [% avg_rating || 0 %] }); });</script>
+    [% END %]
+
+      [% FOREACH thread IN data.upload.comment_threads %]
+      <div id="t[% thread.id %]" data-magellan>
+        [% i = 1; FOREACH item IN thread.comments; %]
+        [% PROCESS 'partials/_comment_block.tt' %][% i = i + 1 %]
+        [% END %]
       </div>
-      <div class="comment-section-text">
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean lacinia bibendum nulla sed consectetur. Nulla vitae elit libero, a pharetra augue. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Harum facilis tenetur a voluptatibus quia
-          deserunt.
-        </p>
-      </div>
-      <div class="comment-section-author">
-        <img src="https://placehold.it/50x50" alt="">
-        <div class="comment-section-name">
-          <h5><a href="">Janice Jones</a></h5>
-          <p>March 12, 2017 at 1:28pm</p>
-        </div>
-      </div>
-      <div class="comment-section-text">
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean lacinia bibendum nulla sed consectetur. Nulla vitae elit libero, a pharetra augue. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Harum facilis tenetur a voluptatibus quia deserunt.
-        </p>
-      </div>
+      [% END %]
+
     </div>
     <!--/comments-->
 
     <!-- comment form -->
-    <form class="comment-section-form">
+    <div class="comment-section-form" id="comment-form" data-magellan-target="comment-form">
       <div class="comment-section-box">
         <div class="row">
           <div class="small-12 column">
             <h4>Leave a Comment</h4>
-            <label>Name
-              <input type="text">
-            </label>
-            <label>Email
-              <input type="text">
-            </label>
-            <label>Comment
-              <textarea rows="10" type="text"></textarea>
-            </label>
-            <button class="button expanded">Submit</button>
+            [% IF session.logged_in_user.defined %]
+            <form action="/content/[% data.upload.id %]/comment/create" method="post" id="new-comment-form" data-abide novalidate>
+              <input type="hidden" value="" name="reply_thread_id" id="reply_thread_id">
+              <div class="grid-x">
+                <div class="cell small-6">
+                  <label>Rating:
+                    <div id='new_comment_rating' class="h4"></div>
+                    <input type="hidden" name='rating' value='0' id="new_rating">
+                  </label>
+                </div>
+                <div class="cell small-6">
+                  <label>Private:
+                    <div class="switch small">
+                      <input class="switch-input" id="is_private" type="checkbox" name="private" value="1">
+                      <label class="switch-paddle" for="is_private">
+                        <span class="show-for-sr">Is this comment private?</span>
+                        <span class="switch-active" aria-hidden="true">Yes</span>
+                        <span class="switch-inactive" aria-hidden="true">No</span>
+                      </label>
+                    </div>
+                  </label>
+                </div>
+              </div>
+              <label>Comment:
+                <textarea rows="10" name='comment' id='new_comment' type="text" required></textarea>
+              </label><br>
+              <button class="button expanded" form="new-comment-form" type="submit" value="Post Comment"><i class="fa fa-comment"></i> Post Comment</button>
+            </div>
+            [% ELSE %]
+            <p>You must be logged in to leave a comment.<br>Please, <a href="/login">login</a> or <a href="/signup">sign up</a> for an account.</p>
+            [% END %]
           </div>
         </div>
       </div>
     </form>
+    [% IF session.logged_in_user.defined %]
+    <script>
+      $(document).ready(
+        function($)
+        {
+
+          $('#new_comment_rating').starrr(
+            {
+              change: function(e, value)
+                {
+                  $('#new_rating').val( value );
+                }
+            }
+          );
+
+          CKEDITOR.replace( 'new_comment',
+            {
+              uiColor: '#8a7488',
+              toolbarCanCollapse: true
+            }
+          );
+
+          $('#new-comment-form').bind( "submit",
+            function(e)
+            {
+              e.preventDefault();
+              saveComment( '#new-comment-form' );
+            }
+          );
+
+        }
+      );
+    </script>
+    [% END %]
     <!--/comment box-->
 
   </div>
