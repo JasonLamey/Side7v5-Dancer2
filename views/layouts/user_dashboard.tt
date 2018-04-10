@@ -10,12 +10,11 @@
         [% PROCESS 'partials/main_menu.tt' %]
     </div>
 
+    <div class="grid-x grid-margin-x">
+      <div class="cell medium-cell-block">
+        <div class="off-canvas-wrapper">
 
-      <div class="cell medium-auto medium-cell-block-container">
-        <div class="grid-x grid-padding-x">
-    <div class="off-canvas-wrapper">
-
-          <div class="cell medium-cell-block-y off-canvas-absolute position-left reveal-for-medium" data-transition="overlap" id="UDB-menu" data-off-canvas>
+          <div class="off-canvas-absolute position-left" id="UDB-menu" data-off-canvas>
 
             <div class="app-dashboard-sidebar-inner">
               <ul class="menu vertical">
@@ -43,10 +42,15 @@
               </ul>
             </div>
 
-          </div>
+          </div> <!-- Close menu block -->
 
-          <div class="cell medium-cell-block-y off-canvas-content" data-off-canvas-content>
-            <div class="hide-for-medium"><button type="button" class="button" data-toggle="UDB-menu"><i class="fa fa-bars"></i></button></div>
+          <div class="cell auto medium-cell-block-y off-canvas-content" data-off-canvas-content>
+
+            <div class="grid-container">
+              <div class="grid-x grid-margin-x">
+                <div class="cell"><button type="button" class="button" data-toggle="UDB-menu"><i class="fa fa-bars"></i> Dashboard Menu</button></div>
+              </div>
+            </div>
 
             [% content %]
 
@@ -60,7 +64,6 @@
       [% PROCESS 'partials/main-footer.tt' %]
     </div>
   </div>
-
 
   <script>
     $(document).ready( function () {
