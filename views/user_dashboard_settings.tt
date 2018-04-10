@@ -177,7 +177,7 @@
             </div>
             <div class="cell small-3 medium-3 large-4 align-self-middle">
               <div class="switch small">
-                <input class="switch-input" id="email-notifications" type="checkbox" name="email-notifications"[% IF data.settings.email_notifications == 1 %] checked[% END %]>
+                <input class="switch-input" id="email-notifications" type="checkbox" name="email_notifications"[% IF data.settings.email_notifications == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="email-notifications">
                     <span class="show-for-sr">Email Notifications?</span>
                     <span class="switch-active" aria-hidden="true">Yes</span>
