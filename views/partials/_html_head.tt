@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="/css/tooltipster-sideTip-light.min.css">
     <link rel="stylesheet" href="/css/jssocials.css">
     <link rel="stylesheet" href="/css/jssocials-theme-flat.css">
+    <link rel="stylesheet" href="/css/jquery.modal.min.css">
 
   <!-- Grab jQuery from a CDN, fall back to local if necessary -->
     <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  [% PROCESS 'partials/_html_head.tt' %]
+</head>
+<body>
+  [% PROCESS 'partials/main_menu.tt' %]
+
+  <div class="app-dashboard shrink-medium">
+    <div class="row expanded app-dashboard-top-nav-bar">
+      <div class="columns medium-2">
+        <button data-toggle="app-dashboard-sidebar" class="menu-icon hide-for-medium"></button>
+        <a class="app-dashboard-logo">Your Account</a>
+      </div>
+      <div class="columns show-for-medium text-center">
+        <a class="app-dashboard-logo">[% title %]</a>
+      </div>
+      <div class="columns shrink app-dashboard-top-bar-actions">
+      </div>
+    </div>
+
+    <div class="app-dashboard-body off-canvas-wrapper">
+      <div id="app-dashboard-sidebar" class="app-dashboard-sidebar position-left off-canvas off-canvas-absolute reveal-for-medium" data-off-canvas>
+        <div class="app-dashboard-sidebar-title-area">
+          <div class="app-dashboard-close-sidebar">
+            <h3 class="app-dashboard-sidebar-block-title">Menu</h3>
+            <!-- Close button -->
+            <button id="close-sidebar" data-app-dashboard-toggle-shrink class="app-dashboard-sidebar-close-button show-for-medium" aria-label="Close menu" type="button">
+              <span aria-hidden="true"><a href="#"><i class="large fa fa-angle-double-left"></i></a></span>
+            </button>
+          </div>
+          <div class="app-dashboard-open-sidebar">
+            <button id="open-sidebar" data-app-dashboard-toggle-shrink class="app-dashboard-open-sidebar-button show-for-medium" aria-label="open menu" type="button">
+              <span aria-hidden="true"><a href="#"><i class="large fa fa-angle-double-right"></i></a></span>
+            </button>
+          </div>
+        </div>
+        <div class="app-dashboard-sidebar-inner">
+          <ul class="menu vertical">
+            <li><a href="/user">
+              <i class="large fa fa-user-circle"></i><span class="app-dashboard-sidebar-text">Overview</span>
+            </a></li>
+            <li><a href="/user/feed">
+              <i class="large fa fa-globe"></i><span class="app-dashboard-sidebar-text">Friends Feed</span>
+            </a></li>
+            <li><a href="/user/museum">
+              <i class="large fa fa-bank"></i><span class="app-dashboard-sidebar-text">Museum</span>
+            </a></li>
+            <li><a href="/user/profile">
+              <i class="large fa fa-drivers-license"></i><span class="app-dashboard-sidebar-text">Profile</span>
+            </a></li>
+            <li><a href="/user/gallery">
+              <i class="large fa fa-picture-o"></i><span class="app-dashboard-sidebar-text">Gallery</span>
+            </a></li>
+            <li><a href="/user/message_center">
+              <i class="large fa fa-comments-o"></i><span class="app-dashboard-sidebar-text">Message Center</span>
+            </a></li>
+            <li><a href="/user/settings">
+              <i class="large fa fa-gear"></i><span class="app-dashboard-sidebar-text">Settings</span>
+            </a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="app-dashboard-body-content off-canvas-content" data-off-canvas-content>
+
+          [% content %]
+
+      </div>
+    </div>
+  </div>
+
+  [% PROCESS 'partials/main-footer.tt' %]
+
+  <script>
+    $(document).ready( function () {
+    [% IF flash.error.defined or flash.notify.defined or flash.success.defined or flash.warning.defined %]
+      [% IF flash.error.defined %]
+      showError( '[% flash.error %]' );
+      [% END %]
+      [% IF flash.warning.defined %]
+      showWarning( '[% flash.warning %]' );
+      [% END %]
+      [% IF flash.notify.defined %]
+      showInfo( '[% flash.notify %]' );
+      [% END %]
+      [% IF flash.success.defined %]
+      showSuccess( '[% flash.success %]' );
+      [% END %]
+    [% END %]
+
+      $('.lazy').Lazy(
+        {
+          combined: true,
+          effect: 'fadeIn',
+          visibleOnly: true,
+          delay: 5000
+        }
+      );
+    });
+  </script>
+
+  <script>
+    $(document).ready( function() {
+      $('[data-app-dashboard-toggle-shrink]').on('click', function(e) {
+        e.preventDefault();
+        $(this).parents('.app-dashboard').toggleClass('shrink-medium').toggleClass('shrink-large');
+      });
+    });
+  </script>
+
+  <script type="text/javascript" src="https://use.fontawesome.com/bbc3509751.js"></script>
+  <script type="text/javascript" src="/javascripts/app.js"></script>
+  <script type="text/javascript" src="/javascripts/s7.js"></script>
+</body>
+</html>

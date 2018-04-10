@@ -1,0 +1,42 @@
+<form id="filter-ratings-form" action="/user/settings/filter/ratings/update" method="post">
+<div class="grid-container">
+  <div class="grid-x grid-margin-x">
+
+    <div class="cell">
+      <h3>Your Rating Filters</h3>
+      <a href="#" class="button radius small" rel="modal:close">Close</a>
+      <button type="submit" class="button radius success" form="filter-ratings-form" onClick='$('#filter-ratings-form').submit( submitFilters( e, 'ratings', 'filter-ratings-form' ); );"><i class="fa fa-save"></i> Save Filters</button>
+    </div>
+
+    <div class="cell cell-block-container">
+      <div class="grid-x grid-margin-x">
+        <div class="cell cell-block-y" style="max-height: 400px;">
+          <table class="hover">
+            <thead>
+              <tr>
+                <th><input type="checkbox" disabled></th>
+                <th>Rating</th>
+                <th>State</th>
+              </tr>
+            </thead>
+
+            <tbody>
+      [% FOREACH rating IN data.ratings %]
+              <tr class="align-middle[% data.filtered_ratings.defined( rating.id ) ? ' alert' : '' %]" onClick="toggleFilterRow([% rating.id %]);">
+                <td><input type="checkbox" name="filter" id="filter-[% rating.id %]" value="[% rating.id %]"[% data.filtered_ratings.defined( rating.id ) ? ' checked' : '' %]></td>
+                <td>[% rating.upload_type.type %] - [% rating.rating %]</td>
+                <td id="filter-indicator-[% rating.id %]"><span id="indicator-wrap-[% rating.id %]" class="label[% data.filtered_ratings.defined( rating.id ) ? ' warning' : ' primary' %]">[% data.filtered_ratings.defined( rating.id ) ? 'Filtered' : 'Unfiltered' %]</span></td>
+              </tr>
+      [% END %]
+            </tbody>
+
+          </table>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+</form>

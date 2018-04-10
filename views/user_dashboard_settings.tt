@@ -1,0 +1,319 @@
+[% USE date %]
+<div class="grid-container">
+  <div class="grid-x">
+    <div class="cell medium-10">
+
+      <h3>Your Settings <span class="subheader h6">Last Updated: [% IF data.settings.updated_on == 'Never' %][% data.settings.updated_on %][% ELSE %][% date.format( data.settings.updated_on, datetime_format_long ) %][% END %]</span></h3>
+
+      <form action="/user/settings/update" method="post" id="user-settings-form">
+
+        <button class="button small radius success" type="submit" form="user-settings-form">
+          <span class="show-for-sr">Save Settings</span>
+          <span aria-hidden="true"><i class="fa fa-save"></i> Save Settings</span>
+        </button>
+
+        <h4>Privacy</h4>
+
+        <div class="grid-container callout small">
+          <div class="grid-x">
+
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Show Online Status:</strong><br><small>Allow others to see if you are online?</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="online-status" type="checkbox" name="show_online_status"[% IF data.settings.show_online_status == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="online-status">
+                    <span class="show-for-sr">Show Online Status?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Allow Adding To Museums:</strong><br><small>Allow others to add you to their Museum? This allows them to easily see your public posts in their Museum Feed.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="add-to-museums" type="checkbox" name="allow_museum_adds"[% IF data.settings.allow_museum_adds == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="add-to-museums">
+                    <span class="show-for-sr">Others Can Add You To Their Museum?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Allow Friends Requests:</strong><br><small>Allow others to send Friend requests? Adding someone as a Friend allows them to see both public and Friends-only content in your gallery.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="friend-requests" type="checkbox" name="allow_friend_requests"[% IF data.settings.allow_friend_requests == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="friend-requests">
+                    <span class="show-for-sr">Others Can Send You Friend Requests?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Allow Others To Contact You:</strong><br><small>Allows others to send you messages through the site.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="send-messages" type="checkbox" name="allow_user_contact"[% IF data.settings.allow_user_contact == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="send-messages">
+                    <span class="show-for-sr">Others Can Send You Messages?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Allow Favoriting Of Your Content:</strong><br><small>Allows others to add your content to their Favorites.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="add-to-favorites" type="checkbox" name="allow_add_to_favorites"[% IF data.settings.allow_add_to_favorites == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="add-to-favorites">
+                    <span class="show-for-sr">Others Can Add Your Content To Their Favorites?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Display Sharing Links:</strong><br><small>Displays social networking sharing links on your content.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="show-social-links" type="checkbox" name="show_social_links"[% IF data.settings.show_social_links == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="show-social-links">
+                    <span class="show-for-sr">Show Social Sharing Links On Your Content?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <h4>Display</h4>
+        <div class="grid-container callout small">
+          <div class="grid-x">
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Filter Out Categories:</strong><br><small>Hides chosen categories from display when browsing.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4">
+              <div class="grid-x grid-margin-x">
+                <div class="cell shrink">
+                  <a href="/user/settings/filter/categories" class="button tiny radius" id="filter-categories" rel="modal:open">Set</a>
+                </div>
+                <div class="cell auto medium-cell-block-y show-for-medium">
+                  <small>[% ( data.category_filter_count > 0 ) ? 'Filters set: ' _ data.category_filter_count : 'No Filter Set' %]</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Filter Out Ratings:</strong><br><small>Hides chosen ratings from display when browsing.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4">
+              <div class="grid-x grid-margin-x">
+                <div class="cell shrink">
+                  <a href="/user/settings/filter/ratings" class="button tiny radius" id="filter-ratings" rel="modal:open">Set</a>
+                </div>
+                <div class="cell auto medium-cell-block-y show-for-medium">
+                  <small>[% data.settings.filter_ratings || 'No Filter Set' %]</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Display Mature-rated Thumbnails:</strong><br><small>Display setting for M-rated image thumbnails.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="show-m-thumbnails" type="checkbox" name="show_m_thumbnails"[% IF data.settings.show_m_thumbnails == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="show-m-thumbnails">
+                    <span class="show-for-sr">Show Rated M Thumbnails?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+            [% IF data.settings.over_18 == 1 %]<div class="cell small-9 medium-9 large-8">
+              <strong>Access Adult-rated Content:</strong><br><small>Shows adult content to those users who are 18 years of age or older. This option is <strong>opt-in</strong>, and <em>does not</em> display for users under 18 years of age.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="show-adult-content" type="checkbox" name="show_adult_content"[% IF data.settings.show_adult_content == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="show-adult-content">
+                    <span class="show-for-sr">Show Adult Content?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>[% END %]
+
+          </div>
+        </div>
+
+        <h4>Notifications</h4>
+        <div class="grid-container callout small">
+          <div class="grid-x">
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Email Notifications:</strong><br><small>Email notifications to you in addition to being PMed.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="email-notifications" type="checkbox" name="email-notifications"[% IF data.settings.email_notifications == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="email-notifications">
+                    <span class="show-for-sr">Email Notifications?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Notify on Private Messages:</strong><br><small>Notify you when you receive a PM.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="notify-on-pms" type="checkbox" name="notify_on_pm"[% IF data.settings.notify_on_pm == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="notify-on-pms">
+                    <span class="show-for-sr">Notify on Private Messages?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Notify on Comments:</strong><br><small>Notify you when you receive a comment or critique.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="notify-on-comments" type="checkbox" name="notify_on_comment"[% IF data.settings.notify_on_comment == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="notify-on-comments">
+                    <span class="show-for-sr">Notify on Comments?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Notify on Friend Requests:</strong><br><small>Notify you when you receive a friend request.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="notify-on-friend-requests" type="checkbox" name="notify_on_friend_request"[% IF data.settings.notify_on_friend_request == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="notify-on-friend-requests">
+                    <span class="show-for-sr">Notify on Friend Requests?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Notify on Mentions:</strong><br><small>Notify you when someone mentions your username in a post or comment.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="notify-on-mentions" type="checkbox" name="notify_on_mention"[% IF data.settings.notify_on_mention == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="notify-on-mentions">
+                    <span class="show-for-sr">Notify on Mentions?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Notify on Favorites:</strong><br><small>Notify you when someone favorites one of your posts.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="notify-on-favorites" type="checkbox" name="notify_on_favorite"[% IF data.settings.notify_on_favorite == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="notify-on-favorites">
+                    <span class="show-for-sr">Notify on Favorites?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+            <div class="cell small-9 medium-9 large-8">
+              <strong>Notify on Museum Adds:</strong><br><small>Notify you when someone adds you to their museum.</small>
+            </div>
+            <div class="cell small-3 medium-3 large-4 align-self-middle">
+              <div class="switch small">
+                <input class="switch-input" id="notify-on-museums" type="checkbox" name="notify_on_museum_add"[% IF data.settings.notify_on_museum_add == 1 %] checked[% END %]>
+                  <label class="switch-paddle" for="notify-on-museums">
+                    <span class="show-for-sr">Notify on Museum Adds?</span>
+                    <span class="switch-active" aria-hidden="true">Yes</span>
+                    <span class="switch-inactive" aria-hidden="true">No</span>
+                  </label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <button class="button small radius success" type="submit" form="user-settings-form">
+          <span class="show-for-sr">Save Settings</span>
+          <span aria-hidden="true"><i class="fa fa-save"></i> Save Settings</span>
+        </button>
+
+      </form>
+
+      <div id="table-nav-wrapper"></div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  $('#user-settings-form').submit( function(e)
+    {
+      var url = '/user/settings/update';
+
+      $.ajax(
+      {
+        url: url,
+        method: "POST",
+        dataType: 'json',
+        data: $( '#user-settings-form' ).serialize(),
+        success: function( data )
+        {
+          if (  data[0].success < 1 )
+          {
+            showError(  data[0].message );
+            return false;
+          }
+
+          showSuccess(  data[0].message );
+        },
+        error: function()
+        {
+          showError( '<strong>Well, that\'s not good.</strong><br>An error occurred, and we could not update your settings. Please try again later.' );
+        }
+      });
+
+      e.preventDefault();
+    }
+  );
+</script>

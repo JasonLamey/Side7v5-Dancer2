@@ -36,3 +36,4 @@ upload_views [user_uploads appuser] 2017-11-03T00:13:30Z Jason Lamey <jasonlamey
 user_mail [users appuser] 2017-11-05T19:12:09Z Jason Lamey <jasonlamey@gmail.com> # Create the user_mail table.
 upload_comment_threads [user_uploads users appuser] 2017-11-17T02:56:31Z Jason Lamey <jasonlamey@gmail.com> # Create upload_comment_threads table
 upload_comments [upload_comment_threads users appuser] 2017-11-17T02:57:36Z Jason Lamey <jasonlamey@gmail.com> # Create the upload_comments table
+user_settings [appuser users] 2018-04-06T16:26:16Z Jason Lamey <jasonlamey@gmail.com> # Creates user_settings table

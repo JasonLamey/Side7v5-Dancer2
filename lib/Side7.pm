@@ -34,6 +34,25 @@ const my $SCHEMA                    => Side7::Schema->db_connect();
 const my $USER_SESSION_EXPIRE_TIME  => 172800; # 48 hours in seconds.
 const my $ADMIN_SESSION_EXPIRE_TIME => 600;    # 10 minutes in seconds.
 const my $DPAE_REALM                => 'site'; # Dancer2::Plugin::Auth::Extensible realm
+const my %DEFAULT_SETTINGS          => (
+  show_online_status       => 1,
+  allow_museum_adds        => 1,
+  allow_friend_requests    => 1,
+  allow_user_contact       => 1,
+  allow_add_to_favorites   => 1,
+  show_social_links        => 1,
+  filter_categories        => undef,
+  filter_ratings           => undef,
+  show_m_thmbnails         => 0,
+  show_adult_content       => 0,
+  email_notifications      => 1,
+  notify_on_pm             => 1,
+  notify_on_comment        => 1,
+  notify_on_friend_request => 1,
+  notify_on_mention        => 1,
+  notify_on_favorite       => 1,
+  notify_on_museum_add     => 1,
+);
 
 $SCHEMA->storage->debug(0); # Turns on DB debuging. Turn off for production.
 
@@ -830,6 +849,14 @@ post '/signup' => sub
                   }
   );
 
+  # Set initial user_settings.
+  $new_user->create_related( 'settings',
+    (
+      %DEFAULT_SETTINGS,
+      { updated_on         => $now, },
+    )
+  );
+
   info sprintf( 'Created new user >%s<, ID: >%s<, on %s', body_parameters->get( 'username' ), $new_user->id, $now );
 
   flash( success => sprintf("Thanks for signing up, %s! You have been logged in.", body_parameters->get( 'username' ) ) );
@@ -1351,6 +1378,71 @@ get '/user/message_center' => require_login sub
 };
 
 
+=head3 GET C</user/settings>
+
+Route to pull up the user's settings page.
+
+=cut
+
+get '/user/settings' => require_login sub
+{
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+
+  my $today = DateTime->today;
+  my ($byear, $bmon, $bday) = split( '-', $user->birthday );
+  my $birthday = DateTime->new( year => $byear, month => $bmon, day => $bday );
+  my $user_age = $today->subtract_datetime( $birthday );
+
+  my @categories = $SCHEMA->resultset( 'UploadCategory' )->search()->all;
+  my @ratings    = $SCHEMA->resultset( 'UploadRating' )->search()->all;
+
+  my $user_settings = $user->search_related( 'settings' )->single;
+
+  # Defaults
+  my %settings =
+  (
+    'show_online_status'     => (( defined $user_settings ) ? $user_settings->show_online_status     : 1 ),
+    'allow_museum_adds'      => (( defined $user_settings ) ? $user_settings->allow_museum_adds      : 1 ),
+    'allow_friend_requests'  => (( defined $user_settings ) ? $user_settings->allow_friend_requests  : 1 ),
+    'allow_user_contact'     => (( defined $user_settings ) ? $user_settings->allow_user_contact     : 1 ),
+    'allow_add_to_favorites' => (( defined $user_settings ) ? $user_settings->allow_add_to_favorites : 1 ),
+    'show_social_links'      => (( defined $user_settings ) ? $user_settings->show_social_links      : 1 ),
+
+    'filter_categories'      => (( defined $user_settings ) ? $user_settings->filter_categories      : '' ),
+    'filter_ratings'         => (( defined $user_settings ) ? $user_settings->filter_ratings         : '' ),
+    'show_m_thumbnails'      => (( defined $user_settings ) ? $user_settings->show_m_thumbnails      : 0 ),
+    'show_adult_content'     => (( defined $user_settings ) ? $user_settings->show_adult_content     : 0 ),
+    'over_18'                => (( $user_age->years() >= 18 ) ? 1 : 0 ),
+
+    'email_notifications'    => (( defined $user_settings ) ? $user_settings->email_notifications    : 1 ),
+    'notify_on_pm'           => (( defined $user_settings ) ? $user_settings->notify_on_pm           : 1 ),
+    'notify_on_comment'      => (( defined $user_settings ) ? $user_settings->notify_on_comment      : 1 ),
+    'notify_on_friend_request' => (( defined $user_settings ) ? $user_settings->notify_on_friend_request : 1 ),
+    'notify_on_mention'      => (( defined $user_settings ) ? $user_settings->notify_on_mention      : 1 ),
+    'notify_on_favorite'     => (( defined $user_settings ) ? $user_settings->notify_on_favorite     : 1 ),
+    'notify_on_museum_add'   => (( defined $user_settings ) ? $user_settings->notify_on_museum_add   : 1 ),
+    'updated_on'             => (( defined $user_settings ) ? $user_settings->updated_on             : 'Never' ),
+  );
+
+  my $category_filter_count = scalar( split( /,/, $settings{'filter_categories'} ) ) // 0;
+
+  template 'user_dashboard_settings',
+  {
+    data =>
+    {
+      settings   => \%settings,
+      categories => \@categories,
+      ratings    => \@ratings,
+      category_filter_count => $category_filter_count,
+    },
+    title => 'Settings',
+  },
+  {
+    layout => 'user_dashboard'
+  };
+};
+
+
 ################################################
 # ROUTES THAT USE AJAX
 ################################################
@@ -1710,6 +1802,223 @@ ajax '/user/mail/delete' => require_login sub
       }
     );
   }
+  return to_json( \@json );
+};
+
+
+=head3 AJAX C</user/settings/filter/categories>
+
+Route to fetch the category filter settings page.
+
+=cut
+
+get '/user/settings/filter/categories' => require_login sub
+{
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $settings = $user->search_related( 'settings' )->single;
+
+  my %filtered_categories = ();
+  %filtered_categories = map { $_ => 1 } split( /,/, $settings->filter_categories ) if defined $settings;
+
+  my @categories = $SCHEMA->resultset( 'UploadCategory' )->search( {}, { order_by => [ 'upload_type_id', 'sort_order' ] })->all;
+
+  template 'user_settings_filter_categories',
+  {
+    data =>
+    {
+      filtered_categories => \%filtered_categories,
+      categories          => \@categories,
+    },
+  },
+  {
+    layout => 'ajax-modal'
+  };
+};
+
+
+=head3 AJAX C</user/settings/filter/ratings>
+
+Route to fetch the ratings filter settings page.
+
+=cut
+
+get '/user/settings/filter/ratings' => require_login sub
+{
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $settings = $user->search_related( 'settings' )->single;
+
+  my %filtered_ratings = ();
+  %filtered_ratings = map { $_ => 1 } split( /,/, $settings->filter_ratings ) if defined $settings;
+
+  my @ratings = $SCHEMA->resultset( 'UploadRating' )->search( {}, { order_by => [ 'upload_type_id', 'sort_order' ] })->all;
+
+  template 'user_settings_filter_ratings',
+  {
+    data =>
+    {
+      filtered_ratings => \%filtered_ratings,
+      ratings          => \@ratings,
+    },
+  },
+  {
+    layout => 'ajax-modal'
+  };
+};
+
+
+=head3 AJAX C</user/settings/update>
+
+Route to set the user settings.
+
+=cut
+
+post '/user/settings/update' => require_login sub
+{
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $settings = $user->search_related( 'settings' )->single;
+
+  my %form_data = params('body');
+  my $today = DateTime->now;
+
+  my @settings_fields = (
+    qw/
+       show_online_status allow_museum_adds allow_friend_requests allow_user_contact
+       allow_add_to_favorites show_social_links show_m_thumbnails show_adult_content
+       email_notifications notify_on_pm notify_on_comment notify_on_friend_request
+       notify_on_mention notify_on_favorite notify_on_museum_add
+     /
+  );
+
+  my @json = ();
+
+  if ( defined $settings )
+  {
+    foreach my $key ( @settings_fields )
+    {
+      if ( defined $form_data{$key} )
+      {
+        $settings->$key( ($form_data{$key} eq 'on') ? 1 : 0 );
+      }
+      else
+      {
+        $settings->$key( 0 );
+      }
+    }
+    $settings->updated_on( $today->datetime );
+    $settings->update;
+  }
+  else
+  {
+    my %new_settings = map {
+      $_ => ( (defined $form_data{$_}) 
+            ? ( ( $form_data{$_} eq 'on' ) ? 1 : 0 )
+            : 0 )
+    } @settings_fields;
+    $user->create_related( 'settings', ( %new_settings, { updated_on => $today->datetime, }, ) );
+  }
+
+  push (@json, { success => 1, message => 'Your settings have been updated.' } );
+
+  return to_json( \@json );
+};
+
+
+=head3 AJAX C</user/settings/filter/categories/update>
+
+Route to set the category filter settings.
+
+=cut
+
+post '/user/settings/filter/categories/update' => require_login sub
+{
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $settings = $user->search_related( 'settings' )->single;
+  my $raw_filters = param( 'filter' ) // undef;
+  my $today = DateTime->now;
+
+  my @json = ();
+
+  # If raw_filters is empty, clear the value from filter_categories.
+  if ( !defined $raw_filters or scalar( @{$raw_filters} ) < 1 )
+  {
+    if ( defined $settings )
+    {
+      $settings->filter_categories( '' );
+      $settings->updated_on( $today->datetime );
+      $settings->update;
+    }
+    else
+    {
+      my $user->add_to_settings( { filter_categories => '', updated_on => $today->datetime } );
+    }
+    push (@json, { success => 1, message => 'Your filters have been cleared.' } );
+  }
+  # Else, stringify the values of raw_filters, and set filter_categories to a comma-separated list.
+  else
+  {
+    if ( defined $settings )
+    {
+      $settings->filter_categories( join( ',', @{$raw_filters} ) );
+      $settings->updated_on( $today->datetime );
+      $settings->update;
+    }
+    else
+    {
+      my $user->add_to_settings( { filter_categories => join( ',', @{$raw_filters} ), updated_on => $today->datetime } );
+    }
+    push (@json, { success => 1, message => 'Your filters have been updated.' } );
+  }
+
+  return to_json( \@json );
+};
+
+
+=head3 AJAX C</user/settings/filter/ratings/update>
+
+Route to set the rating filter settings.
+
+=cut
+
+post '/user/settings/filter/ratings/update' => require_login sub
+{
+  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $settings = $user->search_related( 'settings' )->single;
+  my $raw_filters = param( 'filter' ) // undef;
+  my $today = DateTime->now;
+
+  my @json = ();
+
+  # If raw_filters is empty, clear the value from filter_categories.
+  if ( !defined $raw_filters or scalar( @{$raw_filters} ) < 1 )
+  {
+    if ( defined $settings )
+    {
+      $settings->filter_ratings( '' );
+      $settings->updated_on( $today->datetime );
+      $settings->update;
+    }
+    else
+    {
+      my $user->add_to_settings( { filter_ratings => '' }, updated_on => $today->datetime );
+    }
+    push (@json, { success => 1, message => 'Your filters have been cleared.' } );
+  }
+  # Else, stringify the values of raw_filters, and set filter_categories to a comma-separated list.
+  else
+  {
+    if ( defined $settings )
+    {
+      $settings->filter_ratings( join( ',', @{$raw_filters} ) );
+      $settings->updated_on( $today->datetime );
+      $settings->update;
+    }
+    else
+    {
+      my $user->add_to_settings( { filter_ratings => join( ',', @{$raw_filters} ), updated_on => $today->datetime } );
+    }
+    push (@json, { success => 1, message => 'Your filters have been updated.' } );
+  }
+
   return to_json( \@json );
 };
 

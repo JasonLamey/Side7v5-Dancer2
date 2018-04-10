@@ -575,3 +575,108 @@ function scrollToAnchor( aid )
   var aTag = $( aid );
   $('html,body').animate({scrollTop: aTag.offset().top},'slow');
 }
+
+function toggleFilter( element, id )
+{
+  if (element.checked)
+  {
+    $("#filter-indicator-" + id).html( '<strong>Filtered</strong>' );
+  }
+  else
+  {
+    $("#filter-indicator-" + id).html( 'Unfiltered' );
+  }
+}
+
+function toggleFilterRow( id )
+{
+  var input_id = '#filter-' + id;
+  var wrap_id  = '#indicator-wrap-' + id;
+  if ($(input_id).prop( 'checked' ))
+  {
+    $(input_id).attr( 'checked', false );
+    $(wrap_id).html( 'Unfiltered' );
+    $(wrap_id).removeClass( 'warning' ).addClass( 'primary' );
+  }
+  else
+  {
+    $(input_id).attr( 'checked', true );
+    $(wrap_id).html( 'Filtered' );
+    $(wrap_id).removeClass( 'primary' ).addClass( 'warning' );
+  }
+}
+
+//Generic functionality that doesn't use named functions
+$(document).ready( function()
+  {
+
+    $(document).on('submit', '#filter-categories-form', function(e)
+      {
+        var url = '/user/settings/filter/categories/update';
+        console.log( 'URL: ' + url );
+
+        $.ajax(
+        {
+          url: url,
+          method: "POST",
+          dataType: 'json',
+          data: $( '#filter-categories-form' ).serialize(),
+          success: function( data )
+          {
+            if (  data[0].success < 1 )
+            {
+              console.log( 'received error' );
+              showError(  data[0].message );
+              return false;
+            }
+
+            console.log( 'showing success' );
+            showSuccess(  data[0].message );
+          },
+          error: function()
+          {
+            console.log( 'functional error' );
+            showError( '<strong>Well, that\'s not good.</strong><br>An error occurred, and we could not update your filters. Please try again later.' );
+          }
+        });
+
+        e.preventDefault();
+      }
+    );
+
+    $(document).on('submit', '#filter-ratings-form', function(e)
+      {
+        var url = '/user/settings/filter/ratings/update';
+        console.log( 'URL: ' + url );
+
+        $.ajax(
+        {
+          url: url,
+          method: "POST",
+          dataType: 'json',
+          data: $( '#filter-ratings-form' ).serialize(),
+          success: function( data )
+          {
+            if (  data[0].success < 1 )
+            {
+              console.log( 'received error' );
+              showError(  data[0].message );
+              return false;
+            }
+
+            console.log( 'showing success' );
+            showSuccess(  data[0].message );
+          },
+          error: function()
+          {
+            console.log( 'functional error' );
+            showError( '<strong>Well, that\'s not good.</strong><br>An error occurred, and we could not update your filters. Please try again later.' );
+          }
+        });
+
+        e.preventDefault();
+      }
+    );
+
+  }
+);
