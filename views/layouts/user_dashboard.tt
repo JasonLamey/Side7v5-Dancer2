@@ -8,7 +8,7 @@
   <div class="grid-y medium-grid-frame">
     <div class="cell shrink header">
         [% PROCESS 'partials/main_menu.tt' %]
-    </div>
+    </div><!-- Close header -->
 
     <div class="grid-x grid-margin-x">
       <div class="cell medium-cell-block">
@@ -27,7 +27,7 @@
                 <li><a href="/user/museum">
                   <i class="large fa fa-fw fa-bank"></i> <span class="app-dashboard-sidebar-text">Museum</span>
                 </a></li>
-                <li><a href="/user/profile">
+                <li><a href="/user/profile/edit">
                   <i class="large fa fa-fw fa-drivers-license"></i> <span class="app-dashboard-sidebar-text">Profile</span>
                 </a></li>
                 <li><a href="/user/gallery">
@@ -40,30 +40,30 @@
                   <i class="large fa fa-fw fa-gear"></i> <span class="app-dashboard-sidebar-text">Settings</span>
                 </a></li>
               </ul>
-            </div>
+            </div><!-- Close app-dashboard-sidebar-inner -->
 
-          </div> <!-- Close menu block -->
+          </div> <!-- Close off-canvas block-->
 
           <div class="cell auto medium-cell-block-y off-canvas-content" data-off-canvas-content>
 
             <div class="grid-container">
               <div class="grid-x grid-margin-x">
                 <div class="cell"><button type="button" class="button" data-toggle="UDB-menu"><i class="fa fa-bars"></i> Dashboard Menu</button></div>
-              </div>
-            </div>
+              </div><!-- Close grid-x -->
+            </div><!-- close grid-container -->
 
             [% content %]
 
-          </div>
+          </div><!-- Close off-canvas content -->
 
-        </div>
-      </div>
-    </div>
+        </div><!-- Close off-canvas wrapper -->
+      </div><!-- Close medium cell -->
+    </div><!-- Close content grid-x -->
 
     <div class="cell shrink footer">
       [% PROCESS 'partials/main-footer.tt' %]
-    </div>
-  </div>
+    </div><!-- Close footer -->
+  </div> <!-- Close Grid Frame -->
 
   <script>
     $(document).ready( function () {

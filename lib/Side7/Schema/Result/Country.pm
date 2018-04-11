@@ -25,7 +25,7 @@ This module represents a Country object in the web app, as well as the interface
 
 =cut
 
-__PACKAGE__->table( 'roles' );
+__PACKAGE__->table( 'countries' );
 __PACKAGE__->add_columns(
                           id =>
                             {

@@ -1346,6 +1346,34 @@ get '/user/credit_history' => require_login sub
 };
 
 
+=head3 GET C</user/profile/edit>
+
+Route to pull up the user's profile management page.
+
+=cut
+
+get '/user/profile/edit' => require_login sub
+{
+  my $user      = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my @genders   = $SCHEMA->resultset( 'UserGender' )->search( {} )->all;
+  my @countries = $SCHEMA->resultset( 'Country' )->search( {} )->all;
+
+  template 'user_dashboard_profile',
+  {
+    data =>
+    {
+      user      => $user,
+      genders   => \@genders,
+      countries => \@countries,
+    },
+    title => 'Profile',
+  },
+  {
+    layout => 'user_dashboard'
+  };
+};
+
+
 =head3 GET C</user/message_center>
 
 Route to pull up the user's message center page.

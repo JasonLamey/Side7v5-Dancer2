@@ -1,3 +1,9 @@
-[% IF item.user.defined; user = item.user; ELSE; user = data.upload.user; END; %]
+[% IF item.user.defined;
+      user = item.user;
+  ELSIF data.upload.user.defined;
+      user = data.upload.user;
+  ELSE;
+      user = data.user;
+  END; %]
 [% PROCESS 'partials/_avatar_select.tt' %]
 <img src="[% thumbnail %]" class="thumbnail">
