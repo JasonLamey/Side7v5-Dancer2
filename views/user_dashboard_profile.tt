@@ -88,7 +88,7 @@
             </div>
 
             <div class="cell small-12">
-              <button type="submit" class="button radius"><i class="fa fa-check-circle"></i> Save Profile</button>
+              <button type="submit" class="button radius"><i class="fa fa-check"></i> Save Profile</button>
             </div>
 
           </div>
@@ -144,7 +144,7 @@
                   </fieldset>
 
                   <div style="cell">
-                  [% IF data.user_avatars.size < 1 %]
+                  [% IF ! data.user_avatars.defined || data.user_avatars.size < 1 %]
                     <strong>No Avatars to Show</strong>
                   [% ELSE %]
                     <div class="grid-x grid-padding-x small-up-2 medium-up-4 large-up-6">
@@ -152,8 +152,8 @@
                       [% alt_text = ( uavatar.title != '' ) ? uavatar.title : uavatar.filename %]
                       <div class="cell text-center">
                         <img src="[% uavatar.uri %]" alt="[% alt_text %]" title="[% alt_text %]" class="avatar">
-                        <input type="radio" name="avatar_id" value="u-[% uavatar.avatar_id %]"[% ( user.account.avatar_type == 'Image' && uavatar.avatar_id == data.user.avatar_id ) ? ' checked' : '' %] onClick="check_avatar_type( 'Image' );"> <i class="fa fa-check-cicle success"></i> |
-                        <input type="checkbox" name="delete-[% uavatar.avatar_id %]"> <i class="fa fa-minus-circle alert"</i>
+                        <input type="radio" name="avatar_id" value="u-[% uavatar.avatar_id %]"[% ( user.account.avatar_type == 'Image' && uavatar.avatar_id == data.user.avatar_id ) ? ' checked' : '' %] onClick="check_avatar_type( 'Image' );"> Use |
+                        <input type="checkbox" name="delete-[% uavatar.avatar_id %]"> Del
                       </div>
                     [% END %]
                     </div>
@@ -168,16 +168,18 @@
                   </fieldset>
 
                   <div style="cell">
-                  [% IF data.system_avatars.size < 1 %]
+                  [% IF ! data.system_avatars.defined || data.system_avatars.size < 1 %]
                     <strong>No Avatars to Show</strong>
                   [% ELSE %]
                     <div class="grid-x grid-padding-x small-up-2 medium-up-4 large-up-6">
-                    [% FOREACH savatar IN system_avatars %]
+                    [% FOREACH savatar IN data.system_avatars %]
                       [% alt_text = ( savatar.title != '' ) ? savatar.title : savatar.filename %]
 [% ( data.user.avatar_type == 'System' && savatar.avatar_id == data.user.avatar_id ) ? ' checked' : '' %]
                       <div class="cell text-center">
-                        <img src="[% savatar.uri %]" alt="[% alt_text %]" title="[% alt_text %]" class="avatar">
-                        <input type="radio" name="avatar_id" value="s-[% savatar.avatar_id %]"[% ( data.user.avatar_type == 'System' && savatar.avatar_id == data.user.avatar_id ) ? ' checked' : '' %] onClick="check_avatar_type( 'System' );"> <i class="fa fa-check-cicle success"></i>
+                        <img src="[% savatar.uri_path %]" alt="[% alt_text %]" title="[% alt_text %]" class="thumbnail">
+                        <fieldset>
+                          <input type="radio" name="avatar_id" value="s-[% savatar.id %]"[% ( data.user.avatar_type == 'System' && savatar.id == data.user.avatar_id ) ? ' checked' : '' %] onClick="check_avatar_type( 'System' );"> Use
+                        </fieldset>
                       </div>
                       [% END %]
                     </div>
@@ -249,4 +251,21 @@ $(document).ready( function() {
   );
 
 });
+
+function check_avatar_type( avatar_type )
+{
+  var types = [ 'None', 'Gravatar', 'Image', 'System' ];
+  for ( index = 0; index < types.length; index++ )
+  {
+    var id_name = 'avatar_type_' + types[index].toLowerCase();
+    if ( avatar_type == types[index] )
+    {
+      document.getElementById(id_name).checked = true;
+    }
+    else
+    {
+      document.getElementById(id_name).checked = false;
+    }
+  }
+}
 </script>

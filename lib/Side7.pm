@@ -1357,14 +1357,16 @@ get '/user/profile/edit' => require_login sub
   my $user      = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
   my @genders   = $SCHEMA->resultset( 'UserGender' )->search( {} )->all;
   my @countries = $SCHEMA->resultset( 'Country' )->search( {} )->all;
+  my @system_avatars = $SCHEMA->resultset( 'SystemAvatar' )->search( {} )->all;
 
   template 'user_dashboard_profile',
   {
     data =>
     {
-      user      => $user,
-      genders   => \@genders,
-      countries => \@countries,
+      user           => $user,
+      genders        => \@genders,
+      countries      => \@countries,
+      system_avatars => \@system_avatars,
     },
     title => 'Profile',
   },
