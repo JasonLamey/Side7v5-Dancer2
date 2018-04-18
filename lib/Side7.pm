@@ -17,11 +17,13 @@ use DateTime;
 use Const::Fast;
 use Data::Dumper;
 use URL::Encode;
+use Digest::SHA;
 
 # Side 7 modules
 use Side7::Schema;
 use Side7::Util;
 use Side7::Util::Text;
+use Side7::Util::File;
 use Side7::Mail;
 use Side7::Log;
 use Side7::Crypt;
@@ -1476,6 +1478,42 @@ get '/user/settings' => require_login sub
 ################################################
 # ROUTES THAT USE AJAX
 ################################################
+
+
+=head3 POST C</user/avatar/upload>
+
+Route to upload an avatar file.
+
+=cut
+
+post '/user/avatar/upload' => require_login sub
+{
+  my $filedata = request->upload( 'filename' );
+  my $title    = body_parameters->get( 'title' ) // '';
+  my $user     = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+
+  my @json = ();
+
+  my $gallery_path = $user->dirpath();
+
+  if ( ! defined $gallery_path or $gallery_path eq '' )
+  {
+    push( @json, { success => 0, message => 'Could not locate or create your avatar folder. Please try again.' } );
+    return to_json( \@json );
+  }
+
+  my $avatar_path  = $gallery_path . '/avatars';
+
+  my $sha256 = Digest::SHA->new( 256 );
+  $sha256->add( $filedata->basename . $user->username . DateTime->now( time_zone => 'UTC' )->datetime );
+  my $newfilename = $sha256->hexdigest;
+
+  my $upload_path = path( $avatar_path, $newfilename );
+  $filedata->link_to( $upload_path );
+
+  push( @json, { success => 1, message => 'Avatar uploaded!' } );
+  return to_json( \@json );
+};
 
 
 =head3 GET C</user/mail_folder/:folder/:filtered>

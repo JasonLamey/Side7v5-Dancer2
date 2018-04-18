@@ -3,6 +3,8 @@ package Side7::Util::Text;
 use strict;
 use warnings;
 
+use Dancer2 appname => 'Side7';
+
 use Parse::BBCode;
 use Parse::BBCode::HTML;
 use Regexp::Common qw/profanity profanity_us/;

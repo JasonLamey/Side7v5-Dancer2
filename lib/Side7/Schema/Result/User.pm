@@ -6,6 +6,7 @@ use warnings;
 # Third Party modules
 use base 'DBIx::Class::Core';
 use DateTime;
+use File::Path;
 our $VERSION = '1.0';
 
 
@@ -228,6 +229,7 @@ __PACKAGE__->has_many( 'credits'         => 'Side7::Schema::Result::S7Credit',  
 __PACKAGE__->has_many( 'sent_mail'       => 'Side7::Schema::Result::UserMail',            'sender_id' );
 __PACKAGE__->has_many( 'received_mail'   => 'Side7::Schema::Result::UserMail',            'recipient_id' );
 __PACKAGE__->has_many( 'comment_threads' => 'Side7::Schema::Result::UploadCommentThread', 'creator_id' );
+__PACKAGE__->has_many( 'avatars'         => 'Side7::Schema::Result::UserAvatar',          'user_id' );
 
 __PACKAGE__->many_to_many( 'roles' => 'userroles', 'role' );
 
@@ -281,9 +283,23 @@ This method returns the user's directory path based on the user's ID.
 
 sub dirpath
 {
-  my ( $self ) = @_;
+  my $self = shift;
 
-  return sprintf( '/%s/%s/%s', substr( $self->id, 0, 1 ), substr( $self->id, 0, 3 ), $self->id );
+  my $gallery_path = sprintf( '/%s/%s/%s', substr( $self->id, 0, 1 ), substr( $self->id, 0, 3 ), $self->id );
+  my $path = '/data/galleries' . $gallery_path;
+
+  unless ( Side7::Util::File::path_exists( $path ) )
+  {
+    my $created = Side7::Util::File::create_path( $path );
+
+    if ( $created->{'success'} < 1 )
+    {
+      warn sprintf( 'Error creating User Path >%s<: %s', $path, $created->{'message'} );
+      return '';
+    }
+  }
+
+  return $path;
 }
 
 

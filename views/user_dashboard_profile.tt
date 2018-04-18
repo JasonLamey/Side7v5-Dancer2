@@ -116,14 +116,16 @@
                 <h4>Upload A New Avatar</h4>
                 <form action="/user/avatar/upload" method="post" enctype="multipart/form-data" id="upload-avatar">
                   <label for="filename">Upload an image to use as your Avatar:
-                    <input type="file" name="filename" required="required">
+                    <div id="drop-area dm-uploader">
+                      <input type="file" name="filename" required="required">
+                    </div>
                     <p class="help-text">
                       (<strong>Note:</strong> Using an image that is <strong>larger than 200px x 200px</strong> works best, as your Avatar will be resized automatically.)</span>
                     </p>
                   </label>
 
                   <label for="title">Avatar Name:
-                    <input type="text" name="title" maxlength="255" size="30"> <button type="submit" class="button radius" form="upload-avatar"><i class="fa fa-upload"></i> Upload and Add Avatar</button>
+                    <input type="text" name="title" id='avatar-title' maxlength="255" size="30"> <button type="submit" class="button radius" form="upload-avatar"><i class="fa fa-upload"></i> Upload and Add Avatar</button>
                   </label>
                 </form>
               </div>
@@ -212,60 +214,82 @@
 </div>
 
 <script>
-$(document).ready( function() {
+  $(document).ready( function() {
 
-  $('#birthday_visibility')
-    .change( function()
-      {
-        var helpText = '';
-        if ( $(this).val() == 'Private' )
+    $('#birthday_visibility')
+      .change( function()
         {
-          helpText = 'Your birthday will not be displayed.';
+          var helpText = '';
+          if ( $(this).val() == 'Private' )
+          {
+            helpText = 'Your birthday will not be displayed.';
+          }
+          else if ( $(this).val() == 'Hide Year' )
+          {
+            helpText = 'Your birthday will appear as \'[% date.format( data.user.birthday _ ' 00:00:00', '%d %b' ) %].\'';
+          }
+          else
+          {
+            helpText = 'Your birthday will appear as \'[% date.format( data.user.birthday _ ' 00:00:00', '%d %b %Y' ) %].\'';
+          }
+          $('#birthday-example').html( helpText );
         }
-        else if ( $(this).val() == 'Hide Year' )
+      )
+      .change();
+
+    $('.info-tooltip').tooltipster({
+      contentAsHTML: true,
+      theme: 'tooltipster-light',
+      animation: 'fade',
+      interactive: true,
+      maxWidth: 500
+    });
+
+    CKEDITOR.replace( 'biography',
+      {
+        uiColor: '#8a7488',
+        toolbarCanCollapse: true
+      }
+    );
+
+    $("#drop-area").dmUploader(
+      {
+        url: '/user/avatar/upload',
+        dnd: true,
+        auto: false,
+        maxFileSize: 3000000, // 3 Megs
+        dataType: 'json',
+        fieldName: 'filename',
+        allowedTypes: "image/*",
+        extFilter: ["jpg", "jpeg", "png", "gif"],
+        extraData: function() {
+          return {
+            "title": $('#avatar-title').val()
+          };
+        },
+
+        onInit: function(){
+          console.log('Callback: Plugin initialized');
+        }
+      }
+    );
+
+    function check_avatar_type( avatar_type )
+    {
+      var types = [ 'None', 'Gravatar', 'Image', 'System' ];
+      for ( index = 0; index < types.length; index++ )
+      {
+        var id_name = 'avatar_type_' + types[index].toLowerCase();
+        if ( avatar_type == types[index] )
         {
-          helpText = 'Your birthday will appear as \'[% date.format( data.user.birthday _ ' 00:00:00', '%d %b' ) %].\'';
+          document.getElementById(id_name).checked = true;
         }
         else
         {
-          helpText = 'Your birthday will appear as \'[% date.format( data.user.birthday _ ' 00:00:00', '%d %b %Y' ) %].\'';
+          document.getElementById(id_name).checked = false;
         }
-        $('#birthday-example').html( helpText );
       }
-    )
-    .change();
-
-  $('.info-tooltip').tooltipster({
-    contentAsHTML: true,
-    theme: 'tooltipster-light',
-    animation: 'fade',
-    interactive: true,
-    maxWidth: 500
+    };
   });
 
-  CKEDITOR.replace( 'biography',
-    {
-      uiColor: '#8a7488',
-      toolbarCanCollapse: true
-    }
-  );
-
-});
-
-function check_avatar_type( avatar_type )
-{
-  var types = [ 'None', 'Gravatar', 'Image', 'System' ];
-  for ( index = 0; index < types.length; index++ )
-  {
-    var id_name = 'avatar_type_' + types[index].toLowerCase();
-    if ( avatar_type == types[index] )
-    {
-      document.getElementById(id_name).checked = true;
-    }
-    else
-    {
-      document.getElementById(id_name).checked = false;
-    }
-  }
-}
 </script>

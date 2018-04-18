@@ -39,3 +39,4 @@ upload_comments [upload_comment_threads users appuser] 2017-11-17T02:57:36Z Jaso
 user_settings [appuser users] 2018-04-06T16:26:16Z Jason Lamey <jasonlamey@gmail.com> # Creates user_settings table
 system_avatars [appuser] 2018-04-11T19:59:31Z Jason Lamey <jasonlamey@gmail.com> # Create the system_avatars table
 populate_system_avatars [system_avatars appuser] 2018-04-12T03:12:09Z Jason Lamey <jasonlamey@gmail.com> # Populate system_avatars with records.
+user_avatars [appuser users] 2018-04-18T00:49:22Z Jason Lamey <jasonlamey@gmail.com> # Creation of user_avatars table.

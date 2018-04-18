@@ -6,4 +6,4 @@
       user = data.user;
   END; %]
 [% PROCESS 'partials/_avatar_select.tt' %]
-<img src="[% thumbnail %]" class="thumbnail">
+<img src="[% thumbnail %]" class="avatar">
