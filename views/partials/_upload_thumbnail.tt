@@ -10,6 +10,6 @@
 [% END %]
 <div class="cell">
   <span class="upload-tooltip" data-tooltipster='{"uid":"[% item.id %]"}'>
-    <a href="/content/[% item.id %]"><img src="[% thumbnail %]" class="lazy thumbnail"></a>
+    <a href="/content/[% item.id %]"><img data-src="[% thumbnail %]" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" class="thumbnail b-lazy"></a>
   </span>
 </div>

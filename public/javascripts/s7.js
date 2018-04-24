@@ -606,125 +606,108 @@ function toggleFilterRow( id )
   }
 }
 
-function avatarUpload()
+$(function()
 {
-  $(function()
+  /*
+  * For the sake keeping the code clean and the examples simple this file
+  * contains only the plugin configuration & callbacks.
+  *
+  * UI functions ui_* can be located in: demo-ui.js
+  */
+  $('#avatar-uploader').dmUploader(
   {
-    /*
-    * For the sake keeping the code clean and the examples simple this file
-    * contains only the plugin configuration & callbacks.
-    *
-    * UI functions ui_* can be located in: demo-ui.js
-    */
-    $('#avatar-upload').dmUploader(
-    {
-      url: '/user/avatar/upload',
-      dnd: true,
-      auto: false,
-      maxFileSize: 3000000, // 3 Megs
-      dataType: 'json',
-      fieldName: 'filename',
-      allowedTypes: "image/*",
-      extFilter: ["jpg", "jpeg", "png", "gif"],
-      extraData: function() {
-        return {
-          "title": $('#avatar-title').val()
-        };
-      },
+    url: '/user/avatar/upload',
+    dnd: true,
+    auto: false,
+    maxFileSize: 3000000, // 3 Megs
+    multiple: false,
+    dataType: 'json',
+    fieldName: 'filename',
+    allowedTypes: "image/*",
+    extFilter: ["jpg", "jpeg", "png", "gif"],
+    extraData: function() {
+      return {
+        "title": $('#avatar-title').val()
+      };
+    },
 
-      onDragEnter: function()
-      {
-        // Happens when dragging something over the DnD area
-        this.addClass('active');
-      },
-      onDragLeave: function()
-      {
-        // Happens when dragging something OUT of the DnD area
-        this.removeClass('active');
-      },
-      onInit: function()
-      {
-        // Plugin is ready to use
-        ui_add_log('Penguin initialized :)', 'info');
-      },
-      onComplete: function()
-      {
-        // All files in the queue are processed (success or error)
-        ui_add_log('All pending tranfers finished');
-      },
-      onNewFile: function(id, file)
-      {
-        // When a new file is added using the file selector or the DnD area
-        ui_add_log('New file added #' + id);
-        ui_multi_add_file(id, file);
-      },
-      onBeforeUpload: function(id)
-      {
-        // about tho start uploading a file
-        ui_add_log('Starting the upload of #' + id);
-        ui_multi_update_file_status(id, 'uploading', 'Uploading...');
-        ui_multi_update_file_progress(id, 0, '', true);
-      },
-      onUploadCanceled: function(id)
-      {
-        // Happens when a file is directly canceled by the user.
-        ui_multi_update_file_status(id, 'warning', 'Canceled by User');
-        ui_multi_update_file_progress(id, 0, 'warning', false);
-      },
-      onUploadProgress: function(id, percent)
-      {
-        // Updating file progress
-        ui_multi_update_file_progress(id, percent);
-      },
-      onUploadSuccess: function(id, data)
-      {
-        // A file was successfully uploaded
-        ui_add_log('Server Response for file #' + id + ': ' + JSON.stringify(data));
-        ui_add_log('Upload of file #' + id + ' COMPLETED', 'success');
-        ui_multi_update_file_status(id, 'success', 'Upload Complete');
-        ui_multi_update_file_progress(id, 100, 'success', false);
-      },
-      onUploadError: function(id, xhr, status, message)
-      {
-        ui_multi_update_file_status(id, 'danger', message);
-        ui_multi_update_file_progress(id, 0, 'danger', false);
-      },
-      onFallbackMode: function()
-      {
-        // When the browser doesn't support this plugin :(
-        ui_add_log('Plugin cant be used here, running Fallback callback', 'danger');
-      },
-      onFileSizeError: function(file)
-      {
-        ui_add_log('File \'' + file.name + '\' cannot be added: size excess limit', 'danger');
-      }
-    });
+    onDragEnter: function()
+    {
+      // Happens when dragging something over the DnD area
+      this.addClass('active');
+    },
+    onDragLeave: function()
+    {
+      // Happens when dragging something OUT of the DnD area
+      this.removeClass('active');
+    },
+    onInit: function()
+    {
+      // Plugin is ready to use
+      console.log('Avatar Upload initialized :)');
+    },
+    onComplete: function()
+    {
+      // All files in the queue are processed (success or error)
+      console.log('All pending tranfers finished');
+    },
+    onNewFile: function(id, file)
+    {
+      // When a new file is added using the file selector or the DnD area
+      console.log('New file added #' + id);
+      ui_multi_add_file(id, file);
+    },
+    onBeforeUpload: function(id)
+    {
+      // about tho start uploading a file
+      console.log('Starting the upload of #' + id);
+      ui_multi_update_file_status(id, 'label', 'Uploading...');
+      ui_multi_update_file_progress(id, 0, '', true);
+    },
+    onUploadCanceled: function(id)
+    {
+      // Happens when a file is directly canceled by the user.
+      ui_multi_update_file_status(id, 'label warning', 'Canceled by User');
+      ui_multi_update_file_progress(id, 0, 'warning', false);
+    },
+    onUploadProgress: function(id, percent)
+    {
+      // Updating file progress
+      ui_multi_update_file_progress(id, percent);
+    },
+    onUploadSuccess: function(id, data)
+    {
+      // A file was successfully uploaded
+      console.log('Server Response for file #' + id + ': ' + JSON.stringify(data));
+      console.log('Upload of file #' + id + ' COMPLETED', 'success');
+      ui_multi_update_file_status(id, 'label success', 'Upload Complete');
+      ui_multi_update_file_progress(id, 100, 'success', false);
+      $('#avatar-title').val( '' );
+      reload_user_avatars();
+      setTimeout(function() { $('#file-status').find('span').html( '' ).prop('class', ''); }, 5000);
+    },
+    onUploadError: function(id, xhr, status, message)
+    {
+      showError( '<strong>Danger, Will Robinson!</strong><br>' + message );
+      ui_multi_update_file_progress(id, 0, 'alert', false);
+    },
+    onFallbackMode: function()
+    {
+      // When the browser doesn't support this plugin :(
+      console.log('Plugin cannot be used here, running Fallback callback');
+    },
+    onFileSizeError: function(file)
+    {
+      showError( '<strong>Look at the <em>size</em> of that thing!</strong><br>File \''
+                  + file.name + '\' cannot be added as it exceeds the size limit of 3Mb.' );
+      console.log('File \'' + file.name + '\' cannot be added: size excess limit');
+    }
   });
-}
+});
 
  /*
  * Some helper functions to work with our UI and keep our code cleaner
  */
-
-// Adds an entry to our debug area
-function ui_add_log(message, color)
-{
-  var d = new Date();
-
-  var dateString = (('0' + d.getHours())).slice(-2) + ':' +
-  (('0' + d.getMinutes())).slice(-2) + ':' +
-  (('0' + d.getSeconds())).slice(-2);
-
-  color = (typeof color === 'undefined' ? 'muted' : color);
-
-  var template = $('#debug-template').text();
-  template = template.replace('%%date%%', dateString);
-  template = template.replace('%%message%%', message);
-  template = template.replace('%%color%%', color);
-
-  $('#debug').find('li.empty').fadeOut(); // remove the 'no messages yet'
-  $('#debug').prepend(template);
-}
 
 // Creates a new file and add it to our list
 function ui_multi_add_file(id, file)
@@ -743,35 +726,83 @@ function ui_multi_add_file(id, file)
 // Changes the status messages on our list
 function ui_multi_update_file_status(id, status, message)
 {
-  $('#uploaderFile' + id).find('span').html(message).prop('class', 'status text-' + status);
+  $('#file-status').find('span').html(message).prop('class', status);
 }
 
 // Updates a file progress, depending on the parameters it may animate it or change the color.
 function ui_multi_update_file_progress(id, percent, color, active)
 {
-  color = (typeof color === 'undefined' ? false : color);
-  active = (typeof active === 'undefined' ? true : active);
+  color  = (typeof color === 'undefined' ? false : color);
 
-  var bar = $('#uploaderFile' + id).find('div.progress-bar');
+  var bar_wrap = $('#avatar-upload');
+  var bar      = $('#avatar-upload').find('span.progress-meter');
+  var bar_text = $('#avatar-upload').find('p.progress-meter-text');
 
-  bar.width(percent + '%').attr('aria-valuenow', percent);
-  bar.toggleClass('progress-bar-striped progress-bar-animated', active);
+  bar_wrap.attr('aria-valuenow', percent);
+  bar.width(percent + '%');
 
   if (percent === 0)
   {
-    bar.html('');
+    bar_text.html('');
   }
   else
   {
-    bar.html(percent + '%');
+    bar_text.html(percent + '%');
   }
 
   if (color !== false)
   {
-    bar.removeClass('bg-success bg-info bg-warning bg-danger');
-    bar.addClass('bg-' + color);
+    bar.removeClass('success secondary primary warning error');
+    bar.addClass(color);
   }
 }
+
+function reload_user_avatars()
+{
+  var url='/user/avatars/refresh';
+
+  $.ajax(
+  {
+    url: url,
+    method: "GET",
+    dataType: 'html',
+    success: function( data )
+    {
+      $('#user-avatars').html( data );
+      // Initialize
+      var bLazy = new Blazy(
+        {
+          container: '#user-avatars',
+          selector: '#user-avatars, .b-lazy, img.b-lazy',
+          loadInvisibe: true,
+          offset: 1,
+          success: function(ele)
+          {
+            // Image has loaded
+            // console.log( 'Blazy Loaded image.' );
+          },
+          error: function(ele, msg)
+          {
+            if ( msg === 'missing' )
+            {
+              // Data-src is missing
+              console.log( 'Blazy Data-src is missing.' );
+            }
+            else if ( msg === 'invalid' )
+            {
+              // Data-src is invalid
+              console.log( 'Blazy Data-src is invalid.' );
+            }
+          }
+        }
+      );
+      console.log( 'Revalidating user-avatars');
+      bLazy.load('img'); // reload lazy loaded images
+    }
+  });
+
+}
+
 
 //Generic functionality that doesn't use named functions
 $(document).ready( function()
@@ -844,6 +875,154 @@ $(document).ready( function()
         e.preventDefault();
       }
     );
+
+    $('#avatar-start-upload').on('click', function(evt)
+    {
+      evt.preventDefault();
+
+      $('#avatar-uploader').dmUploader('start');
+    });
+
+    $('#avatar-stop-upload').on('click', function(evt)
+    {
+      evt.preventDefault();
+
+      $('#avatar-uploader').dmUploader('cancel');
+    });
+
+    $('#user-avatar-delete').on('click', function(evt)
+    {
+      var deleteIDs = [];
+
+      // Collected all checked avatars
+      $("input[name|='uadelete']").each( function( i, el )
+        {
+          if ( $(el).prop( "checked" ) )
+          {
+            var id = el.name.substring(9);
+            deleteIDs.push( id );
+            // console.log( 'Added ID ' + id + ' to the delete list.' );
+          }
+        }
+      );
+
+      jQuery.confirm(
+        {
+          title: 'Delete avatars?',
+          content: 'Are you sure you want to delete th'
+                    + (( deleteIDs.length === 1 ) ? 'is ' : 'ese ')
+                    + deleteIDs.length + ' avatar'
+                    + (( deleteIDs.length === 1 ) ? '' : 's') + '?',
+          type: 'red',
+          theme: 'light',
+          icon: 'fa fa-warning',
+          useBootstrap: false,
+          buttons:
+          {
+            confirm: function ()
+            {
+
+              // console.log( deleteIDs );
+              // Send all avatar IDs to route
+              $.ajax(
+              {
+                url: '/user/avatars/delete',
+                method: "POST",
+                dataType: 'json',
+                data: { to_delete: deleteIDs },
+                success: function( data )
+                {
+                  if ( data[0].success < 1 )
+                  {
+                    console.log( 'received error' );
+                    showError(  data[0].message );
+                    return false;
+                  }
+
+                  console.log( 'showing success' );
+                  showSuccess( data[0].message );
+                  // Refresh user-avatars div
+                  reload_user_avatars();
+                },
+                error: function()
+                {
+                  console.log( 'functional error' );
+                  showError( '<strong>Well, that\'s not good.</strong><br>An error occurred, and we could not delete your avatars. Please try again later.' );
+                }
+              });
+
+            },
+            cancel: function ()
+            {
+            }
+          }
+        }
+      );
+    });
+
+    $('#avatar-select-form').on('submit', function(evt)
+      {
+        evt.preventDefault();
+
+        $.ajax(
+          {
+            url: '/user/avatar/select',
+            method: 'POST',
+            dataType: 'json',
+            data: $( '#avatar-select-form' ).serialize(),
+            success: function( data )
+            {
+              if ( data[0].success < 1 )
+              {
+                console.log( 'avatar select received error' );
+                showError(  data[0].message );
+                return false;
+              }
+
+              console.log( 'showing success' );
+              showSuccess( data[0].message );
+              // Refresh user-avatars div
+              $('#current-avatar').html('<img src="' + data[0].uri + '" class="avatar-100">');
+            },
+            error: function()
+            {
+              console.log( 'avatar select functional error' );
+              showError( '<strong>Well, that\'s not good.</strong><br>An error occurred, and we could not save your avatar selection. Please try again later.' );
+            }
+          }
+        );
+      }
+    );
+
+    (function()
+      {
+        // Initialize
+        var bLazy = new Blazy(
+          {
+            selector: '.b-lazy, img.b-lazy',
+            container: '#page-content',
+            success: function(ele)
+            {
+              // Image has loaded
+              // console.log( 'Blazy Loaded image.' );
+            },
+            error: function(ele, msg)
+            {
+              if ( msg === 'missing' )
+              {
+                // Data-src is missing
+                console.log( 'Blazy Data-src is missing.' );
+              }
+              else if ( msg === 'invalid' )
+              {
+                // Data-src is invalid
+                console.log( 'Blazy Data-src is invalid.' );
+              }
+            }
+          }
+        );
+      }
+    )();
 
   }
 );

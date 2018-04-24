@@ -18,13 +18,14 @@
     <link rel="stylesheet" href="/css/jquery.modal.min.css">
 
   <!-- Grab jQuery from a CDN, fall back to local if necessary -->
-    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="/javascripts/jquery-3.3.1.min.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/notifIt.min.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/jquery-paginate.min.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/jssocials.min.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/jquery.floatThead.min.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/ckeditor/ckeditor.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/ckeditor/adapters/jquery.js"></script>
+    <script type="text/javascript" src="/javascripts/vendor/blazy.min.js"></script>
 
     <!-- FAVICON -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">

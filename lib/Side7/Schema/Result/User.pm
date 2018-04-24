@@ -3,11 +3,17 @@ package Side7::Schema::Result::User;
 use strict;
 use warnings;
 
+use Side7::Schema;
+use Side7::Schema::Result::SystemAvatar;
+
 # Third Party modules
 use base 'DBIx::Class::Core';
 use DateTime;
 use File::Path;
+use Gravatar::URL;
 our $VERSION = '1.0';
+
+our $SCHEMA = Side7::Schema->db_connect();
 
 
 =head1 NAME
@@ -233,9 +239,10 @@ __PACKAGE__->has_many( 'avatars'         => 'Side7::Schema::Result::UserAvatar',
 
 __PACKAGE__->many_to_many( 'roles' => 'userroles', 'role' );
 
-__PACKAGE__->belongs_to( 'gender'  => 'Side7::Schema::Result::UserGender', 'gender_id' );
-__PACKAGE__->belongs_to( 'status'  => 'Side7::Schema::Result::UserStatus', 'user_status_id' );
-__PACKAGE__->belongs_to( 'country' => 'Side7::Schema::Result::Country',    'country_id' );
+__PACKAGE__->belongs_to( 'gender'     => 'Side7::Schema::Result::UserGender',   'gender_id' );
+__PACKAGE__->belongs_to( 'status'     => 'Side7::Schema::Result::UserStatus',   'user_status_id' );
+__PACKAGE__->belongs_to( 'country'    => 'Side7::Schema::Result::Country',      'country_id' );
+__PACKAGE__->belongs_to( 'sys_avatar' => 'Side7::Schema::Result::SystemAvatar', 'avatar_id' );
 
 
 =head1 METHODS
@@ -285,16 +292,16 @@ sub dirpath
 {
   my $self = shift;
 
-  my $gallery_path = sprintf( '/%s/%s/%s', substr( $self->id, 0, 1 ), substr( $self->id, 0, 3 ), $self->id );
-  my $path = '/data/galleries' . $gallery_path;
+  my $path = sprintf( '/%s/%s/%s', substr( $self->id, 0, 1 ), substr( $self->id, 0, 3 ), $self->id );
+  my $fullpath = '/data/galleries' . $path;
 
-  unless ( Side7::Util::File::path_exists( $path ) )
+  unless ( Side7::Util::File::path_exists( $fullpath ) )
   {
-    my $created = Side7::Util::File::create_path( $path );
+    my $created = Side7::Util::File::create_path( $fullpath );
 
     if ( $created->{'success'} < 1 )
     {
-      warn sprintf( 'Error creating User Path >%s<: %s', $path, $created->{'message'} );
+      warn sprintf( 'Error creating User Path >%s<: %s', $fullpath, $created->{'message'} );
       return '';
     }
   }
@@ -324,6 +331,56 @@ sub new_mail_count
   my ( $self ) = @_;
 
   return $self->search_related( 'received_mail', { is_read => 0, is_deleted => 0 } )->count;
+}
+
+
+=head2 avatar()
+
+Returns the uri for the appropriate avatar.
+
+=over 4
+
+=item Input: None
+
+=item Output: String containing the URI to the appropriate avatar.
+
+=back
+
+  my $avatar = $user->avatar();
+
+=cut
+
+sub avatar
+{
+  my $self = shift;
+
+  if ( uc($self->avatar_type) eq 'NONE' )
+  {
+    return '/images/defaults/medium/default_avatar.png';
+  }
+
+  if ( uc($self->avatar_type) eq 'GRAVATAR' )
+  {
+    my $url = Gravatar::URL::gravatar_url(
+      email   => $self->email_address,
+      size    => 100,
+      rating  => 'r',
+      default => 'identicon',
+    );
+    return $url;
+  }
+
+  if ( uc($self->avatar_type) eq 'SYSTEM' )
+  {
+    my $avatar = $self->sys_avatar;
+    return sprintf( '/images/avatars/%s', $avatar->filename );
+  }
+
+  if ( uc($self->avatar_type) eq 'IMAGE' )
+  {
+    my $avatar = $self->search_related( 'avatars', { id => $self->avatar_id } )->single;
+    return sprintf( '/galleries%s/avatars/%s', $self->dirpath, $avatar->filename );
+  }
 }
 
 

@@ -49,7 +49,7 @@
               </ul>
             </li>
             <li>
-              <a href="/user" class='button-badge tiny'>[% PROCESS 'partials/_avatar_main_menu.tt' %]</a>
+              <a href="/user" class='button-badge'>[% INCLUDE 'partials/_avatar_thumbnail.tt' avatar_size = 40 %]</a>
               <ul class="menu vertical nested">
                 <li><a href="/user">Your Account</a>
                 <li><a href="/user/profile">Your Profile</a>

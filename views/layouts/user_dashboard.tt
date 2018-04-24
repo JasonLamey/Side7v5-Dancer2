@@ -28,10 +28,10 @@
                   <i class="large fa fa-fw fa-bank"></i> <span class="app-dashboard-sidebar-text">Museum</span>
                 </a></li>
                 <li><a href="/user/profile/edit">
-                  <i class="large fa fa-fw fa-drivers-license"></i> <span class="app-dashboard-sidebar-text">Profile</span>
+                  <i class="large fa fa-fw fa-drivers-license"></i> <span class="app-dashboard-sidebar-text">Edit Profile &amp; Avatar</span>
                 </a></li>
-                <li><a href="/user/gallery">
-                  <i class="large fa fa-fw fa-picture-o"></i> <span class="app-dashboard-sidebar-text">Gallery</span>
+                <li><a href="/user/gallery/manage">
+                  <i class="large fa fa-fw fa-picture-o"></i> <span class="app-dashboard-sidebar-text">Manage Gallery</span>
                 </a></li>
                 <li><a href="/user/message_center">
                   <i class="large fa fa-fw fa-comments-o"></i> <span class="app-dashboard-sidebar-text">Message Center</span>
@@ -44,7 +44,7 @@
 
           </div> <!-- Close off-canvas block-->
 
-          <div class="cell auto medium-cell-block-y off-canvas-content" data-off-canvas-content>
+          <div class="cell auto medium-cell-block-y off-canvas-content" id="page-content" data-off-canvas-content>
 
             <div class="grid-container">
               <div class="grid-x grid-margin-x">
@@ -65,9 +65,9 @@
     </div><!-- Close footer -->
   </div> <!-- Close Grid Frame -->
 
-  <script>
+  [% IF flash.error.defined or flash.notify.defined or flash.success.defined or flash.warning.defined %]
+  <script type="text/javascript">
     $(document).ready( function () {
-    [% IF flash.error.defined or flash.notify.defined or flash.success.defined or flash.warning.defined %]
       [% IF flash.error.defined %]
       showError( '[% flash.error %]' );
       [% END %]
@@ -80,18 +80,9 @@
       [% IF flash.success.defined %]
       showSuccess( '[% flash.success %]' );
       [% END %]
-    [% END %]
-
-      $('.lazy').Lazy(
-        {
-          combined: true,
-          effect: 'fadeIn',
-          visibleOnly: true,
-          delay: 5000
-        }
-      );
     });
   </script>
+  [% END %]
 
   <script>
     $(document).ready( function() {

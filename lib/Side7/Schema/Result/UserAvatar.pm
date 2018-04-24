@@ -95,7 +95,7 @@ sub uri_path
 {
   my ( $self ) = @_;
 
-  return sprintf( '%s/avatars/%s', $self->user->dirpath, $self->filename );
+  return sprintf( '/galleries%s/avatars/%s', $self->user->dirpath, $self->filename );
 }
 
 

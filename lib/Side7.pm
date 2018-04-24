@@ -18,6 +18,7 @@ use Const::Fast;
 use Data::Dumper;
 use URL::Encode;
 use Digest::SHA;
+use File::Basename;
 
 # Side 7 modules
 use Side7::Schema;
@@ -32,6 +33,7 @@ our $VERSION = '5.0';
 
 const my $DOMAIN_ROOT               => 'http://www.side7.com';
 const my $GALLERIES_ROOT            => '/public/galleries';
+const my $GALLERIES_FILEROOT        => '/data/galleries';
 const my $SCHEMA                    => Side7::Schema->db_connect();
 const my $USER_SESSION_EXPIRE_TIME  => 172800; # 48 hours in seconds.
 const my $ADMIN_SESSION_EXPIRE_TIME => 600;    # 10 minutes in seconds.
@@ -1356,10 +1358,11 @@ Route to pull up the user's profile management page.
 
 get '/user/profile/edit' => require_login sub
 {
-  my $user      = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
-  my @genders   = $SCHEMA->resultset( 'UserGender' )->search( {} )->all;
-  my @countries = $SCHEMA->resultset( 'Country' )->search( {} )->all;
+  my $user           = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my @genders        = $SCHEMA->resultset( 'UserGender' )->search( {} )->all;
+  my @countries      = $SCHEMA->resultset( 'Country' )->search( {} )->all;
   my @system_avatars = $SCHEMA->resultset( 'SystemAvatar' )->search( {} )->all;
+  my @user_avatars   = $user->search_related( 'avatars' )->search( {} )->all;
 
   template 'user_dashboard_profile',
   {
@@ -1368,6 +1371,7 @@ get '/user/profile/edit' => require_login sub
       user           => $user,
       genders        => \@genders,
       countries      => \@countries,
+      user_avatars   => \@user_avatars,
       system_avatars => \@system_avatars,
     },
     title => 'Profile',
@@ -1480,6 +1484,80 @@ get '/user/settings' => require_login sub
 ################################################
 
 
+=head3 POST C</user/avatar/select>
+
+Route to select an avatar.
+
+=cut
+
+post '/user/avatar/select' => require_login sub
+{
+  my $avatar_id   = body_parameters->get( 'avatar_id' )   // undef;
+  my $avatar_type = body_parameters->get( 'avatar_type' ) // 'None';
+  my $user        = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+
+  my @json = ();
+  # Avatar Type should be one of: None, Gravatar, System, Image
+  if (
+    $avatar_type ne 'None' && $avatar_type ne 'Gravatar'
+    && $avatar_type ne 'Image' && $avatar_type ne 'System'
+  )
+  {
+    push( @json, { success => 0, message => '<strong>What\'s that now?</strong><br>Invalid Avatar type selected' } );
+    return to_json( \@json );
+  }
+
+  if ( uc($avatar_type) eq 'NONE' )
+  {
+    $user->avatar_type( 'None' );
+    $user->avatar_id( undef );
+    $user->update;
+  }
+
+  if ( uc($avatar_type) eq 'GRAVATAR' )
+  {
+    $user->avatar_type( 'Gravatar' );
+    $user->avatar_id( undef );
+    $user->update;
+  }
+
+  if ( uc($avatar_type) eq 'SYSTEM' )
+  {
+    if ( $avatar_id !~ m/^s-/ )
+    {
+      warning sprintf( 'Invalid system avatar ID provided when setting avatar: %s', $avatar_id );
+      push( @json, { success => 0, message => '<strong>Wha?</strong><br>Invalid Avatar ID' } );
+      return to_json( \@json );
+    }
+    $avatar_id =~ s/^s-//;
+    $user->avatar_type( 'System' );
+    $user->avatar_id( $avatar_id );
+    $user->update;
+  }
+
+  if ( uc($avatar_type) eq 'IMAGE' )
+  {
+    if ( $avatar_id !~ m/^u-/ )
+    {
+      warning sprintf( 'Invalid user avatar ID provided when setting avatar: %s', $avatar_id );
+      push( @json, { success => 0, message => '<strong>Wha?</strong><br>Invalid User Avatar ID' } );
+      return to_json( \@json );
+    }
+    $avatar_id =~ s/^u-//;
+    $user->avatar_type( 'Image' );
+    $user->avatar_id( $avatar_id );
+    $user->update;
+  }
+
+  push(@json, { success => 1,
+                message => sprintf('Your avatar has been updated and set to "%s"!', $avatar_type),
+                uri     => $user->avatar,
+  });
+
+  return to_json( \@json );
+};
+
+
 =head3 POST C</user/avatar/upload>
 
 Route to upload an avatar file.
@@ -1489,7 +1567,7 @@ Route to upload an avatar file.
 post '/user/avatar/upload' => require_login sub
 {
   my $filedata = request->upload( 'filename' );
-  my $title    = body_parameters->get( 'title' ) // '';
+  my $title    = body_parameters->get( 'title' ) // undef;
   my $user     = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
 
   my @json = ();
@@ -1498,20 +1576,155 @@ post '/user/avatar/upload' => require_login sub
 
   if ( ! defined $gallery_path or $gallery_path eq '' )
   {
-    push( @json, { success => 0, message => 'Could not locate or create your avatar folder. Please try again.' } );
+    push( @json, { success => 0, message => 'Could not upload avatar. Invalid or missing gallery path.' } );
+    return to_json( \@json );
+  }
+
+  if ( ! -d $GALLERIES_FILEROOT . $gallery_path )
+  {
+    push( @json, { success => 0, message => 'Could not locate or create your gallery folder. Please try again.' } );
     return to_json( \@json );
   }
 
   my $avatar_path  = $gallery_path . '/avatars';
 
+  if ( ! Side7::Util::File::path_exists( $GALLERIES_FILEROOT . $avatar_path ) )
+  {
+    my $created = Side7::Util::File::create_path( $GALLERIES_FILEROOT . $avatar_path );
+    if ( $created->{'success'} < 1 )
+    {
+      warning sprintf( 'Could not create user avatar path: %s: %s',
+                        $avatar_path, $created->{'message'} );
+      push( @json, { success => 0, message => '<strong>Well, <em>that</em> went well.</strong><br>Could not create or find avatar path.' } );
+      return to_json( \@json );
+    }
+  }
+
+  my ( $name, $fpath, $ext ) = fileparse( $filedata->basename, '\.[^\.]*' );
   my $sha256 = Digest::SHA->new( 256 );
   $sha256->add( $filedata->basename . $user->username . DateTime->now( time_zone => 'UTC' )->datetime );
-  my $newfilename = $sha256->hexdigest;
+  my $newfilename = $sha256->hexdigest . $ext;
 
-  my $upload_path = path( $avatar_path, $newfilename );
+  my $upload_path = path( $GALLERIES_FILEROOT, $avatar_path, $newfilename );
   $filedata->link_to( $upload_path );
 
+  if ( ! -e $upload_path )
+  {
+    warning sprintf( 'Could not save uploaded avatar for user >%s<: %s',
+                      $user->username, $upload_path );
+    push( @json, { success => 0, message => '<strong>Where did it go?</strong><br>Received your file, but coud not save it to your gallery. Please try again later.' } );
+    return to_json( \@json );
+  }
+
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+
+  my $new_avatar = $user->add_to_avatars(
+    {
+      filename   => $newfilename,
+      title      => $title,
+      created_at => $now,
+      updated_at => $now,
+    }
+  );
+
+  my $logged = Side7::Log->user_log
+  (
+    user        => sprintf( '%s (ID:%s)', $user->username, logged_in_user->id ),
+    ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+    log_level   => 'Info',
+    log_message => sprintf( 'New avatar added. <a href="%s" target="_blank">&gt;%s&lt;</a>',
+                            $avatar_path . '/' . $newfilename, $upload_path ),
+  );
+
   push( @json, { success => 1, message => 'Avatar uploaded!' } );
+  return to_json( \@json );
+};
+
+
+=head3 GET C</user/avatars/refresh>
+
+Route to refresh user avatars.
+
+=cut
+
+get '/user/avatars/refresh' => require_login sub
+{
+  my $user           = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my @user_avatars   = $user->search_related( 'avatars' )->search( {} )->all;
+
+  template 'partials/_user_avatar_chooser.tt',
+  {
+    data =>
+    {
+      user           => $user,
+      user_avatars   => \@user_avatars,
+    },
+  },
+  {
+    layout => undef,
+  };
+};
+
+
+=head3 GET C</user/avatars/delete>
+
+Route to delete selected user avatars.
+
+=cut
+
+post '/user/avatars/delete' => require_login sub
+{
+  my $user              = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $avatars_to_delete = params( 'body' ) // {};
+
+  #debug( 'AVATARS_TO_DELETE LOOKS LIKE THIS: ' . Data::Dumper::Dumper( $avatars_to_delete ) );
+
+  my @json = ();
+
+  if ( scalar( keys %{$avatars_to_delete} ) < 1 )
+  {
+    push( @json, { success => 0, message => '<strong>Tryin\' to pull a fast one, eh?</strong><br>You need to select which avatars to delete.' } );
+    return to_json( \@json );
+  }
+
+  # If there is only one element being sent via ajax, then it sends as a string,
+  # otherwise, it sends as an array, so we force the string into a one-element array.
+  my @delete_these = ( ref( $avatars_to_delete->{'to_delete[]'} ) eq 'ARRAY' )
+                      ? @{$avatars_to_delete->{'to_delete[]'}}
+                      : [ $avatars_to_delete->{'to_delete[]'} ];
+
+  my @messages = ();
+
+  foreach my $delete_id ( @delete_these )
+  {
+    #debug ('FINDING AVATAR ID ' . $delete_id);
+    my $avatar = $user->search_related( 'avatars', { id => $delete_id } )->single;
+
+    if ( ! defined $avatar )
+    {
+      push( @messages, sprintf('Could not find avatar ID %d. Maybe it is not yours?', $delete_id) );
+    }
+    else
+    {
+      # Remove file.
+      my $filepath = $GALLERIES_FILEROOT . $user->dirpath . '/avatars/' . $avatar->filename;
+      #debug 'FILEPATH: ' . $filepath;
+      if ( -e $filepath )
+      {
+        #debug 'REMOVING FILEPATH';
+        unlink( $filepath );
+      }
+      # Remove record.
+      my $title = ( $avatar->title ne '' ) ? $avatar->title : $avatar->id;
+
+      $avatar->delete();
+
+      push( @messages, sprintf( 'Removed avatar %s.', $title ) );
+    }
+  }
+
+  push @json, { success => 1, message => join( '<br>', @messages ) };
+
   return to_json( \@json );
 };
 
