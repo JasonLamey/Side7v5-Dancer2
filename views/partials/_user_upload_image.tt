@@ -71,13 +71,13 @@
           </div>
           <div class="cell small-6">
             [% IF data.prev_upload.defined %]<a href="/content/[% data.prev_upload.id %]" class="button primary hollow expanded">[% ELSE %]<button class="button primary hollow expanded disabled">[% END %]
-              <i class="fa fa-arrow-left"></i> Previous
+              <i class="far fa-arrow-alt-left"></i> Prev
             [% IF data.prev_upload.defined %]</a>
             [% item = data.prev_upload %][% PROCESS 'partials/_upload_thumbnail.tt' %][% ELSE %]</button>[% END %]
           </div>
           <div class="cell small-6">
             [% IF data.next_upload.defined %]<a href="/content/[% data.next_upload.id %]" class="button primary hollow expanded">[% ELSE %]<button class="button primary hollow expanded disabled">[% END %]
-              Next <i class="fa fa-arrow-right"></i>
+              Next <i class="far fa-arrow-alt-right"></i>
             [% IF data.next_upload.defined %]</a>
             [% item = data.next_upload %][% PROCESS 'partials/_upload_thumbnail.tt' %][% ELSE %]</button>[% END %]
           </div>

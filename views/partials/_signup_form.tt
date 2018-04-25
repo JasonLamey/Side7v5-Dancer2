@@ -33,7 +33,7 @@
           <p class="or-divider"></p>
 
           <!-- <p class="or-divider"><span>or</span></p>
-          <a class="form-registration-social-button" href="#"><i class="fa fa-facebook-official" aria-hidden="true"></i> Sign Up With facebook</a> -->
+          <a class="form-registration-social-button" href="#"><i class="far fa-facebook-square" aria-hidden="true"></i> Sign Up With facebook</a> -->
           <p>Already have an account? <a href="/login">Sign in</a></p>
 
           <p><a href="/rules">Site Rules</a> | <a href="/privacy">Privacy Policy</a></p>

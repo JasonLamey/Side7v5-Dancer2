@@ -11,16 +11,16 @@
 
           <ul class="tabs menu align-right" data-active-collapse="true" data-tabs id="stats-tabs">
             <li class="tabs-title is-active"><a href="#space" aria-selected="true">
-              <i class="fa fa-hdd-o" aria-hidden="true"></i>
+              <i class="far fa-hdd" aria-hidden="true"></i>
             </a></li>
             <li class="tabs-title"><a href="#image">
-              <i class="fa fa-picture-o" aria-hidden="true"></i>
+              <i class="far fa-image" aria-hidden="true"></i>
             </a></li>
             <li class="tabs-title"><a href="#audio">
-              <i class="fa fa-headphones" aria-hidden="true"></i>
+              <i class="far fa-headphones" aria-hidden="true"></i>
             </a></li>
             <li class="tabs-title"><a href="#lit">
-              <i class="fa fa-book" aria-hidden="true"></i>
+              <i class="far fa-book" aria-hidden="true"></i>
             </a></li>
           </ul>
 
@@ -31,7 +31,7 @@
           <div class="tabs-panel is-active" id="space">
             <div class="card-section align-center text-center">
               <h5>Your Account Space
-                  <span class="info-tooltip" data-tooltip-content="#drive_space"><i class="fa fa-question-circle"></i></span></h5>
+                  <span class="info-tooltip" data-tooltip-content="#drive_space"><i class="far fa-question-circle"></i></span></h5>
 
               <div class="circle-graph float-center" data-circle-graph data-percent="35">
                 <div class="circle-graph-progress">
@@ -102,7 +102,7 @@
         <div class="card-section">
           <strong>Member Since:</strong> [% date.format( data.user.created_at, date_format_long ) %]<br>
           <strong>Account Status:</strong> [% data.user.status.status %]
-            <span class="info-tooltip" data-tooltip-content="#acct_status_info"><i class="fa fa-question-circle"></i></span><br>
+            <span class="info-tooltip" data-tooltip-content="#acct_status_info"><i class="far fa-question-circle"></i></span><br>
           <strong>Total Submissions:</strong> [% data.total_submissions || 0 %]<br>
           <strong>S7 Credits:</strong> [% data.balance || 0 %] &middot; <a href="/user/credit_history">View Credits History</a><br>
           <br>

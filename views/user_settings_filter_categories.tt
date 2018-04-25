@@ -5,7 +5,7 @@
     <div class="cell">
       <h3>Your Category Filters</h3>
       <a href="#" class="button radius small" rel="modal:close">Close</a>
-      <button type="submit" class="button radius success" form="filter-categories-form" onClick='$('#filter-categories-form').submit( submitFilters( e, 'categories', 'filter-categories-form' ); );"><i class="fa fa-save"></i> Save Filters</button>
+      <button type="submit" class="button radius success" form="filter-categories-form" onClick='$('#filter-categories-form').submit( submitFilters( e, 'categories', 'filter-categories-form' ); );"><i class="far fa-save"></i> Save Filters</button>
     </div>
 
     <div class="cell cell-block-container">

@@ -8,8 +8,8 @@
           <div class="grid-x grid-padding-x text-center align-center">
             <div class="cell small-12 medium-3">
               <h6>Edit Submission</h6>
-              <button class="button warning"><i class="fa fa-pencil"></i> Edit</button>
-              <button class="button alert"><i class="fa fa-trash"></i> Delete</button>
+              <button class="button warning"><i class="far fa-edit"></i> Edit</button>
+              <button class="button alert"><i class="far fa-trash"></i> Delete</button>
             </div>
 
             <div class="cell small-12 medium-9">

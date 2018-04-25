@@ -16,16 +16,16 @@
         </div>
       </div>
       <div>
-        <a class="button tiny[% disabled %]"[% IF disabled == '' %] onClick="quoteComment([% item.upload_comment_thread_id %],[% item.id %],[% item.private %],'[% item.user.full_name %]');"[% END %]><i class="fa fa-reply"></i> Reply</a>
-        <a class="button secondary tiny[% disabled %]"><i class="fa fa-flag"></i> Report</a>
+        <a class="button tiny[% disabled %]"[% IF disabled == '' %] onClick="quoteComment([% item.upload_comment_thread_id %],[% item.id %],[% item.private %],'[% item.user.full_name %]');"[% END %]><i class="far fa-reply"></i> Reply</a>
+        <a class="button secondary tiny[% disabled %]"><i class="far fa-flag"></i> Report</a>
         [% IF data.upload.user.username.lower == session.logged_in_user.lower %]
           [% IF item.private == 1 %]
-        <span id="privacy-[% item.id %]"><a class="button warning tiny[% disabled %]" onClick="togglePublic([% item.id %], 0);"><i class="fa fa-eye"></i> Make Public</a></span>
+        <span id="privacy-[% item.id %]"><a class="button warning tiny[% disabled %]" onClick="togglePublic([% item.id %], 0);"><i class="far fa-eye"></i> Make Public</a></span>
           [% ELSE %]
-        <span id="privacy-[% item.id %]"><a class="button warning tiny[% disabled %]" onClick="togglePublic([% item.id %], 1);"><i class="fa fa-eye-slash"></i> Make Private</a></span>
+        <span id="privacy-[% item.id %]"><a class="button warning tiny[% disabled %]" onClick="togglePublic([% item.id %], 1);"><i class="far fa-eye-slash"></i> Make Private</a></span>
           [% END %]
-        <a class="button alert tiny[% disabled %]"><i class="fa fa-ban"></i> Block User</a>
-        <a class="button alert tiny[% disabled %]"[% IF disabled == '' %] onClick="deleteComment([% data.upload.id %],[% item.id %]);"[% END %]><i class="fa fa-trash"></i> Delete Comment</a>
+        <a class="button alert tiny[% disabled %]"><i class="far fa-ban"></i> Block User</a>
+        <a class="button alert tiny[% disabled %]"[% IF disabled == '' %] onClick="deleteComment([% data.upload.id %],[% item.id %]);"[% END %]><i class="far fa-trash"></i> Delete Comment</a>
         [% END %]
       </div>
       [% IF item.rating > 0 %]

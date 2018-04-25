@@ -7,9 +7,9 @@
 
       <form action="/user/settings/update" method="post" id="user-settings-form">
 
-        <button class="button small radius success" type="submit" form="user-settings-form">
+        <button class="button radius" type="submit" form="user-settings-form">
           <span class="show-for-sr">Save Settings</span>
-          <span aria-hidden="true"><i class="fa fa-save"></i> Save Settings</span>
+          <span aria-hidden="true"><i class="far fa-save"></i> Save Settings</span>
         </button>
 
         <h4>Privacy</h4>
@@ -273,9 +273,9 @@
           </div>
         </div>
 
-        <button class="button small radius success" type="submit" form="user-settings-form">
+        <button class="button radius" type="submit" form="user-settings-form">
           <span class="show-for-sr">Save Settings</span>
-          <span aria-hidden="true"><i class="fa fa-save"></i> Save Settings</span>
+          <span aria-hidden="true"><i class="far fa-save"></i> Save Settings</span>
         </button>
 
       </form>

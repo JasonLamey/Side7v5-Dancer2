@@ -25,7 +25,7 @@
           <p class="or-divider"></p>
 
           <!-- <p class="or-divider"><span>or</span></p>
-          <a class="form-registration-social-button" href="#"><i class="fa fa-facebook-official" aria-hidden="true"></i> Sign In With facebook</a> -->
+          <a class="form-registration-social-button" href="#"><i class="far fa-facebook-square" aria-hidden="true"></i> Sign In With facebook</a> -->
           <p>Need an account? <a href="/signup">Sign up</a></p>
           <p><a href="/rules">Site Rules</a> | <a href="/privacy">Privacy Policy</a></p>
         </div>

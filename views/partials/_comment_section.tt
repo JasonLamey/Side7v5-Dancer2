@@ -58,7 +58,7 @@
               <label>Comment:
                 <textarea rows="10" name='comment' id='new_comment' type="text" required></textarea>
               </label><br>
-              <button class="button expanded" form="new-comment-form" type="submit" value="Post Comment"><i class="fa fa-comment"></i> Post Comment</button>
+              <button class="button expanded" form="new-comment-form" type="submit" value="Post Comment"><i class="far fa-comment"></i> Post Comment</button>
             </div>
             [% ELSE %]
             <p>You must be logged in to leave a comment.<br>Please, <a href="/login">login</a> or <a href="/signup">sign up</a> for an account.</p>

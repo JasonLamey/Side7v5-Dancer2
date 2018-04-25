@@ -20,7 +20,7 @@
 
               [%# First Name %]
               <div class="cell small-12 medium-2">
-                <label for="first_name" class="medium-text-right middle">First Name: <strong><i class="fa fa-asterisk"></i></strong></label>
+                <label for="first_name" class="medium-text-right middle">First Name: <strong><i class="far fa-asterisk"></i></strong></label>
               </div>
               <div class="cell small-12 medium-4">
                 <input type="text" name="first_name" id="first_name" placeholder="Bob" value="[% data.user.first_name %]" required pattern="alpha_numeric">
@@ -29,7 +29,7 @@
 
               [%# Last Name %]
               <div class="cell small-12 medium-2">
-                <label for="last_name" class="medium-text-right middle">Last Name: <strong><i class="fa fa-asterisk"></i></strong></label>
+                <label for="last_name" class="medium-text-right middle">Last Name: <strong><i class="far fa-asterisk"></i></strong></label>
               </div>
               <div class="cell small-12 medium-4">
                 <input type="text" name="last_name" id="last_name" placeholder="Bobkins" value="[% data.user.last_name %]" required pattern="alpha_numeric">
@@ -38,7 +38,7 @@
 
               [%# Preferred Gender %]
               <div class="cell small-12 medium-2">
-                <label for="gender_id" class="medium-text-right middle">Preferred Gender <span class="info-tooltip" data-tooltip-content="#gender-info"><i class="fa fa-question-circle"></i></span>: <strong><i class="fa fa-asterisk"></i></strong></label>
+                <label for="gender_id" class="medium-text-right middle">Preferred Gender <span class="info-tooltip" data-tooltip-content="#gender-info"><i class="far fa-question-circle"></i></span>: <strong><i class="far fa-asterisk"></i></strong></label>
               </div>
               <div class="cell small-12 medium-4">
                 <select name="gender_id" id="gender_id" required>
@@ -52,7 +52,7 @@
 
               [%# Birthdate Display %]
               <div class="cell small-12 medium-2">
-                <label for="birthday_visibility" class="medium-text-right middle">Birthday Display: <strong><i class="fa fa-asterisk"></i></strong></label>
+                <label for="birthday_visibility" class="medium-text-right middle">Birthday Display: <strong><i class="far fa-asterisk"></i></strong></label>
               </div>
               <div class="cell small-12 medium-4">
                 <select name="birthday_visibility" id="birthday_visibility" required>
@@ -75,7 +75,7 @@
 
               [%# Country %]
               <div class="cell small-12 medium-2">
-                <label for="country_id" class="medium-text-right middle">Country: <strong><i class="fa fa-asterisk"></i></strong></label>
+                <label for="country_id" class="medium-text-right middle">Country: <strong><i class="far fa-asterisk"></i></strong></label>
               </div>
               <div class="cell small-12 medium-4">
                 <select name="country_id" id="country_id" required>
@@ -96,7 +96,7 @@
               </div>
 
               <div class="cell small-12">
-                <button type="submit" class="button radius" for="user-profile-form"><i class="fa fa-check"></i> Save Profile</button>
+                <button type="submit" class="button radius" for="user-profile-form"><i class="far fa-check"></i> Save Profile</button>
               </div>
 
             </div>
@@ -154,8 +154,8 @@
                     <label for="title">Avatar Name:
                       <input type="text" name="title" id='avatar-title' maxlength="255" size="30">
                     </label>
-                    <button type="submit" class="button radius" form="upload-avatar" id="avatar-start-upload"><i class="fa fa-upload"></i> Upload and Add Avatar</button>
-                    <button type="reset" class="button radius alert" form="upload-avatar" id="avatar-stop-upload"><i class="fa fa-stop"></i> Cancel Upload</button>
+                    <button type="submit" class="button radius" form="upload-avatar" id="avatar-start-upload"><i class="far fa-upload"></i> Upload and Add Avatar</button>
+                    <button type="reset" class="button radius alert" form="upload-avatar" id="avatar-stop-upload"><i class="far fa-stop"></i> Cancel Upload</button>
                   </form>
                 </div>
 
@@ -178,8 +178,8 @@
                     [% PROCESS 'partials/_user_avatar_chooser.tt' %]
                     </div>
                     <div>
-                      <button class="button radius" type="submit" form='avatar-select-form'><i class="fa fa-check"></i> Select Avatar</button>
-                      <button id="user-avatar-delete" type="button" class="button alert"><i class="fa fa-trash"></i> Delete Selected Avatars</button>
+                      <button class="button radius" type="submit" form='avatar-select-form'><i class="far fa-check"></i> Select Avatar</button>
+                      <button id="user-avatar-delete" type="button" class="button alert"><i class="far fa-trash"></i> Delete Selected Avatars</button>
                     </div>
 
                     <hr>
@@ -206,7 +206,7 @@
                     </div>
 
                     <div class="cell">
-                      <button class="button radius" type="submit" form='avatar-select-form'><i class="fa fa-check"></i> Select Avatar</button>
+                      <button class="button radius" type="submit" form='avatar-select-form'><i class="far fa-check"></i> Select Avatar</button>
                     </div>
                   </form>
                 </div>
