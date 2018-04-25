@@ -994,6 +994,51 @@ $(document).ready( function()
       }
     );
 
+    $('#user-profile-form')
+      .on("forminvalid.zf.abide", function(ev,frm) {
+          console.log("Form id "+ev.target.id+" is invalid");
+          showError( 'You have errors in your form.' );
+          return false;
+        }
+      )
+      .on("formvalid.zf.abide", function(ev,frm)
+        {
+          console.log("Form id "+frm.attr('id')+" is valid");
+          // ajax post form
+          $.ajax(
+            {
+              url: '/user/profile/update',
+              method: 'POST',
+              dataType: 'json',
+              data: $( '#user-profile-form' ).serialize(),
+              success: function( data )
+              {
+                if ( data[0].success < 1 )
+                {
+                  console.log( 'profile update received error' );
+                  showError( data[0].message );
+                  return false;
+                }
+
+                console.log( 'showing profile update success' );
+                showSuccess( data[0].message );
+              },
+              error: function()
+              {
+                console.log( 'avatar select functional error' );
+                showError( '<strong>Well, that\'s not good.</strong><br>An error occurred, and we could not update your profile. Please try again later.' );
+              }
+            }
+          );
+        }
+      )
+      .on('submit', function(ev,frm)
+        {
+          ev.preventDefault();
+          console.log("Submit for form id "+ev.target.id+" intercepted");
+        }
+      );
+
     (function()
       {
         // Initialize

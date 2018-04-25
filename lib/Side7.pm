@@ -57,6 +57,10 @@ const my %DEFAULT_SETTINGS          => (
   notify_on_favorite       => 1,
   notify_on_museum_add     => 1,
 );
+const my @PROFILE_FIELDS            => (
+  qw/ first_name last_name gender_id birthday_visibility state country_id biography /
+);
+
 
 $SCHEMA->storage->debug(0); # Turns on DB debuging. Turn off for production.
 
@@ -1482,6 +1486,53 @@ get '/user/settings' => require_login sub
 ################################################
 # ROUTES THAT USE AJAX
 ################################################
+
+
+=head3 post C</user/profile/update>
+
+Route to update a user's profile.
+
+=cut
+
+post '/user/profile/update' => require_login sub
+{
+  my $user      = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my %form_data = params( 'body' );
+
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+
+  my @json = ();
+  if ( ! defined $user )
+  {
+    push( @json, { success => 0, message => 'Invalid user account.' } );
+    error sprintf( 'An invalid user ID was submitted when attempting to update the profile. >%s<', logged_in_user->id );
+    return to_json( \@json );
+  }
+
+  my $old = {}; my $new = {};
+
+  foreach my $field ( @PROFILE_FIELDS )
+  {
+    $old->{$field} = $user->$field;
+    $new->{$field} = $form_data{$field} // undef;
+    $user->$field( ( ( defined $form_data{$field} ) ? $form_data{$field} : undef ) );
+  }
+
+  $user->updated_at( $now );
+  $user->update;
+
+  my $diffs = Side7::Log->find_changes_in_data( old_data => $old, new_data => $new );
+  my $logged = Side7::Log->user_log
+  (
+    user        => sprintf( '%s (ID:%s)', $user->username, logged_in_user->id ),
+    ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+    log_level   => 'Info',
+    log_message => sprintf( 'Profile updated.', ),
+  );
+
+  push( @json, { success => 1, message => 'Your profile has been updated.' } );
+  return to_json( \@json );
+};
 
 
 =head3 POST C</user/avatar/select>
