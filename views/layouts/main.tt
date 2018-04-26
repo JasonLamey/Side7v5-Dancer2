@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="fontawesome-i2svg-pending">
 <head>
   [% PROCESS 'partials/_html_head.tt' %]
 </head>

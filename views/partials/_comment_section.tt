@@ -10,9 +10,24 @@
 
     <!-- comments -->
     <div class="comment-section-container" id="comment-container">
-      <h3>Comments &amp; Critiques (<span id="comment_count">[% comment_count %]</span>) [% IF avg_rating > 0 %] <small>Average Rating:<div class="starrr" id='avg-rating'></div> ([% avg_rating %])</small>[% END %]</h3>
+      <div class="grid-x grid-margin-x align-bottom"><div class="cell shrink"><h3>Comments &amp; Critiques (<span id="comment_count">[% comment_count %]</span>)</h3></div> [% IF avg_rating > 0 %]<div class="cell auto align-bottom"><h4><div class="grid-x align-bottom"><div class="cell shrink">Average Rating:</div><div class="cell shrink align-self-top"><select id='avg-rating'><option value=''></option>[% FOREACH i IN [ 1..5 ] %]<option value="[% i %]">[% i %]</option>[% END %]</select></div><div class="cell shrink">([% avg_rating %])</div></div></h4></div>[% END %]</div>
     [% IF avg_rating > 0 %]
-    <script>$(document).ready( function($){ $('#avg-rating').starrr({ readOnly: true, rating: [% avg_rating || 0 %] }); });</script>
+    <script>
+      $(document).ready(
+        function($){
+          $('#avg-rating')
+            .barrating(
+              {
+                readonly: true,
+                initialRating: [% avg_rating %],
+                theme: 'fontawesome-stars',
+                allowEmpty: true,
+                showValues: false,
+                showSelectedRating: true
+              });
+        }
+      );
+    </script>
     [% END %]
 
       [% FOREACH thread IN data.upload.comment_threads %]
@@ -37,10 +52,14 @@
               <input type="hidden" value="" name="reply_thread_id" id="reply_thread_id">
               <div class="grid-x">
                 <div class="cell small-6">
-                  <label>Rating:
-                    <div id='new_comment_rating' class="h4"></div>
+                  Rating:<br>
+                    <select id="new_comment_rating">
+                      <option value=''></option>
+                      [% FOREACH i IN [ 1..5 ] %]
+                      <option value="[% i %]">[% i %]</option>
+                      [% END %]
+                    </select>
                     <input type="hidden" name='rating' value='0' id="new_rating">
-                  </label>
                 </div>
                 <div class="cell small-6">
                   <label>Private:
@@ -73,11 +92,18 @@
         function($)
         {
 
-          $('#new_comment_rating').starrr(
+          jQuery('#new_comment_rating').barrating(
             {
-              change: function(e, value)
+              theme: 'fontawesome-stars',
+              initialValue: 0,
+              allowEmpty: true,
+              deselectable: true,
+              showValues: false,
+              showSelectedRating: true,
+              onSelect:function(value, text, event)
                 {
-                  $('#new_rating').val( value );
+                  console.log( 'Selected ' + value );
+                  jQuery('#new_rating').val( value );
                 }
             }
           );

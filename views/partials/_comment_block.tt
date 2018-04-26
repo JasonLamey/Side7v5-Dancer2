@@ -29,9 +29,16 @@
         [% END %]
       </div>
       [% IF item.rating > 0 %]
-      <div>
-        Rating: <div id="rating-[% item.id %]" class="starrr"></div> ([% item.rating %])
-      </div>
+      <strong><div class="grid-x align-middle">
+        <div class="cell shrink">Rating: </div>
+        <div class="cell shrink align-self-top">
+          <select name="rating-[% item.id %]" id="rating-[% item.id %]" readonly>
+          <option value=''></option>
+          [% FOREACH i IN [ 1..5 ] %]<option value="[% i %]">[% i %]</option>[% END %]
+          </select>
+        </div>
+        <div class="cell auto">([% item.rating %])</div>
+      </div></strong>
       [% END %]
       <div class="comment-section-text">
         <span id="private-tag-[% item.id %]">[% IF item.private %]<h6>PRIVATE COMMENT</h6>[% END %]</span>
@@ -39,6 +46,20 @@
       </div>
     </div>
       [% IF item.rating > 0 && ! no_jquery %]
-    <script>$(document).ready( function($){ $('#rating-[% item.id %]').starrr({ readOnly: true, rating: [% item.rating || 0 %] }); });</script>
+    <script>
+      $(document).ready(
+        function($){
+          $('#rating-[% item.id %]')
+            .barrating({
+              readonly: true,
+              theme: 'fontawesome-stars',
+              initialRating: [% item.rating %],
+              allowEmpty: true,
+              showValues: false,
+              showSelectedRating: true,
+            });
+        }
+      );
+    </script>
       [% END %]
     [% END %]

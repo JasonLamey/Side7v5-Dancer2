@@ -2,7 +2,7 @@ function showSuccess( msg )
 {
   notif(
     {
-      msg:       "<i class='fa fa-check-circle fa-fw'></i> " + msg,
+      msg:       "<i class='far fa-check-circle success'></i> " + msg,
       type:      'success',
       position:  'center',
       width:     400,
@@ -19,7 +19,7 @@ function showWarning( msg )
 {
   notif(
     {
-      msg:       "<i class='fa fa-exclamation-circle fa-fw'></i> " + msg,
+      msg:       "<i class='far fa-exclamation-circle warning'></i> " + msg,
       type:      'warning',
       position:  'center',
       width:     400,
@@ -35,7 +35,7 @@ function showError( msg )
 {
   notif(
     {
-      msg:       '<i class="fa fa-exclamation-triangle fa-fw"></i> ' + msg,
+      msg:       '<i class="far fa-exclamation-triangle alert"></i> ' + msg,
       type:      'error',
       position:  'center',
       width:     400,
@@ -51,7 +51,7 @@ function showInfo( msg )
 {
   notif(
     {
-      msg:       '<i class="fa fa-info-circle fa-fw"></i> ' + msg,
+      msg:       '<i class="far fa-info-circle"></i> ' + msg,
       type:      'info',
       position:  'center',
       width:     400,
@@ -65,7 +65,7 @@ function showInfo( msg )
 
 $('.upload-tooltip').tooltipster(
 {
-  content: '<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only">Loading...</span>',
+  content: '<i class="far fa-spinner fa-pulse"></i><span class="sr-only">Loading...</span>',
   contentAsHTML: true,
   theme: 'tooltipster-light',
   animation: 'fade',
@@ -124,13 +124,13 @@ function BookmarkToggle( class_id, action )
         {
           $('#bookmark_' + class_id).html( '<a onClick="BookmarkToggle( '
                                           + class_id
-                                          + ', 1 )"><i class="fa fa-bookmark-o fa-fw"></i></a>' );
+                                          + ', 1 )"><i class="far fa-bookmark"></i></a>' );
         }
         else
         {
           $('#bookmark_' + class_id).html( '<a onClick="BookmarkToggle( '
                                           + class_id
-                                          + ', -1 )"><i class="fa fa-bookmark fa-fw"></i></a>' );
+                                          + ', -1 )"><span class="fa-layers fa-fw"><i class="far fa-bookmark"></i><i class="far fa-ban"></i></span></a>' );
         }
         showSuccess( data[0].message )
       },
@@ -169,7 +169,7 @@ function selectMail( mail_id, folder )
             $('span#notification-count').html( unread - 1 );
           }
           $('span#unread-count').html( unread - 1 );
-          $('#icon-' + mail_id).html( '<i class="fa fa-envelope-open"></i>' );
+          $('#icon-' + mail_id).html( '<i class="far fa-envelope-open"></i>' );
         }
       },
       error: function()
@@ -454,10 +454,33 @@ function saveComment( form )
       {
         $( '#comment-container' ).append( '<div id="' + rtnData[0].thread_id + '">' + rtnData[0].content + '</div>' );
       }
-      jQuery( '#rating-' + rtnData[0].comment_id ).starrr({ readOnly: true, rating: values.rating });
+      jQuery( '#rating-' + rtnData[0].comment_id )
+        .barrating(
+          {
+            theme: 'fontawesome-stars',
+            initialValue: values.rating,
+            readonly: true
+          }
+        );
+
       $( '#comment_count' ).html( function( i, val ) { return val*1 + 1 } );
 
-      jQuery('#new_comment_rating').starrr({ rating: 0 });
+      jQuery('#new_comment_rating')
+        .barrating(
+          {
+            theme: 'fontawesome-stars',
+            initialRating: 0,
+            showValues: false,
+            showSelectedRating: true,
+            allowEmpty: true,
+            deselectable: true,
+            onSelect:function(value, text, event)
+            {
+              console.log( 'Selected ' + value );
+              jQuery('#new_rating').val( value );
+            }
+          }
+        );
       $('input[name="reply_thread_id"]').val( '' );
       $('input[name="private"]').prop("checked", false);
       CKEDITOR.instances['new_comment'].setData('');
@@ -552,13 +575,13 @@ function togglePublic( comment_id, mode )
       {
         $( '#c' + comment_id ).addClass( 'comment-section-body-private' );
         $( '#private-tag-' + comment_id ).html( '<h6>PRIVATE COMMENT</h6>' );
-        $( '#privacy-' + comment_id ).html( '<a class="button warning tiny" onClick="togglePublic(' + comment_id + ', 0);"><i class="fa fa-eye"></i> Make Public</a>' );
+        $( '#privacy-' + comment_id ).html( '<a class="button warning tiny" onClick="togglePublic(' + comment_id + ', 0);"><i class="far fa-eye"></i> Make Public</a>' );
       }
       else
       {
         $( '#c' + comment_id ).removeClass( 'comment-section-body-private' );
         $( '#private-tag-' + comment_id ).html( '' );
-        $( '#privacy-' + comment_id ).html( '<a class="button warning tiny" onClick="togglePublic(' + comment_id + ', 1);"><i class="fa fa-eye-slash"></i> Make Private</a>' );
+        $( '#privacy-' + comment_id ).html( '<a class="button warning tiny" onClick="togglePublic(' + comment_id + ', 1);"><i class="far fa-eye-slash"></i> Make Private</a>' );
       }
 
       showSuccess(  data[0].message );
@@ -915,7 +938,7 @@ $(document).ready( function()
                     + (( deleteIDs.length === 1 ) ? '' : 's') + '?',
           type: 'red',
           theme: 'light',
-          icon: 'fa fa-warning',
+          icon: 'far fa-exclamation-triangle',
           useBootstrap: false,
           buttons:
           {
