@@ -78,6 +78,22 @@ Primary library and route handler for the Side 7 web app.
 =head1 HOOKS
 
 
+=head3 before
+
+Hooks to run before executing each route.
+
+=cut
+
+hook before => sub
+{
+  if ( logged_in_user )
+  {
+    my $user =  $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+    var user => $user;
+  }
+};
+
+
 =head3 before_template_render
 
 Hooks to execute before template renders
@@ -263,6 +279,7 @@ get '/' => sub
       news          => \@news,
       recents       => \@recents,
       stats         => \%stats,
+      user          => vars->{user},
     }
   };
 };
@@ -307,6 +324,7 @@ get '/news/?:page?' => sub
       page          => $page,
       news          => \@news,
       announcements => \@announcements,
+      user          => vars->{user},
     },
     title => 'News',
     breadcrumbs =>
@@ -372,6 +390,7 @@ get '/news/item/:news_id' => sub
     data =>
     {
       item => $news,
+      user => vars->{user},
     },
     title => $news->title,
     breadcrumbs =>
@@ -404,6 +423,7 @@ get '/faq' => sub
     data =>
     {
       categories => \@categories,
+      user       => vars->{user},
     },
     title => 'Frequently Asked Questions',
     breadcrumbs =>
@@ -451,6 +471,7 @@ get '/faq/:category_id' => sub
     {
       category => $category,
       entries  => \@entries,
+      user     => vars->{user},
     },
     title => sprintf( 'FAQ | %s', $category->category ),
     breadcrumbs =>
@@ -518,6 +539,7 @@ get '/faq/:category_id/:entry_id' => sub
     {
       category => $category,
       entry    => $entry,
+      user     => vars->{user},
     },
     title => sprintf( 'FAQ | %s', $entry->question ),
     breadcrumbs =>
@@ -628,6 +650,7 @@ get '/content/:content_id' => sub
       next_upload => $next_upload,
       prev_upload => $prev_upload,
       view_dates  => \@view_dates,
+      user        => vars->{user},
     },
     og =>
     {
@@ -1236,7 +1259,7 @@ GET route for User Dashboard
 
 get '/user' => require_login sub
 {
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user = vars->{user};
 
   my $total_submissions = $user->search_related( 'uploads', {} )->count;
 
@@ -1327,7 +1350,7 @@ Route to pull up the user's account credit transaction history.
 
 get '/user/credit_history' => require_login sub
 {
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user = vars->{user};
 
   my @transactions = $user->search_related( 'credits', {}, { order_by => { -desc => 'timestamp' } } )->all;
 
@@ -1394,7 +1417,7 @@ Route to pull up the user's message center page.
 
 get '/user/message_center' => require_login sub
 {
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user = vars->{user};
 
   my $mail_rs      = $user->received_mail( { is_deleted => 0 }, { order_by => { -desc => 'timestamp' } } );
   my $mail_count   = $mail_rs->count();
@@ -1426,7 +1449,7 @@ Route to pull up the user's settings page.
 
 get '/user/settings' => require_login sub
 {
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user = vars->{user};
 
   my $today = DateTime->today;
   my ($byear, $bmon, $bday) = split( '-', $user->birthday );
@@ -1496,7 +1519,7 @@ Route to update a user's profile.
 
 post '/user/profile/update' => require_login sub
 {
-  my $user      = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user      = vars->{user};
   my %form_data = params( 'body' );
 
   my $now = DateTime->now( time_zone => 'UTC' )->datetime;
@@ -1545,7 +1568,7 @@ post '/user/avatar/select' => require_login sub
 {
   my $avatar_id   = body_parameters->get( 'avatar_id' )   // undef;
   my $avatar_type = body_parameters->get( 'avatar_type' ) // 'None';
-  my $user        = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user        = vars->{user};
 
   my @json = ();
   # Avatar Type should be one of: None, Gravatar, System, Image
@@ -1619,7 +1642,7 @@ post '/user/avatar/upload' => require_login sub
 {
   my $filedata = request->upload( 'filename' );
   my $title    = body_parameters->get( 'title' ) // undef;
-  my $user     = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user     = vars->{user};
 
   my @json = ();
 
@@ -1700,7 +1723,7 @@ Route to refresh user avatars.
 
 get '/user/avatars/refresh' => require_login sub
 {
-  my $user           = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user           = vars->{user};
   my @user_avatars   = $user->search_related( 'avatars' )->search( {} )->all;
 
   template 'partials/_user_avatar_chooser.tt',
@@ -1725,7 +1748,7 @@ Route to delete selected user avatars.
 
 post '/user/avatars/delete' => require_login sub
 {
-  my $user              = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user              = vars->{user};
   my $avatars_to_delete = params( 'body' ) // {};
 
   #debug( 'AVATARS_TO_DELETE LOOKS LIKE THIS: ' . Data::Dumper::Dumper( $avatars_to_delete ) );
@@ -1790,7 +1813,7 @@ ajax '/user/mail_folder/:folder/?:filtered?' => require_login sub
 {
   my $folder   = route_parameters->get( 'folder' )   // 'Inbox';
   my $filtered = route_parameters->get( 'filtered' ) // 0;
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user     = vars->{user};
 
   debug sprintf( 'Folder: >%s< / Filtered: >%s<', $folder, $filtered );
 
@@ -1894,7 +1917,7 @@ ajax '/user/mail/:mail_id/:folder' => require_login sub
   if ( $folder eq 'Sent'  ) { $related = 'sent_mail'; }
   if ( $folder eq 'Trash' ) { $deleted = 1; }
 
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user    = vars->{user};
   my $message = $user->search_related( $related, { id => $mail_id } )->single;
 
   my $increment = 0;
@@ -1960,7 +1983,7 @@ ajax '/user/newmail/?:mail_id?' => require_login sub
 {
   my $mail_id = route_parameters->get( 'mail_id' ) // undef;
 
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user    = vars->{user};
 
   my $mail = $SCHEMA->resultset( 'UserMail' )->find( $mail_id ) if defined $mail_id and $mail_id =~ /^\d+$/;
 
@@ -2047,7 +2070,7 @@ ajax '/user/mail/send' => require_login sub
     return to_json( \@json );
   }
 
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user = vars->{user};
   my $recipient = $SCHEMA->resultset( 'User' )->search( { username => $recipient_un } )->single;
 
   if ( ! defined $recipient or ref( $recipient ) ne 'Side7::Schema::Result::User' )
@@ -2096,7 +2119,7 @@ ajax '/user/mail/delete' => require_login sub
 
   my $total_deletions = 0;
 
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user = vars->{user};
 
   my @emails = $user->search_related( 'received_mail', { id => { '-in' => \@delete_ids }, is_deleted => 0 } );
   foreach my $email ( @emails )
@@ -2146,7 +2169,7 @@ Route to fetch the category filter settings page.
 
 get '/user/settings/filter/categories' => require_login sub
 {
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user = vars->{user};
   my $settings = $user->search_related( 'settings' )->single;
 
   my %filtered_categories = ();
@@ -2176,7 +2199,7 @@ Route to fetch the ratings filter settings page.
 
 get '/user/settings/filter/ratings' => require_login sub
 {
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user = vars->{user};
   my $settings = $user->search_related( 'settings' )->single;
 
   my %filtered_ratings = ();
@@ -2206,7 +2229,7 @@ Route to set the user settings.
 
 post '/user/settings/update' => require_login sub
 {
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user = vars->{user};
   my $settings = $user->search_related( 'settings' )->single;
 
   my %form_data = params('body');
@@ -2263,7 +2286,7 @@ Route to set the category filter settings.
 
 post '/user/settings/filter/categories/update' => require_login sub
 {
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user = vars->{user};
   my $settings = $user->search_related( 'settings' )->single;
   my $raw_filters = param( 'filter' ) // undef;
   my $today = DateTime->now;
@@ -2313,7 +2336,7 @@ Route to set the rating filter settings.
 
 post '/user/settings/filter/ratings/update' => require_login sub
 {
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user = vars->{user};
   my $settings = $user->search_related( 'settings' )->single;
   my $raw_filters = param( 'filter' ) // undef;
   my $today = DateTime->now;
@@ -2392,7 +2415,7 @@ ajax '/content/:content_id/comment/create/?:thread_id?' => require_login sub
     return to_json( \@json );
   }
 
-  my $user    = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user    = vars->{user};
   my $content = $SCHEMA->resultset( 'UserUpload' )->find( $content_id );
 
   if ( ! defined $content or ref( $content ) ne 'Side7::Schema::Result::UserUpload' )
@@ -2475,7 +2498,7 @@ ajax '/content/:content_id/comment/:comment_id/delete' => require_login sub
   my $content_id = route_parameters->get( 'content_id' );
   my $comment_id = route_parameters->get( 'comment_id' );
 
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user = vars->{user};
 
   my @json = ();
 
@@ -2549,7 +2572,7 @@ ajax '/comment/toggle_privacy/:comment_id/:mode' => require_login sub
   my $comment_id = route_parameters->get( 'comment_id' );
   my $mode       = route_parameters->get( 'mode' );
 
-  my $user = $SCHEMA->resultset( 'User' )->find( logged_in_user->id );
+  my $user = vars->{user};
 
   my @json = ();
 
@@ -2675,7 +2698,7 @@ sub get_full_user_dirpath
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2017 Side 7 L<http://www.side7.com>
+Copyright 2017-2018 Side 7 L<http://www.side7.com>
 
 All rights reserved.
 
