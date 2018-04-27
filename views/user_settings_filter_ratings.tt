@@ -4,7 +4,7 @@
 
     <div class="cell">
       <h3>Your Rating Filters</h3>
-      <a href="#" class="button radius small" rel="modal:close">Close</a>
+      <a href="#" class="button radius" rel="modal:close"><i class="far fa-times"></i> Close</a>
       <button type="submit" class="button radius" form="filter-ratings-form" onClick='$('#filter-ratings-form').submit( submitFilters( e, 'ratings', 'filter-ratings-form' ); );"><i class="fas fa-save"></i> Save Filters</button>
     </div>
 

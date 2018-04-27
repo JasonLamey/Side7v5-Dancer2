@@ -1,7 +1,7 @@
 [% USE date %]
 <div class="grid-container">
-  <div class="grid-x">
-    <div class="cell medium-10">
+  <div class="grid-x grid-margin-x">
+    <div class="cell">
 
       <h3>Your Settings <span class="subheader h6">Last Updated: [% IF data.settings.updated_on == 'Never' %][% data.settings.updated_on %][% ELSE %][% date.format( data.settings.updated_on, datetime_format_long ) %][% END %]</span></h3>
 
@@ -16,7 +16,6 @@
 
         <div class="grid-container callout small">
           <div class="grid-x">
-
 
             <div class="cell small-9 medium-9 large-8">
               <strong>Show Online Status:</strong><br><small>Allow others to see if you are online?</small>
