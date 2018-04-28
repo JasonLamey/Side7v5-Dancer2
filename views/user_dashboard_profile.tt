@@ -11,7 +11,7 @@
 
           <div class="cell">
             <h3>Your Profile
-              <span id="profile-last-updated"><small>Last Updated: [% date.format(data.user.updated_at, datetime_format_short) || 'Never' %]</small></span>
+              <span id="profile-last-updated"><span class="subheader h6">Last Updated: [% date.format(data.user.updated_at, datetime_format_short) || 'Never' %]</span></span>
             </h3>
           </div>
 
@@ -145,7 +145,7 @@
                       </div>
                       <div class="cell small-12">
                         <p class="help-text">
-                          (<strong>Note:</strong> Using an image that is <strong>larger than 200px x 200px</strong> works best, as your Avatar will be resized automatically.)</span>
+                          (<strong>Note:</strong> Using an image that is <strong>larger than 200px x 200px</strong> works best, as your Avatar will be resized automatically. Uploaded images will be cropped to a square shape.)</span>
                         </p>
                       </div>
                     </div>

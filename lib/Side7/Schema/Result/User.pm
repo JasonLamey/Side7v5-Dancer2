@@ -310,6 +310,44 @@ sub dirpath
 }
 
 
+=head2 upload_thumb_path()
+
+Returns a string containing the filepath to the user's thumbnails directory.
+
+=over 4
+
+=item Input: None
+
+=item Output: string containing the user's thumbnail dirpath
+
+=back
+
+  my $dirpath = $user->dirpath();
+
+=cut
+
+sub upload_thumb_path
+{
+  my $self = shift;
+
+  my $thumb_path = $self->dirpath() . '/thumbnails';
+  my $fullpath = '/data/galleries' . $thumb_path;
+
+  unless ( Side7::Util::File::path_exists( $fullpath ) )
+  {
+    my $created = Side7::Util::File::create_path( $fullpath );
+
+    if ( $created->{'success'} < 1 )
+    {
+      warn sprintf( 'Error creating User Thumbnail Path >%s<: %s', $fullpath, $created->{'message'} );
+      return '';
+    }
+  }
+
+  return $thumb_path;
+}
+
+
 =head2 new_mail_count()
 
 This method returns the user's count of new mail items.
@@ -379,6 +417,10 @@ sub avatar
   if ( uc($self->avatar_type) eq 'IMAGE' )
   {
     my $avatar = $self->search_related( 'avatars', { id => $self->avatar_id } )->single;
+    if ( ! defined $avatar )
+    {
+      return '/images/defaults/medium/default_avatar.png';
+    }
     return sprintf( '/galleries%s/avatars/%s', $self->dirpath, $avatar->filename );
   }
 }

@@ -5,8 +5,8 @@
                       [% FOREACH uavatar IN data.user_avatars %]
                         [% alt_text = ( uavatar.title != '' ) ? uavatar.title : data.user.username %]
                         <div class="cell text-center">
-                          <img data-src="[% uavatar.uri_path %]" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="[% alt_text %]" title="[% alt_text %]" class="avatar b-lazy">
-                          <small><input type="radio" name="avatar_id" value="u-[% uavatar.id %]"[% ( user.account.avatar_type == 'Image' && uavatar.id == data.user.avatar_id ) ? ' checked' : '' %] onClick="check_avatar_type( 'Image' );"> Use |
+                          <img data-src="[% uavatar.thumbnail_path %]" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="[% alt_text %]" title="[% alt_text %]" class="thumbnail b-lazy">
+                          <small><input type="radio" name="avatar_id" value="u-[% uavatar.id %]"[% ( data.user.avatar_type == 'Image' && uavatar.id == data.user.avatar_id ) ? ' checked' : '' %] onClick="check_avatar_type( 'Image' );"> Use |
                           <input type="checkbox" name="uadelete-[% uavatar.id %]"> Del</small>
                         </div>
                       [% END %]

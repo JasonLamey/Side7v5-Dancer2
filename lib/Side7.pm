@@ -25,6 +25,7 @@ use Side7::Schema;
 use Side7::Util;
 use Side7::Util::Text;
 use Side7::Util::File;
+use Side7::Util::Image;
 use Side7::Mail;
 use Side7::Log;
 use Side7::Crypt;
@@ -1690,6 +1691,32 @@ post '/user/avatar/upload' => require_login sub
     return to_json( \@json );
   }
 
+  # Generate thumbnail
+  my $thumbnails_path = $avatar_path . '/thumbnails';
+
+  if ( ! Side7::Util::File::path_exists( $GALLERIES_FILEROOT . $thumbnails_path ) )
+  {
+    my $created = Side7::Util::File::create_path( $GALLERIES_FILEROOT . $thumbnails_path );
+    if ( $created->{'success'} < 1 )
+    {
+      warning sprintf( 'Could not create user avatar thumbnail path: %s: %s',
+                        $thumbnails_path, $created->{'message'} );
+      push( @json, { success => 0, message => '<strong>Well, <em>that</em> went well.</strong><br>Could not create or find avatar thumbnail path.' } );
+      return to_json( \@json );
+    }
+  }
+
+  my $new_thumb_path = path( $GALLERIES_FILEROOT, $thumbnails_path, $newfilename );
+  my $generated = Side7::Util::Image::create_thumbnail(
+    source    => $upload_path,
+    thumbnail => $new_thumb_path,
+  );
+
+  # Crop avatar to a square shape.
+  my $cropped = Side7::Util::Image::crop_image(
+    source => $upload_path,
+  );
+
   my $now = DateTime->now( time_zone => 'UTC' )->datetime;
 
   my $new_avatar = $user->add_to_avatars(
@@ -1782,11 +1809,16 @@ post '/user/avatars/delete' => require_login sub
     {
       # Remove file.
       my $filepath = $GALLERIES_FILEROOT . $user->dirpath . '/avatars/' . $avatar->filename;
-      #debug 'FILEPATH: ' . $filepath;
+      
       if ( -e $filepath )
       {
-        #debug 'REMOVING FILEPATH';
         unlink( $filepath );
+      }
+      my $thumbpath = $GALLERIES_FILEROOT . $user->dirpath . '/avatars/thumbnails/' . $avatar->filename;
+      
+      if ( -e $thumbpath )
+      {
+        unlink( $thumbpath );
       }
       # Remove record.
       my $title = ( $avatar->title ne '' ) ? $avatar->title : $avatar->id;
@@ -1910,7 +1942,6 @@ ajax '/user/mail/:mail_id/:folder' => require_login sub
     );
     return to_json( \@json );
   }
-
 
   my $related = 'received_mail';
   my $deleted = 0;

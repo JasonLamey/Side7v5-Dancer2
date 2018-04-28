@@ -99,6 +99,30 @@ sub uri_path
 }
 
 
+=head2 thumbnail_path()
+
+Returns the URI path for the location of an avatar's thumbnail.
+
+=over 4
+
+=item Input: None.
+
+=item Output: String: avatar thumbnail URI.
+
+=back
+
+  $path = $avatar->thumbnail_path;
+
+=cut
+
+sub thumbnail_path
+{
+  my $self = shift;
+
+  return sprintf( '/galleries%s/avatars/thumbnails/%s', $self->user->dirpath, $self->filename );
+}
+
+
 =head1 COPYRIGHT & LICENSE
 
 Copyright 2018, Side 7 L<http://www.side7.com>

@@ -73,7 +73,7 @@ sub create_path
 {
   my $path = shift;
 
-  return { success => 0, message => 'No path provided.' };
+  return { success => 0, message => 'No path provided.' } if ! defined $path or $path eq '';
 
   my $errors   = '';
 
