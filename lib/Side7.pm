@@ -272,6 +272,11 @@ get '/' => sub
     }
   );
 
+  foreach my $upload ( @recents )
+  {
+    $upload->check_thumbnail();
+  }
+
   template 'index',
   {
     data =>
@@ -1314,6 +1319,11 @@ get '/user' => require_login sub
   }
 
   my @last_4_subs = $user->search_related( 'uploads', {}, { order_by => { -desc => 'uploaded_on' }, rows => 4 } );
+
+  foreach my $upload ( @last_4_subs )
+  {
+    $upload->check_thumbnail();
+  }
 
   my $credits_rs = $user->search_related( 'credits', {},
     {

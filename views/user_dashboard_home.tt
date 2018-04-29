@@ -124,9 +124,9 @@
 
         <div class="card-section">
 
-          <div class="grid-x grid-padding-x small-up-2">
+          <div class="grid-x grid-padding-x small-up-2 text-center align-middle">
             [% FOREACH item IN data.last_4_subs %]
-            [% PROCESS 'partials/_upload_thumbnail.tt' %]
+            [% INCLUDE 'partials/_upload_thumbnail.tt' size=200 %]
             [% END %]
           </div>
 

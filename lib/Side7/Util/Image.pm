@@ -87,6 +87,7 @@ sub create_thumbnail
   # Crop the image to a square.
   $img->Set( Gravity => 'Center' );
   $img->Crop( geometry => $size.'x'.$size );
+  $img->Set( size => $size.'x'.$size );
   $img->Write( filename => $thumbnail );
 
   if ( ! -e $thumbnail )

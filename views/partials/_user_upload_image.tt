@@ -5,8 +5,8 @@
       <div class="grid-x grid-padding-y">
         <div class="cell small-12 text-center align-center">
           [% TRY %]
-            [% USE File( data.upload.full_filepath ) %]
-          <img src="/galleries/[% data.upload.user.dirpath %]/[% data.upload.filename %]" alt="[% data.upload.title %]" title="[% data.upload.title %]">
+            [% USE File( data.upload.filepath ) %]
+          <img src="[% data.upload.uri %]" alt="[% data.upload.title %]" title="[% data.upload.title %]">
           [% CATCH %]
           <img src="/images/defaults/original/default_image.jpg">
           [% END %]

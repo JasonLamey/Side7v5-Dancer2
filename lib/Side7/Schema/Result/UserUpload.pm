@@ -9,7 +9,7 @@ use DateTime;
 use Cwd;
 use Date::Manip;
 use Time::Duration;
-our $VERSION = '1.0';
+our $VERSION = '1.5';
 
 
 =head1 NAME
@@ -123,7 +123,7 @@ __PACKAGE__->many_to_many( 'rating_qualifiers' => 'uploadqualifiers', 'upload' )
 =head1 METHODS
 
 
-=head2 full_filepath()
+=head2 filepath()
 
 Returns the full filepath to the upload's file.
 
@@ -135,18 +135,127 @@ Returns the full filepath to the upload's file.
 
 =back
 
-  my $filepath = $upload->full_filepath;
+  my $filepath = $upload->filepath;
 
 =cut
 
-sub full_filepath
+sub filepath
 {
   my ( $self ) = @_;
 
   my $app_path  = Cwd::getcwd();
-  my $user_path = $self->user->dirpath;
 
-  return sprintf( '%s/public/galleries%s/%s', $app_path, $user_path, $self->filename );
+  return sprintf( '/data/galleries%s/%s', $self->user->dirpath, $self->filename );
+}
+
+
+=head2 uri()
+
+Returns a string containing the URI path to the image.
+
+=over 4
+
+=item Input: None.
+
+=item Output: String containing the URI.
+
+=back
+
+  my $uri = $upload->uri;
+
+=cut
+
+sub uri
+{
+  my $self = shift;
+
+  return sprintf( '/galleries%s/%s', $self->user->dirpath, $self->filename );
+}
+
+
+=head2 thumbpath()
+
+Returns a string to the upload's thumbnail filepath.
+
+=over 4
+
+=item Input: None.
+
+=item Output: String containing the filepath.
+
+=back
+
+  my $uri = $upload->thumbpath;
+
+=cut
+
+sub thumbpath
+{
+  my $self = shift;
+
+  return sprintf( '/data/galleries%s/%s', $self->user->upload_thumb_path, $self->filename );
+}
+
+
+=head2 thumburi()
+
+Returns a string to the upload's thumbnail URI.
+
+=over 4
+
+=item Input: None.
+
+=item Output: String containing the URI to the thumbnail.
+
+=back
+
+  my $uri = $upload->thumburi;
+
+=cut
+
+sub thumburi
+{
+  my $self = shift;
+
+  return sprintf( '/galleries%s/%s', $self->user->upload_thumb_path, $self->filename );
+}
+
+
+=head2 check_thumbnail()
+
+Checks for the existence of the thumbnail. If one doesn't exist, it attempts to make one, if needed.
+
+=over 4
+
+=item Input: None.
+
+=item Output: Boolean indicating if the thumbnail exists or not.
+
+=back
+
+  my $is_good = $upload->check_thumbnail();
+
+=cut
+
+sub check_thumbnail
+{
+  my $self = shift;
+
+  if ( $self->upload_type->type eq 'Image' )
+  {
+    if ( ! -e $self->thumbpath )
+    {
+      warn sprintf( 'Need to make image thumbnail for %s by %s.', $self->title, $self->user->username );
+      my $created = Side7::Util::Image::create_thumbnail( source => $self->filepath, thumbnail => $self->thumbpath );
+      if ( $created->{'success'} < 1 )
+      {
+        warn sprintf('Could not create thumbnail file: %s >%s<', $self->thumbpath, $created->{'message'} );
+        return 0;
+      }
+    }
+
+    return 1;
+  }
 }
 
 
@@ -181,7 +290,7 @@ sub age
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2017, Side 7 L<http://www.side7.com>
+Copyright 2017-2018, Side 7 L<http://www.side7.com>
 All rights reserved.
 
 =cut
