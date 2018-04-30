@@ -2,5 +2,5 @@
 [% ELSIF user.avatar_type == 'Image' %]
 [% ELSIF user.avatar_type == 'System' %]
 [% ELSE %]
-  [% thumbnail = '/images/defaults/tiny/default_avatar.png' %]
+  [% thumbnail = '/images/defaults/medium/default_avatar.png' %]
 [% END %]

@@ -426,6 +426,30 @@ sub avatar
 }
 
 
+=head2 upload_count()
+
+Returns a count of all uploads submitted by this user.
+
+=over 4
+
+=item Input: None
+
+=item Output: integer representing a count of the number of uploaded items.
+
+=back
+
+  my $new_mail_count = $user->new_mail_count();
+
+=cut
+
+sub upload_count
+{
+  my $self = shift;
+
+  return $self->search_related( 'uploads', {} )->count;
+}
+
+
 =head1 COPYRIGHT & LICENSE
 
 Copyright 2017, Side 7 L<http://www.side7.com>

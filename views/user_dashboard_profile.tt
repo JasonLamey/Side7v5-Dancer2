@@ -118,7 +118,7 @@
               <div class="cell medium-3 text-center">
                 <div class="callout secondary">
                   <h4>Current Avatar</h4>
-                  <div id="current-avatar">[% PROCESS 'partials/_avatar_thumbnail.tt' %]</div>
+                  <div id="current-avatar">[% INCLUDE 'partials/_avatar_thumbnail.tt' user=data.user avatar_size=100 %]</div>
                 </div>
               </div>
 

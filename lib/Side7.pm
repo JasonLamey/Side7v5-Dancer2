@@ -558,6 +558,46 @@ get '/faq/:category_id/:entry_id' => sub
 };
 
 
+=head3 GET C</browse/directory/?:initial?>
+
+Route to browse the user directory.
+
+=cut
+
+get '/browse/directory/?:initial?' => sub
+{
+  my $initial = route_parameters->get( 'initial' ) // 'A';
+
+  my $initial_name = uc( $initial );
+  if ( $initial eq '@' )
+  {
+    $initial = '[[:punct:]]';
+    $initial_name = 'Non-alphanumeric';
+  }
+
+  my @users = $SCHEMA->resultset( 'User' )->search(
+    { username => { like => $initial . '%' } }
+  )->all;
+
+  template 'user_directory',
+  {
+    data =>
+    {
+      current => $initial_name,
+      user    => vars->{user},
+      users   => \@users,
+    },
+    title => sprintf( 'User Directory | %s', $initial_name ),
+    breadcrumbs =>
+    [
+      { name => 'Browse', link => '/browse' },
+      { name => 'User Directory', link => '/browse/directory' },
+      { name => $initial_name, current => 1 },
+    ]
+  }
+};
+
+
 =head3 GET C</content/:content_id>
 
 Route to display user-uploaded content.

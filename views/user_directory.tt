@@ -1,0 +1,63 @@
+[% USE date %]
+[% initials = ['A'..'Z']; nums = [0..9]; non = ['@']; m = initials.import( nums, non ); ini_links = []; %]
+[% FOREACH initial IN initials %]
+  [% ini_links.push("<a href='/browse/directory/$initial'>$initial</a>") %]
+[% END %]
+
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+
+<div class="grid-x grid-padding-y text-center align-middle">
+  <div class="cell small-12">Usernames starting with<br>
+    <small>[% ini_links.join( ' &middot; ' ) %]</small><br>
+    <strong>Total users found for '[% data.current %]': [% data.users.size %]</strong>
+  </div>
+</div>
+
+<div class="grid-x grid-padding-x small-up-1 medium-up-2 large-up-3" id="user-dir">
+  [% FOREACH thisuser IN data.users %]
+  <div class="cell">
+    <div class="card user-profile">
+
+      <div class="card-divider">
+        <div class="grid-x grid-padding-x align-middle">
+          <div class="cell shrink">
+            [% INCLUDE 'partials/_avatar_thumbnail.tt' user=thisuser avatar_size=50 %]
+          </div>
+          <div class="cell auto">
+            <span class="h5">[% thisuser.full_name %]</span> <span class="h6 subheader">([% thisuser.username %])</span></br>
+            <small>Member Since: [% date.format( thisuser.created_at, date_format_short ) %]</small>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
+        <a href="/user/[% thisuser.username %]/profile"><i class="far fa-id-card"></i> Profile</a>
+        &middot;
+        <a href="/user/[% thisuser.username %]/gallery"><i class="far fa-images"></i> Gallery</a>
+      </div>
+
+    </div>
+  </div>
+  [% END %]
+</div>
+
+<div id="table-nav-wrapper"></div>
+
+<script type="text/javascript">
+  $(document).ready(function($)
+    {
+      $('#user-dir').paginate(
+        {
+          limit: 30,
+          childrenSelector: 'div.user-profile',
+          navigationWrapper: $('div#table-nav-wrapper'),
+          optional: true,
+          onSelect: function( jto, cpi )
+            {
+              var bLazy = new Blazy();
+              bLazy.revalidate();
+            }
+        }
+      );
+    }
+  );
+</script>
