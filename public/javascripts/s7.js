@@ -63,6 +63,50 @@ function showInfo( msg )
   );
 }
 
+function tooltipInit( selector )
+{
+  $( selector ).tooltipster(
+  {
+    content: '<i class="far fa-spinner fa-pulse"></i><span class="sr-only">Loading...</span>',
+    contentAsHTML: true,
+    theme: 'tooltipster-light',
+    animation: 'fade',
+    interactive: true,
+    // 'instance' is basically the tooltip. More details in the "Object-oriented Tooltipster" section.
+    functionBefore: function(instance, helper)
+    {
+      var $origin = $(helper.origin),
+        dataOptions = $origin.attr('data-tooltipster');
+      var upload_id = '';
+
+      if ( dataOptions )
+      {
+        dataOptions = JSON.parse(dataOptions);
+        $.each(dataOptions, function(name, option)
+          {
+            upload_id = option;
+          }
+        );
+      }
+
+      // we set a variable so the data is only loaded once via Ajax, not every time the tooltip opens
+      if ($origin.data('loaded') !== true)
+      {
+        $.get('/upload-tooltip/' + upload_id, function(data)
+          {
+            // call the 'content' method to update the content of our tooltip with the returned data.
+            // note: this content update will trigger an update animation (see the updateAnimation option)
+            instance.content(data);
+
+            // to remember that the data has been loaded
+            $origin.data('loaded', true);
+          }
+        );
+      }
+    }
+  });
+}
+
 $('.upload-tooltip').tooltipster(
 {
   content: '<i class="far fa-spinner fa-pulse"></i><span class="sr-only">Loading...</span>',
@@ -828,8 +872,22 @@ function reload_user_avatars()
 
 
 //Generic functionality that doesn't use named functions
-$(document).ready( function()
+$(document).ready( function($)
   {
+
+    jQuery('#recents').infiniteScroll(
+      {
+        path   : '/browse/recents/{{#}}',
+        append : '.upload-thumbnail',
+        history: 'append'
+      }
+    );
+
+    jQuery('#recents').on( 'load.infiniteScroll', function( event, response, path ) {
+      var bLazy = new Blazy();
+      bLazy.revalidate();
+      tooltipInit( '.upload-tooltip' );
+    });
 
     $(document).on('submit', '#filter-categories-form', function(e)
       {

@@ -1,0 +1,3 @@
+  [% FOREACH item IN data.recents %]
+    [% INCLUDE 'partials/_upload_thumbnail.tt' size=200 %]
+  [% END %]

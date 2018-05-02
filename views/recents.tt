@@ -1,0 +1,9 @@
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+
+<div><h3>Recent Submissions</h3></div>
+
+<div class="grid-x grid-margin-x small-up-2 medium-up-6 large-up-8" id='recents'>
+  [% FOREACH item IN data.recents %]
+    [% INCLUDE 'partials/_upload_thumbnail.tt' size=200 %]
+  [% END %]
+</div>

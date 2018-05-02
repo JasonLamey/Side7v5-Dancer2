@@ -598,6 +598,52 @@ get '/browse/directory/?:initial?' => sub
 };
 
 
+=head3 GET C</browse/recents/?:page?>
+
+Route to browse the user directory.
+
+=cut
+
+get '/browse/recents/?:page?' => sub
+{
+  my $page = route_parameters->get( 'page' ) // 1;
+  my @recents = $SCHEMA->resultset( 'UserUpload' )->search(
+    {},
+    {
+      rows     => 48,
+      page     => $page,
+      order_by => { -desc => 'uploaded_on' }
+    }
+  )->all;
+
+  foreach my $recent ( @recents )
+  {
+    $recent->check_thumbnail();
+  }
+
+  my $template = ( $page > 1 ) ? 'recents_addl' : 'recents';
+  my $layout   = ( $page > 1 ) ? 'ajax-modal'   : 'main';
+
+  template $template,
+  {
+    data =>
+    {
+      user    => vars->{user},
+      recents => \@recents,
+    },
+    title => 'Recent Submissions',
+    breadcrumbs =>
+    [
+      { name => 'Browse', link => '/browse' },
+      { name => 'Recent Submissions', current => 1 },
+    ]
+  },
+  {
+    layout => $layout
+  }
+};
+
+
 =head3 GET C</content/:content_id>
 
 Route to display user-uploaded content.

@@ -34,6 +34,7 @@
   [% END %]
 
   <script type="text/javascript" src="/javascripts/vendor/jquery-modal/jquery.modal.min.js"></script>
+  <script type="text/javascript" src="/javascripts/vendor/infinite-scroll.pkgd.min.js"></script>
   <!-- <script type="text/javascript" src="https://use.fontawesome.com/bbc3509751.js"></script> -->
   <script type="text/javascript" src="/javascripts/app.js"></script>
   <script type="text/javascript" src="/javascripts/s7.js"></script>

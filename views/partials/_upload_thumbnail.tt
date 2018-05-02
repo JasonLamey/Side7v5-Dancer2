@@ -9,8 +9,8 @@
 [% ELSE %]
   [% thumbnail = '/images/defaults/original/default_' _ item.upload_type.type.lower _ '.jpg' %]
 [% END %]
-<div class="cell align-self-middle">
+<div class="cell align-self-middle upload-thumbnail">
   <span class="upload-tooltip" data-tooltipster='{"uid":"[% item.id %]"}'>
-    <a href="/content/[% item.id %]"><img data-src="[% thumbnail %]" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" class="thumbnail b-lazy" style="width: [% size %]px; height: auto;"></a>
+    <a href="/content/[% item.id %]"><img data-src="[% thumbnail %]" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" class="thumbnail b-lazy" style="width: [% size %]px; height: auto;" width='[% size %]' height='[% size %]'></a>
   </span>
 </div>
