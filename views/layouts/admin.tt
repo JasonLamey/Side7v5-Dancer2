@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" class="fontawesome-i2svg-pending">
+<head>
+  [% PROCESS 'partials/_html_head.tt' %]
+</head>
+<body>
+
+  <div class="grid-y medium-grid-frame">
+    <div class="cell shrink header">
+      [% PROCESS 'partials/main_menu.tt' %]
+    </div>
+
+    <div class="cell medium-auto medium-cell-block-container">
+      <div class="grid-x grid-padding-x">
+        <div class="cell medium-3 medium-cell-block-y">
+          <ul class="vertical accordion menu" data-accordion-menu>
+            <li><a href="/admin"><i class="far fa-tachometer-alt fa-fw fa-lg"></i> Admin Dashboard</a></li>
+            <li><a href="#"><i class="far fa-browser fa-fw fa-lg"></i> Manage Site</a>
+              <ul class="menu vertical nested">
+                <li><a href="/admin/news"><i class="far fa-newspaper fa-fw fa-lg"></i> News</a></li>
+                <li><a href="/admin/calendar"><i class="far fa-calendar-alt fa-fw fa-lg"></i> Calendar</a></li>
+                <li><a href="/admin/faq"><i class="far fa-info fa-fw fa-lg"></i> FAQ</a></li>
+                <li><a href="/admin/logs"><i class="far fa-file-medical-alt fa-fw fa-lg"></i> Logs</a></li>
+              </ul>
+            </li>
+            <li><a href="/admin/users"><i class="far fa-users fa-fw fa-lg"></i> Manage Users</a></li>
+            <li><a href="#"><i class="far fa-comments-alt fa-fw fa-lg"></i> Manage Forums</a>
+              <ul class="menu vertical nested">
+                <li><a href="/admin/forums/categories"><i class="far fa-th fa-fw fa-lg"></i> Categories</a></li>
+                <li><a href="/admin/forums/groups"><i class="far fa-th-large fa-fw fa-lg"></i> Groups</a></li>
+                <li><a href="/admin/forums/threads"><i class="far fa-square fa-fw fa-lg"></i> Threads</a></li>
+                <li><a href="/admin/forums/posts"><i class="far fa-comment-alt-dots fa-fw fa-lg"></i> Posts</a></li>
+              </ul>
+            </li>
+            <li><a href="/admin/reports"><i class="far fa-flag fa-fw fa-lg"></i> Manage Reports</a></li>
+          </ul>
+        </div>
+
+        <div class="cell medium-9 medium-cell-block-y">
+
+          [% content %]
+
+        </div>
+      </div>
+    </div>
+
+    <div class="cell shrink footer">
+      [% PROCESS 'partials/main-footer.tt' %]
+    </div>
+  </div>
+
+  [% IF flash.error.defined or flash.notify.defined or flash.success.defined or flash.warning.defined %]
+  <script>
+    $(document).ready( function ($) {
+      [% IF flash.error.defined %]
+      showError( '[% flash.error %]' );
+      [% END %]
+      [% IF flash.warning.defined %]
+      showWarning( '[% flash.warning %]' );
+      [% END %]
+      [% IF flash.notify.defined %]
+      showInfo( '[% flash.notify %]' );
+      [% END %]
+      [% IF flash.success.defined %]
+      showSuccess( '[% flash.success %]' );
+      [% END %]
+    });
+  </script>
+  [% END %]
+
+  <script type="text/javascript" src="/javascripts/vendor/jquery-modal/jquery.modal.min.js"></script>
+  <script type="text/javascript" src="/javascripts/vendor/infinite-scroll.pkgd.min.js"></script>
+  <!-- <script type="text/javascript" src="https://use.fontawesome.com/bbc3509751.js"></script> -->
+  <script type="text/javascript" src="/javascripts/app.js"></script>
+  <script type="text/javascript" src="/javascripts/s7.js"></script>
+</body>
+</html>

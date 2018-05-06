@@ -63,7 +63,7 @@ const my @PROFILE_FIELDS            => (
 );
 
 
-$SCHEMA->storage->debug(0); # Turns on DB debuging. Turn off for production.
+$SCHEMA->storage->debug(1); # Turns on DB debuging. Turn off for production.
 
 
 =head1 NAME
@@ -2791,7 +2791,104 @@ ajax '/util/username_ac' => require_login sub
 
 =head2 Admin Routes
 
+
+=head3 GET C</admin>
+
+Route to load the admin dashboard.
+
 =cut
+
+get '/admin' => require_role Admin => sub
+{
+  my @storage_stats = `du -h -d1 /data/galleries | sort -h`;
+  my @diskfree = `df -h`;
+
+  my $stop = DateTime->today;
+  my $start = $stop->clone();
+  $start->subtract( days => 31 );
+
+  my @new_user_dates = ();
+  my @last_30_day_users = $SCHEMA->resultset( 'User' )->search(
+    { created_at => { '-between' => [ $start->ymd, $stop->ymd ] } },
+    {
+      'columns' => [ 'me.created_at', { new_user_count => { count => 'me.id' } }],
+      group_by  => [ 'me.created_at' ],
+      rows => 30
+    }
+  );
+
+  my $ustart = $start->clone();
+  while ( $ustart->add( days => 1 ) < $stop )
+  {
+    my $found = 0;
+    foreach my $date ( @last_30_day_users )
+    {
+      if ( $ustart->ymd('-') eq $date->created_at )
+      {
+        push @new_user_dates, { $ustart->strftime('%d %b') => $date->new_user_count };
+        $found = 1;
+        last;
+      }
+    }
+    if ( $found == 0 )
+    {
+      push @new_user_dates, { $ustart->strftime('%d %b') => 0 };
+    }
+  }
+
+  my @upload_dates = ();
+  my @last_30_day_uploads = $SCHEMA->resultset( 'UserUpload' )->search(
+    undef,
+    {
+      select =>
+      [
+        { date => 'me.uploaded_on', -as => 'upload_date' },
+        { count => 'me.id', -as => 'upload_count' },
+      ],
+      where  =>
+      [
+        { 'DATE(me.uploaded_on)' => { '-between' => [ $start->ymd, $stop->ymd ] } },
+      ],
+      group_by   => [ 'DATE(me.uploaded_on)' ],
+      rows => 30
+    }
+  );
+
+  my $pstart = $start->clone();
+  while ( $pstart->add( days => 1 ) < $stop )
+  {
+    my $found = 0;
+    foreach my $date ( @last_30_day_uploads )
+    {
+      if ( $pstart->ymd('-') eq $date->upload_date )
+      {
+        push @upload_dates, { $pstart->strftime('%d %b') => $date->upload_count };
+        $found = 1;
+        last;
+      }
+    }
+    if ( $found == 0 )
+    {
+      push @upload_dates, { $pstart->strftime('%d %b') => 0 };
+    }
+  }
+
+  template 'admin_dashboard_home',
+  {
+    data =>
+    {
+      user           => vars->{user},
+      new_user_dates => \@new_user_dates,
+      upload_dates   => \@upload_dates,
+      stats          => \@storage_stats,
+      disk           => \@diskfree,
+    },
+  },
+  {
+    layout => 'admin'
+  };
+};
+
 
 ################################################
 # ADDITIONAL METHODS

@@ -11,14 +11,14 @@
 
     <link href="https://fonts.googleapis.com/css?family=Athiti|Jockey+One|Share+Tech|Squada+One|Teko&amp;subset=latin-ext" rel="stylesheet">
     <link rel="stylesheet" href="/css/app.css">
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.0.10/css/all.css" integrity="sha384-KwxQKNj2D0XKEW5O/Y6haRH39PE/xry8SAoLbpbCMraqlX7kUP6KHOnrlrtvuJLR" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.0.11/css/all.css" integrity="sha384-KwxQKNj2D0XKEW5O/Y6haRH39PE/xry8SAoLbpbCMraqlX7kUP6KHOnrlrtvuJLR" crossorigin="anonymous">
     <link rel="stylesheet" href="/css/notifIt.min.css">
     <link rel="stylesheet" href="/css/tooltipster-sideTip-light.min.css">
     <link rel="stylesheet" href="/css/jquery.modal.min.css">
     <link rel="stylesheet" href="/css/fontawesome-stars.css">
 
     <script type="text/javascript" src="/javascripts/jquery-3.3.1.min.js"></script>
-    <script defer src="https://pro.fontawesome.com/releases/v5.0.10/js/all.js" integrity="sha384-+1nLPoB0gaUktsZJP+ycZectl3GX7wP8Xf2PE/JHrb7X1u7Emm+v7wJMbAcPr8Ge" crossorigin="anonymous"></script>
+    <script defer src="https://pro.fontawesome.com/releases/v5.0.11/js/all.js" integrity="sha384-rAGYBPVpurUH2YLc/Skiv4TE1iQ/wAocPQdQT73UR0LEZ3Os2E3wGBn9fRISQJIK" crossorigin="anonymous"></script>
 
     <script type="text/javascript" src="/javascripts/vendor/notifIt.min.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/jquery-paginate.min.js"></script>

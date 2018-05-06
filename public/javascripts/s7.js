@@ -875,19 +875,22 @@ function reload_user_avatars()
 $(document).ready( function($)
   {
 
-    jQuery('#recents').infiniteScroll(
-      {
-        path   : '/browse/recents/{{#}}',
-        append : '.upload-thumbnail',
-        history: 'append'
-      }
-    );
+    if ( jQuery('#recents').length )
+    {
+      jQuery('#recents').infiniteScroll(
+        {
+          path   : '/browse/recents/{{#}}',
+          append : '.upload-thumbnail',
+          history: 'append'
+        }
+      );
 
-    jQuery('#recents').on( 'load.infiniteScroll', function( event, response, path ) {
-      var bLazy = new Blazy();
-      bLazy.revalidate();
-      tooltipInit( '.upload-tooltip' );
-    });
+      jQuery('#recents').on( 'load.infiniteScroll', function( event, response, path ) {
+        var bLazy = new Blazy();
+        bLazy.revalidate();
+        tooltipInit( '.upload-tooltip' );
+      });
+    }
 
     $(document).on('submit', '#filter-categories-form', function(e)
       {

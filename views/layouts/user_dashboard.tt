@@ -22,7 +22,7 @@
                   <i class="far fa-fw fa-user-circle fa-lg"></i> <span class="app-dashboard-sidebar-text">Overview</span>
                 </a></li>
                 <li><a href="/user/feed">
-                  <i class="far fa-fw fa-globe fa-lg"></i> <span class="app-dashboard-sidebar-text">Friends Feed</span>
+                  <i class="far fa-user-friends fa-fw fa-lg"></i> <span class="app-dashboard-sidebar-text">Friends Feed</span>
                 </a></li>
                 <li><a href="/user/museum">
                   <i class="far fa-fw fa-university fa-lg"></i> <span class="app-dashboard-sidebar-text">Museum</span>
@@ -94,7 +94,7 @@
   </script>
 
   <script type="text/javascript" src="/javascripts/vendor/jquery-modal/jquery.modal.min.js"></script>
-  <!--<script type="text/javascript" src="https://use.fontawesome.com/bbc3509751.js"></script> -->
+  <script type="text/javascript" src="/javascripts/vendor/infinite-scroll.pkgd.min.js"></script>
   <script type="text/javascript" src="/javascripts/app.js"></script>
   <script type="text/javascript" src="/javascripts/s7.js"></script>
 </body>

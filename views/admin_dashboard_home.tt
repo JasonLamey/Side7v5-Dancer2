@@ -1,0 +1,152 @@
+<div class="grid-x grid-margin-x">
+  <div class="cell callout primary">
+    <h5>User Accounts</h5>
+    [% IF ! data.new_user_dates.defined %]
+      <div class="align-self-middle text-center"><strong>No New User Counts Report</strong></div>
+    [% ELSE %]
+      <canvas id="user_graph" height="150" width="600"></canvas>
+    [% END %]
+  </div>
+  <div class="cell callout primary">
+    <h5>Daily Uploads</h5>
+    [% IF ! data.upload_dates.defined %]
+      <div class="align-self-middle text-center"><strong>No Upload Report</strong></div>
+    [% ELSE %]
+      <canvas id="upload_graph" height="150" width="600"></canvas>
+    [% END %]
+  </div>
+  <div class="cell callout alert">
+    <h5>User Incident Reports</h5>
+    [% IF ! data.reports.defined %]
+      <div class="align-self-middle text-center"><strong>No New Reports</strong></div>
+    [% ELSE %]
+    [% END %]
+  </div>
+  <div class="cell callout secondary">
+    <h5>Storage Statistics</h5>
+      <div class="grid-container full">
+
+        <div class="grid-x grid-margin-x">
+          <div class="cell small-12 medium-6">
+            <h6>Gallery Disk Usage</h6>
+            <div class="grid-x grid-padding-x">
+            [% IF ! data.stats.defined %]
+              <div class="align-self-middle text-center"><strong><i class="far fa-info-circle"></i> No Available Stats</strong></div>
+            [% ELSE %]
+              [% FOREACH line IN data.stats %][% elements = line.trim.split( '\s+' ) %]
+              <div class="cell small-2 text-right"><small><pre>[% elements.0 %]</pre></small></div>
+              <div class="cell small-10"><small><pre>[% elements.1 %]</pre></small></div>
+              [% END %]
+            [% END %]
+            </div>
+          </div>
+          <div class="cell small-12 medium-6">
+            <h6>Total Drive Usage</h6>
+            <div class="grid-x grid-padding-x">
+            [% IF ! data.stats.defined %]
+              <div class="align-self-middle text-center"><strong><i class="far fa-info-circle"></i> No Disk Free Stats</strong></div>
+            [% ELSE %]
+              [% FOREACH line IN data.disk %][% elements = line.trim.split( '\s+' ) %]
+               [% NEXT IF elements.0 == 'tmpfs' %]
+              <div class="cell small-12"><small><pre>[% line %]</pre></small></div>
+              [% END %]
+            [% END %]
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+  </div>
+</div>
+
+
+<script>
+  $(document).ready( function()
+    {
+
+      var ctx = $('#user_graph');
+      var ctxdata = {
+        datasets: [{
+          label: 'Users',
+          data: [[% i = 0; FOREACH pair IN data.new_user_dates; FOREACH value IN pair.values %][% value %][% IF i != data.new_user_dates.max %],[% END; END; i = i + 1; END; %]],
+          backgroundColor: '#998697',
+          borderColor: '#502f4c'
+        }],
+        labels: [[% i = 0; FOREACH pair IN data.new_user_dates; FOREACH key IN pair.keys %]'[% key %]'[% IF i != data.new_user_dates.max %],[% END; END; i = i + 1; END; %]]
+      };
+      var options = {
+        label: 'Signups',
+        spanGaps: true,
+        title:
+        {
+          display: true,
+          text: 'New Users'
+        },
+        scales:
+        {
+          yAxes:
+          [{
+            ticks:
+            {
+              beginAtZero: true
+            }
+          }]
+        },
+        legend:
+        {
+          display: false
+        }
+      };
+      var ctxChart = new Chart( ctx,
+        {
+          type: 'line',
+          data: ctxdata,
+          options: options
+        }
+      );
+
+      var ptx = $('#upload_graph');
+      var ptxdata = {
+        datasets: [{
+          label: 'Uploads',
+          data: [[% i = 0; FOREACH pair IN data.upload_dates; FOREACH value IN pair.values %][% value %][% IF i != data.upload_dates.max %],[% END; END; i = i + 1; END; %]],
+          backgroundColor: '#998697',
+          borderColor: '#502f4c'
+        }],
+        labels: [[% i = 0; FOREACH pair IN data.upload_dates; FOREACH key IN pair.keys %]'[% key %]'[% IF i != data.upload_dates.max %],[% END; END; i = i + 1; END; %]]
+      };
+      var options = {
+        label: 'Uploads',
+        spanGaps: true,
+        title:
+        {
+          display: true,
+          text: 'Daily Upload Totals'
+        },
+        scales:
+        {
+          yAxes:
+          [{
+            ticks:
+            {
+              beginAtZero: true
+            }
+          }]
+        },
+        legend:
+        {
+          display: false
+        }
+      };
+      var ptxChart = new Chart( ptx,
+        {
+          type: 'line',
+          data: ptxdata,
+          options: options
+        }
+      );
+
+    }
+  );
+</script>
