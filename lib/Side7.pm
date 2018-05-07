@@ -1829,8 +1829,8 @@ post '/user/avatar/upload' => require_login sub
     user        => sprintf( '%s (ID:%s)', $user->username, logged_in_user->id ),
     ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
     log_level   => 'Info',
-    log_message => sprintf( 'New avatar added. <a href="%s" target="_blank">&gt;%s&lt;</a>',
-                            $avatar_path . '/' . $newfilename, $upload_path ),
+    log_message => sprintf( 'New avatar added. <a href="%s" target="_blank">&gt;View Here&lt;</a>',
+                            $avatar_path . '/' . $newfilename ),
   );
 
   push( @json, { success => 1, message => 'Avatar uploaded!' } );
@@ -2887,6 +2887,104 @@ get '/admin' => require_role Admin => sub
   {
     layout => 'admin'
   };
+};
+
+
+=head2 GET C</admin/logs>
+
+Route to the primary log page.
+
+=cut
+
+get '/admin/logs' => require_role Admin => sub
+{
+  template 'admin_logs_home',
+    {
+      title => 'Logs',
+      data =>
+      {
+        user => vars->{user}
+      },
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Logs', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+=head2 GET C</admin/logs/admin>
+
+Route to view admin logs. Requires Admin Access.
+
+=cut
+
+get '/admin/logs/admin' => require_role Admin => sub
+{
+  my @logs = $SCHEMA->resultset( 'AdminLog' )->search(
+    undef,
+    {
+      order_by => [ 'created_on' ],
+    },
+  );
+
+  template 'admin_logs',
+    {
+      title => 'Admin Logs',
+      data =>
+      {
+        user => vars->{user},
+        logs => \@logs,
+      },
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Logs',  link => '/admin/logs' },
+        { name => 'Admin Logs', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
+=head2 GET C</admin/logs/user>
+
+Route to view user logs. Requires Admin Access.
+
+=cut
+
+get '/admin/logs/user' => require_role Admin => sub
+{
+  my @logs = $SCHEMA->resultset( 'UserLog' )->search(
+    undef,
+    {
+      order_by => [ 'created_on' ],
+    },
+  );
+
+  template 'user_logs',
+    {
+      title => 'User Logs',
+      data =>
+      {
+        user => vars->{user},
+        logs => \@logs,
+      },
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Logs',  link => '/admin/logs' },
+        { name => 'User Logs', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
 };
 
 

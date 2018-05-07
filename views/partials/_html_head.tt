@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="/css/tooltipster-sideTip-light.min.css">
     <link rel="stylesheet" href="/css/jquery.modal.min.css">
     <link rel="stylesheet" href="/css/fontawesome-stars.css">
+    <link rel="stylesheet" href="/css/dataTables.min.css"/>
 
     <script type="text/javascript" src="/javascripts/jquery-3.3.1.min.js"></script>
     <script defer src="https://pro.fontawesome.com/releases/v5.0.11/js/all.js" integrity="sha384-rAGYBPVpurUH2YLc/Skiv4TE1iQ/wAocPQdQT73UR0LEZ3Os2E3wGBn9fRISQJIK" crossorigin="anonymous"></script>
@@ -27,6 +28,7 @@
     <script type="text/javascript" src="/javascripts/vendor/ckeditor/adapters/jquery.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/blazy.min.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/jquery.barrating.min.js"></script>
+    <script type="text/javascript" src="/javascripts/vendor/DataTables/dataTables.min.js"></script>
 
     <!-- FAVICON -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
