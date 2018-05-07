@@ -62,6 +62,7 @@
       pagingType : 'full_numbers',
       responsive : true,
       order      : [ 0, 'desc' ],
+      stripeClasses: [ 'table-striped-odd', 'table-striped-even' ],
     }
   );
 </script>
