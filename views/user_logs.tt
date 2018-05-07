@@ -21,7 +21,7 @@
         <tbody>
           [% FOREACH log IN data.logs %]
           <tr>
-            <td>[% date.format( log.created_on, format => datetime_format_short ) %]</td>
+            <td>[% log.created_on %]</td>
             <td>
             [% SWITCH log.log_level %]
               [% CASE 'Error' %]
@@ -62,7 +62,7 @@
       lengthMenu : [ 10, 25, 50, 75, 100 ],
       pagingType : 'full_numbers',
       responsive : true,
-      order      : [ 0, 'desc' ],
+      order      : [[ 0, 'desc' ]],
       stripeClasses: [ 'table-striped-odd', 'table-striped-even' ],
     }
   );
