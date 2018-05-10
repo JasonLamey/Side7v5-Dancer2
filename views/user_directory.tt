@@ -1,7 +1,8 @@
 [% USE date %]
 [% initials = ['A'..'Z']; nums = [0..9]; non = ['@']; m = initials.import( nums, non ); ini_links = []; %]
-[% FOREACH initial IN initials %]
-  [% ini_links.push("<a href='/browse/directory/$initial'>$initial</a>") %]
+[% FOREACH initial IN data.all_initials %]
+  [% link = "<a href='/browse/directory/$initial'" _ ( initial == data.initial ? " class='label'" : '' ) _ ">$initial</a>" %]
+  [% ini_links.push( link ) %]
 [% END %]
 
 [% PROCESS 'partials/_breadcrumbs.tt' %]

@@ -1,0 +1,28 @@
+[% USE date %]
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+
+<div class="row column">
+  <h2>Edit User Role</h2>
+</div>
+
+<div class="row">
+  <div class="small-12 medium-8 columns">
+    <form method="post" action="/admin/roles/[% data.role.id %]/update" id="edit_role_form" data-abide novalidate>
+
+      <div class="row">
+        <div class="small-6 medium-4 columns">
+          <label for="role" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Role Name:</label>
+        </div>
+        <div class="small-6 medium-8 columns">
+          <input type="text" name="role" value="[% data.role.role %]" placeholder="Moderator" required>
+          <span class="form-error">A name for the User Role is required.</span>
+        </div>
+      </div>
+
+      <div class="row column text-center">
+        <button type="submit" form="edit_role_form" class="button">Update Role</button>
+      </div>
+
+    </form>
+  </div>
+</div>

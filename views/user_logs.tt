@@ -21,8 +21,8 @@
         <tbody>
           [% FOREACH log IN data.logs %]
           <tr>
-            <td>[% log.created_on %]</td>
-            <td>
+            <td><small>[% log.created_on %]</small></td>
+            <td><small>
             [% SWITCH log.log_level %]
               [% CASE 'Error' %]
               <span class="alert label"><i class="far fa-times-circle"></i> [% log.log_level %]</span>
@@ -32,10 +32,10 @@
               <span class="label"><i class="far fa-info-circle"></i> [% log.log_level %]</span>
               [% CASE 'Debug' %]
               <span class="secondary label"><i class="far fa-bug"></i> [% log.log_level %]</span>
-            [% END %]
+            [% END %]</small>
             </td>
-            <td>[% log.log_message %]</td>
-            <td>[% log.user %]<br>[% log.ip_address %]</td>
+            <td class="text-truncate"><small>[% log.log_message %]</small></td>
+            <td><small>[% log.user %]<br>[% log.ip_address %]</small></td>
           </tr>
           [% END %]
         </tbody>
@@ -63,7 +63,7 @@
       pagingType : 'full_numbers',
       responsive : true,
       order      : [[ 0, 'desc' ]],
-      stripeClasses: [ 'table-striped-odd', 'table-striped-even' ],
+      // stripeClasses: [ 'table-striped-odd', 'table-striped-even' ],
     }
   );
 </script>

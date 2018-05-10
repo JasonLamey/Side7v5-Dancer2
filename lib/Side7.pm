@@ -19,6 +19,8 @@ use Data::Dumper;
 use URL::Encode;
 use Digest::SHA;
 use File::Basename;
+use Array::Utils;
+use Clone;
 
 # Side 7 modules
 use Side7::Schema;
@@ -48,7 +50,7 @@ const my %DEFAULT_SETTINGS          => (
   show_social_links        => 1,
   filter_categories        => undef,
   filter_ratings           => undef,
-  show_m_thmbnails         => 0,
+  show_m_thumbnails        => 0,
   show_adult_content       => 0,
   email_notifications      => 1,
   notify_on_pm             => 1,
@@ -63,7 +65,7 @@ const my @PROFILE_FIELDS            => (
 );
 
 
-$SCHEMA->storage->debug(1); # Turns on DB debuging. Turn off for production.
+$SCHEMA->storage->debug(0); # Turns on DB debuging. Turn off for production.
 
 
 =head1 NAME
@@ -569,23 +571,59 @@ get '/browse/directory/?:initial?' => sub
   my $initial = route_parameters->get( 'initial' ) // 'A';
 
   my $initial_name = uc( $initial );
-  if ( $initial eq '@' )
-  {
-    $initial = '[[:punct:]]';
-    $initial_name = 'Non-alphanumeric';
-  }
 
-  my @users = $SCHEMA->resultset( 'User' )->search(
-    { username => { like => $initial . '%' } }
-  )->all;
+  my @initials = $SCHEMA->resultset( 'User' )->search(
+    {},
+    {
+      select => [ \"substr(username, 1, 1)"],
+      as     => [ 'initial' ],
+      distinct => 1,
+    }
+  );
+
+  my @all_initials = map { uc( $_->get_column('initial') ) } @initials;
+
+  @all_initials = sort @all_initials;
+
+  my @users;
+  if ( $initial eq '_' )
+  {
+    @users = $SCHEMA->resultset( 'User' )->search(
+      { username => { like => \[q{? ESCAPE '#'}, '#_%'] }, user_status_id => 2 },
+      {
+        order_by => [ 'username' ],
+        prefetch =>
+        [
+          { userroles => 'role' },
+          'status',
+        ],
+      }
+    );
+  }
+  else
+  {
+    @users = $SCHEMA->resultset( 'User' )->search(
+      { username => { like => "$initial%" }, user_status_id => 2 },
+      {
+        order_by => [ 'username' ],
+        prefetch =>
+        [
+          { userroles => 'role' },
+          'status',
+        ],
+      }
+    );
+  }
 
   template 'user_directory',
   {
     data =>
     {
-      current => $initial_name,
-      user    => vars->{user},
-      users   => \@users,
+      current      => $initial_name,
+      user         => vars->{user},
+      users        => \@users,
+      all_initials => \@all_initials,
+      initial      => $initial,
     },
     title => sprintf( 'User Directory | %s', $initial_name ),
     breadcrumbs =>
@@ -975,8 +1013,7 @@ post '/signup' => sub
   # Set initial user_settings.
   $new_user->create_related( 'settings',
     (
-      %DEFAULT_SETTINGS,
-      { updated_on         => $now, },
+      \%DEFAULT_SETTINGS,
     )
   );
 
@@ -2896,7 +2933,7 @@ Route to the primary log page.
 
 =cut
 
-get '/admin/logs' => require_role Admin => sub
+get '/admin/logs' => require_any_role [qw( Admin Owner Moderator )] => sub
 {
   template 'admin_logs_home',
     {
@@ -2922,7 +2959,7 @@ Route to view admin logs. Requires Admin Access.
 
 =cut
 
-get '/admin/logs/admin' => require_role Admin => sub
+get '/admin/logs/admin' => require_any_role [qw( Admin Owner Moderator )] => sub
 {
   my @logs = $SCHEMA->resultset( 'AdminLog' )->search(
     undef,
@@ -2958,7 +2995,7 @@ Route to view user logs. Requires Admin Access.
 
 =cut
 
-get '/admin/logs/user' => require_role Admin => sub
+get '/admin/logs/user' => require_any_role [qw( Admin Owner Moderator )] => sub
 {
   my @logs = $SCHEMA->resultset( 'UserLog' )->search(
     undef,
@@ -2985,6 +3022,665 @@ get '/admin/logs/user' => require_role Admin => sub
     {
       layout => 'admin'
     };
+};
+
+
+=head2 GET C</admin/users/?:initial?>
+
+Route to manage user account data. Requires Admin access.
+
+=cut
+
+get '/admin/users/?:initial?' => require_any_role [qw( Admin Owner )] => sub
+{
+  my $initial = route_parameters->get('initial') // 'A';
+
+  my @initials = $SCHEMA->resultset( 'User' )->search(
+    {},
+    {
+      select => [ \"substr(username, 1, 1)"],
+      as     => [ 'initial' ],
+      distinct => 1,
+    }
+  );
+
+  my @all_initials = sort map { uc( $_->get_column('initial') ) } @initials;
+
+  my @users;
+  if ( $initial eq '_' )
+  {
+    @users = $SCHEMA->resultset( 'User' )->search(
+      { username => { like => \[q{? ESCAPE '#'}, '#_%'] } },
+      {
+        order_by => [ 'username' ],
+        prefetch =>
+        [
+          { userroles => 'role' },
+          'status',
+        ],
+      }
+    );
+  }
+  else
+  {
+    @users = $SCHEMA->resultset( 'User' )->search(
+      { username => { like => "$initial%" } },
+      {
+        order_by => [ 'username' ],
+        prefetch =>
+        [
+          { userroles => 'role' },
+          'status',
+        ],
+      }
+    );
+  }
+
+  template 'admin_manage_users',
+    {
+      data =>
+      {
+        user         => vars->{user},
+        users        => \@users,
+        all_initials => \@all_initials,
+        initial      => $initial,
+      },
+      title => 'Manage User Accounts',
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Manage User Accounts', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
+=head2 GET C</admin/users/add>
+
+Route to the add user account form. Requires Admin access.
+
+=cut
+
+get '/admin/users/add' => require_any_role [qw( Admin Owner )] => sub
+{
+  my @roles = $SCHEMA->resultset( 'Role' )->search( undef, { order_by => [ 'role' ] } );
+  my @statuses = $SCHEMA->resultset( 'UserStatus' )->search( undef, { order_by => [ 'status' ] } );
+
+  template 'admin_manage_users_add_form',
+    {
+      data =>
+      {
+        user     => vars->{user},
+        roles    => \@roles,
+        statuses => \@statuses,
+      },
+      title => 'Create User Account',
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Manage User Accounts', link => '/admin/users' },
+        { name => 'Create User Account', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
+=head2 POST C</admin/users/create>
+
+Route to save the new account data to the database. Requires Admin access.
+
+=cut
+
+post '/admin/users/create' => require_any_role [qw( Admin Owner )] => sub
+{
+  my $form_input = body_parameters->as_hashref;
+
+  my $send_confirmation = ( body_parameters->get( 'confirmed' ) == 1 ) ? 1 : 0;
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+
+  # Create the user, and send the welcome e-mail.
+  my $created  = create_user(
+                              username      => body_parameters->get( 'username' ),
+                              first_name    => ( defined body_parameters->get( 'first_name' )
+                                                  ? body_parameters->get( 'first_name' ) : undef ),
+                              last_name     => ( defined body_parameters->get( 'last_name' )
+                                                  ? body_parameters->get( 'last_name' ) : undef ),
+                              password      => body_parameters->get( 'password' ),
+                              email_address => body_parameters->get( 'email_address' ),
+                              birthday      => body_parameters->get( 'birthday' ),
+                              user_status_id => body_parameters->get( 'status' ),
+                              confirmed     => ( defined body_parameters->get( 'confirmed' ) ? 1 : 0 ),
+                              confirm_code  => ( defined body_parameters->get( 'confirmed' )
+                                                  ? undef : Side7::Util->generate_random_string() ),
+                              created_at    => $now,
+                              realm         => $DPAE_REALM,
+                              email_welcome => $send_confirmation,
+                            );
+
+  my $new_user = $SCHEMA->resultset( 'User' )->find( { username => body_parameters->get( 'username' ) } );
+  if ( ! defined $new_user )
+  {
+    flash error => sprintf( 'An error occurred creating user <strong>%s</strong>. The account either could not be saved to the database, or could not be retieved after creation.', body_parameters->get( 'username' ) );
+    redirect '/admin/users/add';
+  }
+
+  # Set the passord, encrypted.
+  my $set_password = user_password( username => body_parameters->get( 'username' ), new_password => body_parameters->get( 'password' ) );
+
+  # Set the initial user_roles
+  my @roles = ();
+  if
+  (
+    ! defined body_parameters->get( 'userroles' )
+  )
+  {
+    push @roles, 1; # ID for 'New Signup'
+  }
+  else
+  {
+    if ( ref( body_parameters->get( 'userroles' ) ) eq 'ARRAY' )
+    {
+      @roles = @{ body_parameters->get( 'userroles' ) };
+    }
+    else
+    {
+      push @roles, body_parameters->get( 'userroles' );
+    }
+  }
+
+  foreach my $role ( @roles )
+  {
+    $new_user->create_related( 'userroles', { role_id => $role } );
+  }
+
+  # Set initial user_settings.
+  $new_user->create_related( 'settings',
+    (
+      \%DEFAULT_SETTINGS,
+    )
+  );
+
+  flash success => sprintf( 'Successfully created user &quot;<strong>%s</strong>&quot;.', body_parameters->get( 'username' ) );
+
+  my $fields = body_parameters->as_hashref;
+  my @field_values;
+  foreach my $key ( sort keys %{ $fields } )
+  {
+    if ( lc( $key ) ne 'password' )
+    {
+      push @field_values, sprintf( '%s: %s', $key, $fields->{$key} );
+    }
+  }
+
+  info sprintf( 'Created new user account >%s<, ID: >%s<, on %s', body_parameters->get( 'username' ), $new_user->id, $now );
+
+  my $logged = Side7::Log->admin_log
+  (
+    admin       => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
+    ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+    log_level   => 'Info',
+    log_message => sprintf( 'Created new user account<br>%s', join( '<br>', @field_values ) ),
+  );
+  redirect '/admin/users/add';
+};
+
+
+=head2 GET C</admin/users/:user_id/edit>
+
+Route to load up an edit form for a user. Admin access required.
+
+=cut
+
+get '/admin/users/:user_id/edit' => require_any_role [qw( Admin Owner )] => sub
+{
+  my $user = $SCHEMA->resultset( 'User' )->find(
+    { id => route_parameters->get( 'user_id' ) },
+    { prefetch => [ { userroles => 'role' }, 'status' ] }
+  );
+  my @roles    = $SCHEMA->resultset( 'Role' )->search( undef, { order_by => [ 'role' ] } );
+  my @statuses = $SCHEMA->resultset( 'UserStatus' )->search( undef, { order_by => [ 'status' ] } );
+
+  template 'admin_manage_users_edit_form',
+    {
+      data =>
+      {
+        user     => vars->{user},
+        thisuser => $user,
+        roles    => \@roles,
+        statuses => \@statuses,
+      },
+      title => 'Edit User Account',
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Manage User Accounts', link => '/admin/users' },
+        { name => 'Edit User Account', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
+=head2 POST C</admin/users/:user_id/update>
+
+Route to update a user account with new information. Admin access is required.
+
+=cut
+
+post '/admin/users/:user_id/update' => require_any_role [qw( Admin Owner )] => sub
+{
+  my $user_id = route_parameters->get( 'user_id' );
+
+  my $form_input = body_parameters->as_hashref;
+
+  my $user = $SCHEMA->resultset( 'User' )->find( $user_id );
+
+  if
+  (
+    not defined $user
+    or
+    ref( $user ) ne 'Side7::Schema::Result::User'
+  )
+  {
+    warn sprintf( 'Invalid or undefined user_id when updating user account: >%s<', $user_id );
+    flash error => 'An error occurred: Invalid or undefined user credentials. Nothing was updated.';
+    redirect '/admin/users';
+  }
+
+  my $orig_user = Clone::clone( $user );
+
+  my %old =
+  (
+    username          => $orig_user->username,
+    first_name        => $orig_user->first_name,
+    last_name         => $orig_user->last_name,
+    email_address     => $orig_user->email_address,
+    birthday          => $orig_user->birthday,
+    user_status_id    => $orig_user->user_status_id,
+  );
+
+  my %new =
+  (
+    username          => body_parameters->get( 'username' ),
+    first_name        => body_parameters->get( 'first_name' ),
+    last_name         => body_parameters->get( 'last_name' ),
+    email_address     => body_parameters->get( 'email_address' ),
+    birthday          => body_parameters->get( 'birthday' ),
+    user_status_id    => body_parameters->get( 'user_status_id' ),
+  );
+
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+
+  foreach my $key ( [ qw/ username first_name last_name email_address birthday user_status_id / ] )
+  {
+    if ( $old{$key} ne $new{$key} )
+    {
+      $user->$key( $new{$key} );
+    }
+  }
+  $user->updated_at( $now );
+
+  $SCHEMA->txn_do(
+                  sub
+                  {
+                    $user->update;
+                  }
+  );
+
+  # Any changes in userroles?
+  my $ur_updated = '';
+  my @new_userroles = body_parameters->get_all( 'userroles' );
+  my @old_userroles = ();
+  foreach my $orig_urole ( $orig_user->userroles )
+  {
+    push @old_userroles, $orig_urole->role_id;
+  }
+
+  my @to_add = Array::Utils::array_minus( @new_userroles, @old_userroles );
+  my @to_del = Array::Utils::array_minus( @old_userroles, @new_userroles );
+
+  if ( scalar( @to_add ) > 0 )
+  {
+    my @added = ();
+    # We have new roles to add.
+    foreach my $role_id ( @to_add )
+    {
+      # If the role is 'Owner', only add it if the logged in user is also an Owner.
+      if
+      (
+        $role_id != 6
+        or
+        ( $role_id == 6 and user_has_role( 'Owner' ) )
+      )
+      {
+        $user->add_to_userroles( { role_id => $role_id } );
+        push @added, $role_id;
+      }
+    }
+    $ur_updated .= sprintf(' New user roles added. (IDs: %s)', join( ', ', @added ) ) if scalar @added > 0;
+  }
+
+  if ( scalar( @to_del ) > 0 )
+  {
+    my @deleted = ();
+    # We have new roles to remove.
+    foreach my $role_id ( @to_del )
+    {
+      # If the role is 'Owner', only remove it if the logged in user is also an Owner.
+      if
+      (
+        $role_id != 6
+        or
+        ( $role_id == 6 and user_has_role( 'Owner' ) )
+      )
+      {
+        $user->delete_related( 'userroles', { role_id => $role_id } );
+        push @deleted, $role_id;
+      }
+    }
+    $ur_updated .= sprintf( ' Old user roles removed. (IDs: %s)', join( ', ', @deleted ) ) if scalar @deleted > 0;
+  }
+
+  # Do we have a password change?
+  my $pw_updated = '';
+  if ( defined body_parameters->get( 'password' ) and body_parameters->get( 'password' ) ne '' )
+  {
+    user_password( username => $user->username, realm => $DPAE_REALM, new_password => body_parameters->get( 'password' ) );
+    $pw_updated = ' Password updated.';
+  };
+
+  my $userdiffs = Side7::Log->find_changes_in_data( old_data => \%old, new_data => \%new );
+
+  my $logged = Side7::Log->admin_log
+  (
+    admin       => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
+    ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+    log_level   => 'Info',
+    log_message => sprintf( 'User %s updated: %s%s%s', $user->username, join( ', ', @{ $userdiffs } ), $ur_updated, $pw_updated ),
+  );
+
+  flash success => sprintf( 'Updated user &quot;<strong>%s</strong>&quot;', $user->username );
+  redirect sprintf('/admin/users/%d/edit', $user_id);
+};
+
+
+=head2 ANY C</admin/users/:user_id/delete>
+
+Route to delete a user account. Owner or Admin Access required.
+
+=cut
+
+any '/admin/users/:user_id/delete' => require_any_role [qw( Admin Owner )] => sub
+{
+  my $user_id = route_parameters->get( 'user_id' );
+
+  my $user = $SCHEMA->resultset( 'User' )->find( $user_id );
+  my $username = $user->username;
+
+  $user->delete_related( 'userroles' );
+  $user->delete_related( 'settings' );
+  $user->delete;
+
+  flash success => sprintf( 'Successfully deleted User &quot;<strong>%s</strong>&quot;', $username );
+  my $logged = Side7::Log->admin_log
+  (
+    admin       => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
+    ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+    log_level   => 'Info',
+    log_message => sprintf( 'Deleted User >%s< (ID:%s)', $username, $user_id ),
+  );
+
+  redirect '/admin/users';
+};
+
+
+=head2 GET C</admin/roles>
+
+Route to manage user roles dashboard. Requires Admin access.
+
+=cut
+
+get '/admin/roles' => require_any_role [qw( Admin Owner )] => sub
+{
+  my @roles = $SCHEMA->resultset( 'Role' )->search( {}, { order_by => [ 'role' ] } );
+
+  template 'admin_manage_user_roles',
+    {
+      data =>
+      {
+        roles => \@roles,
+      },
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Manage User Roles', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
+=head2 GET C</admin/roles/:role_id/edit>
+
+Route for displaying the edit role form. Admin access required.
+
+=cut
+
+get '/admin/roles/:role_id/edit' => require_role Admin => sub
+{
+  my $role_id = route_parameters->get( 'role_id' );
+
+  my $role = $SCHEMA->resultset( 'Role' )->find( $role_id );
+
+  if
+  (
+    not defined $role
+    or
+    ref( $role ) ne 'Side7::Schema::Result::Role'
+  )
+  {
+    warn sprintf( 'Invalid or undefined role ID: >%s<', $role_id );
+    flash error => 'Error: Invalid or undefined Role ID.';
+    redirect '/admin/roles';
+  }
+
+  template 'admin_manage_user_roles_edit_form',
+    {
+      data =>
+      {
+        role => $role,
+      },
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Manage User Roles', link => '/admin/roles' },
+        { name => 'Edit User Role', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
+=head2 POST C</admin/roles/:role_id/update>
+
+Route to save updated role data to the database. Admin access required.
+
+=cut
+
+post '/admin/roles/:role_id/update' => require_role Admin => sub
+{
+  my $role_id = route_parameters->get( 'role_id' );
+
+  if ( not defined body_parameters->get( 'role' ) )
+  {
+    flash error => 'Error: You must provide a Role name.';
+    redirect sprintf( '/admin/roles/%s/edit', $role_id );
+  }
+
+  my $role = $SCHEMA->resultset( 'Role' )->find( $role_id );
+
+  if
+  (
+    not defined $role
+    or
+    ref( $role ) ne 'Side7::Schema::Result::Role'
+  )
+  {
+    warn sprintf( 'Invalid or undefined role ID: >%s<', $role_id );
+    flash error => 'Error: Invalid or undefined Role ID.';
+    redirect '/admin/roles';
+  }
+
+  my $orig_role = Clone::clone( $role );
+  my $now = DateTime->now( time_zone => 'America/New_York' )->datetime;
+
+  if ( $role->role ne body_parameters->get( 'role' ) )
+  {
+    $role->role( body_parameters->get( 'role' ) );
+    $role->updated_on( $now );
+
+    $role->update;
+
+    flash success => sprintf( 'Role &quot;<strong>%s</strong>&quot; has been updated.', $role->role );
+    info sprintf( 'Updated user role >%s< -> >%s<, on %s', $orig_role->role, $role->role, $now );
+    my $logged = Side7::Log->admin_log
+    (
+      admin       => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
+      ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+      log_level   => 'Info',
+      log_message => sprintf( 'Updated User Role: %s -&gt; %s ', $orig_role->role, $role->role ),
+    );
+    redirect '/admin/roles';
+  }
+  else
+  {
+    flash error => 'Error: You changed nothing. So nothing was updated.';
+    redirect sprintf( '/admin/roles/%s/edit', $role_id );
+  }
+};
+
+
+=head2 GET C</admin/roles/add>
+
+Route to add user role form. Admin access required.
+
+=cut
+
+get '/admin/roles/add' => require_role Admin => sub
+{
+  template 'admin_manage_user_roles_add_form',
+    {
+      data =>
+      {
+      },
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Manage User Roles', link => '/admin/roles' },
+        { name => 'Add New User Role', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
+=head2 POST C</admin/roles/create>
+
+Route to save new role to the DB. Admin access required.
+
+=cut
+
+post '/admin/roles/create' => require_role Admin => sub
+{
+  if
+  (
+    not defined body_parameters->get( 'role' )
+    or
+    body_parameters->get( 'role' ) eq ''
+  )
+  {
+    flash error => 'Error: You must provide a Role Name.';
+    redirect '/admin/roles/add';
+  }
+
+  my $now = DateTime->now( time_zone => 'America/New_York' )->datetime;
+  my $new_role = $SCHEMA->resultset( 'Role' )->create
+  (
+    {
+      role       => body_parameters->get( 'role' ),
+      created_on => $now,
+    }
+  );
+
+  info sprintf( 'Created new user role >%s<, ID: >%s<, on %s', body_parameters->get( 'role' ), $new_role->id, $now );
+  my $logged = Side7::Log->admin_log
+  (
+    admin       => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
+    ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+    log_level   => 'Info',
+    log_message => sprintf( 'Created New User Role: %s (ID:%s)', $new_role->role, $new_role->id ),
+  );
+
+  flash success => sprintf( 'Successfully created new User Role &quot;<strong>%s</strong>&quot;.', $new_role->role );
+  redirect '/admin/roles';
+};
+
+
+=head2 GET C</admin/roles/:role_id/delete>
+
+Route to delete a user role. Admin access required.
+
+=cut
+
+get '/admin/roles/:role_id/delete' => require_role Admin => sub
+{
+  my $role_id = route_parameters->get( 'role_id' );
+
+  my $role = $SCHEMA->resultset( 'Role' )->find( $role_id );
+
+  if
+  (
+    not defined $role
+    or
+    ref( $role ) ne 'Side7::Schema::Result::Role'
+  )
+  {
+    warn sprintf( 'Invalid or undefined role ID: >%s<', $role_id );
+    flash error => 'Error: Invalid or undefined Role ID.';
+    redirect '/admin/roles';
+  }
+
+  my $rolename = $role->role;
+  my $now = DateTime->now( time_zone => 'America/New_York' )->datetime;
+
+  $role->delete_related( 'userroles' );
+  $role->delete;
+
+  info sprintf( 'Deleted user role >%s<, on %s', $rolename, $now );
+  flash success => sprintf( 'Successfully deleted User Role &quot;<strong>%s</strong>&quot;', $rolename );
+  my $logged = Side7::Log->admin_log
+  (
+    admin       => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
+    ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+    log_level   => 'Info',
+    log_message => sprintf( 'Deleted User Role >%s< (ID:%s)', $rolename, $role_id ),
+  );
+
+  redirect '/admin/roles';
 };
 
 

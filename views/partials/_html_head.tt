@@ -11,15 +11,16 @@
 
     <link href="https://fonts.googleapis.com/css?family=Athiti|Jockey+One|Share+Tech|Squada+One|Teko&amp;subset=latin-ext" rel="stylesheet">
     <link rel="stylesheet" href="/css/app.css">
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.0.11/css/all.css" integrity="sha384-KwxQKNj2D0XKEW5O/Y6haRH39PE/xry8SAoLbpbCMraqlX7kUP6KHOnrlrtvuJLR" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.0.12/css/all.css" integrity="sha384-HX5QvHXoIsrUAY0tE/wG8+Wt1MwvaY28d9Zciqcj6Ob7Tw99tFPo4YUXcZw9l930" crossorigin="anonymous">
     <link rel="stylesheet" href="/css/notifIt.min.css">
     <link rel="stylesheet" href="/css/tooltipster-sideTip-light.min.css">
     <link rel="stylesheet" href="/css/jquery.modal.min.css">
     <link rel="stylesheet" href="/css/fontawesome-stars.css">
-    <link rel="stylesheet" href="/css/dataTables.min.css"/>
+    <link rel="stylesheet" href="/css/dataTables.min.css" />
+    <link rel="stylesheet" href="/css/ply.css" />
 
     <script type="text/javascript" src="/javascripts/jquery-3.3.1.min.js"></script>
-    <script defer src="https://pro.fontawesome.com/releases/v5.0.11/js/all.js" integrity="sha384-rAGYBPVpurUH2YLc/Skiv4TE1iQ/wAocPQdQT73UR0LEZ3Os2E3wGBn9fRISQJIK" crossorigin="anonymous"></script>
+    <script defer src="https://pro.fontawesome.com/releases/v5.0.12/js/all.js" integrity="sha384-quzri7saio48xMf3ED3HiI5YaItt68Q+0J3qc9EIfk1jk3QqCJhS24l6CZpUGfEe" crossorigin="anonymous"></script>
 
     <script type="text/javascript" src="/javascripts/vendor/notifIt.min.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/jquery-paginate.min.js"></script>
@@ -28,7 +29,9 @@
     <script type="text/javascript" src="/javascripts/vendor/ckeditor/adapters/jquery.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/blazy.min.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/jquery.barrating.min.js"></script>
-    <script type="text/javascript" src="/javascripts/vendor/DataTables/dataTables.min.js"></script>
+    <script type="text/javascript" src="/javascripts/vendor/DataTables/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/javascripts/vendor/DataTables/js/dataTables.foundation.min.js"></script>
+    <script type="text/javascript" src="/javascripts/vendor/Ply.min.js"></script>
 
     <!-- FAVICON -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">

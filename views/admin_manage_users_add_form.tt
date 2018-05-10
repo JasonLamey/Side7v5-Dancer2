@@ -1,0 +1,117 @@
+[% USE date %]
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+
+<div class="row column">
+  <div class="callout">
+    <h3>Create New User Account</h3>
+
+    <div class="row align-center">
+      <div class="small-12 medium-8 columns">
+        <form action="/admin/users/create" method="post" id="add_user_account_form" data-abide novalidate>
+
+          <div class="row">
+            <div class="small-6 medium-4 columns">
+              <label for="username" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Username:</label>
+            </div>
+            <div class="small-6 medium-8 columns">
+              <input type="text" maxlength="50" name="username" id="username "placeholder="joe_user" value="" aria-describedby="username_help" required>
+              <span class="form-error" data-form-error-for="username">Account requires a Username.</span>
+              <p class="help-text" id="username_help">Username is required, and should be between 3-40 characters in length.</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-6 medium-4 columns">
+              <label for="password" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Password:</label>
+            </div>
+            <div class="small-6 medium-8 columns">
+              <input type="password" maxlength="140" name="password" id="password" aria-describedby="password_help" placeholder="password1234" required>
+                <span class="form-error" data-form-error-for="password">Password is required.</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-6 medium-4 columns">
+              <label for="birthday" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Birthdate:</label>
+            </div>
+            <div class="small-6 medium-8 columns">
+              <input type="date" name="birthday" id="birthday" placeholder="YYYY-MM-DD" value="" aria-descibedby="birthday_help" required>
+                <span class="form-error" data-form-error-for="birthday">Birthdate is required and must be in YYYY-MM-DD format.</span>
+                <p class="help-text" id="birthday_help">YYYY-MM-DD format.</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-6 medium-4 columns">
+              <label for="email" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Email:</label>
+            </div>
+            <div class="small-6 medium-8 columns">
+              <input type="text" maxlength="255" name="email_address" id="email_addr" placeholder="joe_user@example.com" value="" required pattern="email">
+                <span class="form-error" data-form-error-for="email_addr">A valid email address is required. Ex: username@domain.tld</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-6 medium-4 columns">
+              <label for="first_name" class="text-right middle">First Name:</label>
+            </div>
+            <div class="small-6 medium-8 columns">
+              <input type="text" maxlength="255" name="first_name" id="first_name" placeholder="Joe" value="">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-6 medium-4 columns">
+              <label for="last_name" class="text-right middle">Last Name:</label>
+            </div>
+            <div class="small-6 medium-8 columns">
+              <input type="text" maxlength="255" name="last_name" id="last_name" placeholder="User" value="">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-6 medium-4 columns">
+              <label for="status" class="text-right middle">Account Status:</label>
+            </div>
+            <div class="small-6 medium-8 columns align-middle">
+              <fieldset>
+              [% FOREACH ustatus IN data.statuses %]
+                <nobr><input type="radio" name="status" id="status-[% ustatus.id %]" value="[% ustatus.id %]"[% ustatus.status == 'Pending' ? ' checked' : '' %]>
+                <label for="status-[% ustatus.id %]">[% ustatus.status %]</label></nobr>
+              [% END %]
+              </fieldset>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-6 medium-4 columns">
+              <label for="userroles" class="text-right middle">User Roles:</label>
+            </div>
+            <div class="small-6 medium-8 columns align-middle">
+              <fieldset>
+              [% FOREACH urole IN data.roles %]
+                <nobr><input type="checkbox" name="userroles" id="urole-[% urole.id %]" value="[% urole.id %]"[% urole.role == 'New Signup' ? ' checked' : '' %]>
+                <label for="urole-[% urole.id %]">[% urole.role %]</label></nobr>
+              [% END %]
+              </fieldset>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-6 medium-4 columns">
+              <label for="confirmed" class="text-right middle">Skip Account Confirmation:</label>
+            </div>
+            <div class="small-6 medium-8 columns align-self-middle">
+              <input type="checkbox" name="confirmed" id="confirmed" value="1"> <label for="confirmed">Yes</label>
+            </div>
+          </div>
+
+          <div class="row column text-center">
+            <button type="submit" class="button" form="add_user_account_form">Create Account</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

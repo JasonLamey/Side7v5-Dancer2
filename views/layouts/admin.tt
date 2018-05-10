@@ -23,7 +23,13 @@
                 <li><a href="/admin/logs"><i class="far fa-file-medical-alt fa-fw fa-lg"></i> Logs</a></li>
               </ul>
             </li>
-            <li><a href="/admin/users"><i class="far fa-users fa-fw fa-lg"></i> Manage Users</a></li>
+            <li><a href="#"><i class="far fa-users fa-fw fa-lg"></i> Manage Users</a>
+              <ul class="menu vertical nested">
+                <li><a href="/admin/users"><i class="far fa-users-cog fa-fw fa-lg"></i> Users List</a></li>
+                <li><a href="/admin/users/add"><i class="far fa-user-plus fa-fw fa-lg"></i> Create User Account</a></li>
+                <li><a href="/admin/roles"><i class="far fa-user-tag fa-fw fa-lg"></i> User Roles</a></li>
+              </ul>
+            </li>
             <li><a href="#"><i class="far fa-comments-alt fa-fw fa-lg"></i> Manage Forums</a>
               <ul class="menu vertical nested">
                 <li><a href="/admin/forums/categories"><i class="far fa-th fa-fw fa-lg"></i> Categories</a></li>
