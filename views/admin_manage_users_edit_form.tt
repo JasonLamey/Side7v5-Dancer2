@@ -1,79 +1,68 @@
 [% USE date %]
 [% PROCESS 'partials/_breadcrumbs.tt' %]
 
-<div class="row column">
-  <div class="callout">
-    <h3>Edit User Account</h3>
+<div class="grid-container">
+  <div class="grid-x grid-margin-x callout">
+    <div class="cell small-12">
+      <h3>Edit User Account</h3>
+    </div>
 
-    <div class="row align-center">
-      <div class="small-12 medium-8 columns">
+    <div class="cell small-12 align-center">
         <form action="/admin/users/[% data.thisuser.id %]/update" method="post" id="edit_user_account_form" data-abide novalidate>
 
-          <div class="row">
-            <div class="small-6 medium-4 columns">
+          <div class="grid-x grid-margin-x">
+            <div class="small-6 medium-4 cell">
               <label for="username" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Username:</label>
             </div>
-            <div class="small-6 medium-8 columns">
+            <div class="small-6 medium-8 cell">
               <input type="text" maxlength="50" name="username" id="username "placeholder="joe_user" value="[% data.thisuser.username %]" aria-describedby="username_help" required>
               <span class="form-error" data-form-error-for="username">Account requires a Username.</span>
               <p class="help-text" id="username_help">Username is required, and should be between 3-40 characters in length.</p>
             </div>
-          </div>
 
-          <div class="row">
-            <div class="small-6 medium-4 columns">
+            <div class="small-6 medium-4 cell">
               <label for="password" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Password:</label>
             </div>
-            <div class="small-6 medium-8 columns">
+            <div class="small-6 medium-8 cell">
               <input type="password" maxlength="140" name="password" id="password" aria-describedby="password_help" placeholder="password1234">
                 <p class="help-text" id="password_help">Only necessary if changing the user's password.</p>
             </div>
-          </div>
 
-          <div class="row">
-            <div class="small-6 medium-4 columns">
+            <div class="small-6 medium-4 cell">
               <label for="birthday" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Birthdate:</label>
             </div>
-            <div class="small-6 medium-8 columns">
+            <div class="small-6 medium-8 cell">
               <input type="date" name="birthday" id="birthday" placeholder="YYYY-MM-DD" value="[% data.thisuser.birthday %]" aria-descibedby="birthday_help" required>
                 <span class="form-error" data-form-error-for="birthday">Birthdate is required and must be in YYYY-MM-DD format.</span>
                 <p class="help-text" id="birthday_help">YYYY-MM-DD format.</p>
             </div>
-          </div>
 
-          <div class="row">
-            <div class="small-6 medium-4 columns">
+            <div class="small-6 medium-4 cell">
               <label for="email" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Email:</label>
             </div>
-            <div class="small-6 medium-8 columns">
+            <div class="small-6 medium-8 cell">
               <input type="text" maxlength="255" name="email_address" id="email_addr" placeholder="joe_user@example.com" value="[% data.thisuser.email_address %]" required pattern="email">
                 <span class="form-error" data-form-error-for="email_addr">A valid email address is required. Ex: username@domain.tld</span>
             </div>
-          </div>
 
-          <div class="row">
-            <div class="small-6 medium-4 columns">
+            <div class="small-6 medium-4 cell">
               <label for="first_name" class="text-right middle">First Name:</label>
             </div>
-            <div class="small-6 medium-8 columns">
+            <div class="small-6 medium-8 cell">
               <input type="text" maxlength="255" name="first_name" id="first_name" placeholder="Joe" value="[% data.thisuser.first_name %]">
             </div>
-          </div>
 
-          <div class="row">
-            <div class="small-6 medium-4 columns">
+            <div class="small-6 medium-4 cell">
               <label for="last_name" class="text-right middle">Last Name:</label>
             </div>
-            <div class="small-6 medium-8 columns">
+            <div class="small-6 medium-8 cell">
               <input type="text" maxlength="255" name="last_name" id="last_name" placeholder="User" value="[% data.thisuser.last_name %]">
             </div>
-          </div>
 
-          <div class="row">
-            <div class="small-6 medium-4 columns">
+            <div class="small-6 medium-4 cell">
               <label for="user_status_id" class="text-right middle">Account Status:</label>
             </div>
-            <div class="small-6 medium-8 columns align-middle">
+            <div class="small-6 medium-8 cell align-middle">
               <fieldset>
               [% FOREACH ustatus IN data.statuses %]
                 <nobr><input type="radio" name="user_status_id" id="status-[% ustatus.id %]" value="[% ustatus.id %]" [% data.thisuser.status.id == ustatus.id ? ' checked ' : '' %]>
@@ -81,13 +70,11 @@
               [% END %]
               </fieldset>
             </div>
-          </div>
 
-          <div class="row">
-            <div class="small-6 medium-4 columns">
+            <div class="small-6 medium-4 cell">
               <label for="userroles" class="text-right middle">User Roles:</label>
             </div>
-            <div class="small-6 medium-8 columns align-middle">
+            <div class="small-6 medium-8 cell align-middle">
               <fieldset>
               [% FOREACH urole IN data.roles %]
                 <nobr><input type="checkbox" name="userroles" id="urole-[% urole.id %]" value="[% urole.id %]"
@@ -96,14 +83,12 @@
               [% END %]
               </fieldset>
             </div>
-          </div>
 
-          <div class="row column text-center">
-            <button type="submit" class="button" form="edit_user_account_form">Update Account</button>
-          </div>
+            <div class="cell small-12 text-center">
+              <button type="submit" class="button" form="edit_user_account_form">Update Account</button>
+            </div>
 
         </form>
-      </div>
     </div>
   </div>
 </div>

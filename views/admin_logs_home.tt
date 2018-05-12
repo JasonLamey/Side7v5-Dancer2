@@ -1,15 +1,15 @@
 [% PROCESS 'partials/_breadcrumbs.tt' %]
 
-<div class="grid-x grid-margin-x">
-  <div class="cell">
+<div class="grid-container">
+  <div class="grid-x grid-margin-x callout">
+    <div class="cell">
 
-    <div class="callout">
       <h3>Logs</h3>
       <div class="button-group">
         <a href="/admin/logs/admin" class="button">Admin Logs</a>
         <a href="/admin/logs/user" class="button">User Logs</a>
       </div>
-    </div>
 
+    </div>
   </div>
 </div>

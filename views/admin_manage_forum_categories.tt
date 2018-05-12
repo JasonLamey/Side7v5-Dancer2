@@ -1,0 +1,65 @@
+[% USE date %]
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+
+<div class="row column">
+  <div class="callout">
+
+    <div class="row column">
+      <h3>Manage Forum Categories</h3>
+      <p>Forum Categories are the top level of organization within the forums. They contain groups of threads.</p>
+    </div>
+
+    <div class="row column">
+      <a href="/admin/forums/categories/add" class="button">Create New Category</a>
+    </div>
+
+    <div class="row align-center">
+      <div class="small-12 columns">
+        <table class="display" id="categories_table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Num Groups</th>
+              <th>Sort Order</th>
+              <th>View Access</th>
+              <th>Read Access</th>
+              <th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            [% FOREACH category IN data.categories %][% count = 0 %]
+              [% FOREACH group IN catgory.groups %][% count = count + 1 %][% END %]
+            <tr>
+              <td>[% category.name %]</td>
+              <td>[% count %]</td>
+              <td>[% category.sort_order %]</td>
+              <td>[% category.view_access %]</td>
+              <td>[% category.read_access %]</td>
+              <td>
+                <a href="/admin/forums/categories/[% category.id %]/edit" class="tiny button">Edit</a>
+                <button class="tiny alert button" onclick="promptForDelete( '[% category.name %]', '/admin/forums/categories/[% category.id %]/delete' );">Delete</button>
+              </td>
+            </tr>
+            [% END %]
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  $('#categories_table').DataTable
+  (
+    {
+      searching  : true,
+      ordering   : true,
+      lengthMenu : [ 10, 25, 50, 75, 100 ],
+      pagingType : 'full_numbers',
+      responsive : true,
+      order      : [ [ 2, 'asc' ], [ 0, 'asc' ] ],
+    }
+  );
+</script>
+

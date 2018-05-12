@@ -1867,7 +1867,7 @@ post '/user/avatar/upload' => require_login sub
     ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
     log_level   => 'Info',
     log_message => sprintf( 'New avatar added. <a href="%s" target="_blank">&gt;View Here&lt;</a>',
-                            $avatar_path . '/' . $newfilename ),
+                            '/galleries' . $avatar_path . '/' . $newfilename ),
   );
 
   push( @json, { success => 1, message => 'Avatar uploaded!' } );
@@ -3025,79 +3025,6 @@ get '/admin/logs/user' => require_any_role [qw( Admin Owner Moderator )] => sub
 };
 
 
-=head2 GET C</admin/users/?:initial?>
-
-Route to manage user account data. Requires Admin access.
-
-=cut
-
-get '/admin/users/?:initial?' => require_any_role [qw( Admin Owner )] => sub
-{
-  my $initial = route_parameters->get('initial') // 'A';
-
-  my @initials = $SCHEMA->resultset( 'User' )->search(
-    {},
-    {
-      select => [ \"substr(username, 1, 1)"],
-      as     => [ 'initial' ],
-      distinct => 1,
-    }
-  );
-
-  my @all_initials = sort map { uc( $_->get_column('initial') ) } @initials;
-
-  my @users;
-  if ( $initial eq '_' )
-  {
-    @users = $SCHEMA->resultset( 'User' )->search(
-      { username => { like => \[q{? ESCAPE '#'}, '#_%'] } },
-      {
-        order_by => [ 'username' ],
-        prefetch =>
-        [
-          { userroles => 'role' },
-          'status',
-        ],
-      }
-    );
-  }
-  else
-  {
-    @users = $SCHEMA->resultset( 'User' )->search(
-      { username => { like => "$initial%" } },
-      {
-        order_by => [ 'username' ],
-        prefetch =>
-        [
-          { userroles => 'role' },
-          'status',
-        ],
-      }
-    );
-  }
-
-  template 'admin_manage_users',
-    {
-      data =>
-      {
-        user         => vars->{user},
-        users        => \@users,
-        all_initials => \@all_initials,
-        initial      => $initial,
-      },
-      title => 'Manage User Accounts',
-      breadcrumbs =>
-      [
-        { name => 'Admin', link => '/admin' },
-        { name => 'Manage User Accounts', current => 1 },
-      ],
-    },
-    {
-      layout => 'admin'
-    };
-};
-
-
 =head2 GET C</admin/users/add>
 
 Route to the add user account form. Requires Admin access.
@@ -3442,6 +3369,79 @@ any '/admin/users/:user_id/delete' => require_any_role [qw( Admin Owner )] => su
 };
 
 
+=head2 GET C</admin/users/?:initial?>
+
+Route to manage user account data. Requires Admin access.
+
+=cut
+
+get '/admin/users/?:initial?' => require_any_role [qw( Admin Owner )] => sub
+{
+  my $initial = route_parameters->get('initial') // 'A';
+
+  my @initials = $SCHEMA->resultset( 'User' )->search(
+    {},
+    {
+      select => [ \"substr(username, 1, 1)"],
+      as     => [ 'initial' ],
+      distinct => 1,
+    }
+  );
+
+  my @all_initials = sort map { uc( $_->get_column('initial') ) } @initials;
+
+  my @users;
+  if ( $initial eq '_' )
+  {
+    @users = $SCHEMA->resultset( 'User' )->search(
+      { username => { like => \[q{? ESCAPE '#'}, '#_%'] } },
+      {
+        order_by => [ 'username' ],
+        prefetch =>
+        [
+          { userroles => 'role' },
+          'status',
+        ],
+      }
+    );
+  }
+  else
+  {
+    @users = $SCHEMA->resultset( 'User' )->search(
+      { username => { like => "$initial%" } },
+      {
+        order_by => [ 'username' ],
+        prefetch =>
+        [
+          { userroles => 'role' },
+          'status',
+        ],
+      }
+    );
+  }
+
+  template 'admin_manage_users',
+    {
+      data =>
+      {
+        user         => vars->{user},
+        users        => \@users,
+        all_initials => \@all_initials,
+        initial      => $initial,
+      },
+      title => 'Manage User Accounts',
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Manage User Accounts', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
 =head2 GET C</admin/roles>
 
 Route to manage user roles dashboard. Requires Admin access.
@@ -3456,8 +3456,10 @@ get '/admin/roles' => require_any_role [qw( Admin Owner )] => sub
     {
       data =>
       {
+        user  => vars->{user},
         roles => \@roles,
       },
+      title => 'Manage User Roles',
       breadcrumbs =>
       [
         { name => 'Admin', link => '/admin' },
@@ -3498,8 +3500,10 @@ get '/admin/roles/:role_id/edit' => require_role Admin => sub
     {
       data =>
       {
+        user => vars->{user},
         role => $role,
       },
+      title => 'Edit User Roles',
       breadcrumbs =>
       [
         { name => 'Admin', link => '/admin' },
@@ -3544,7 +3548,7 @@ post '/admin/roles/:role_id/update' => require_role Admin => sub
   }
 
   my $orig_role = Clone::clone( $role );
-  my $now = DateTime->now( time_zone => 'America/New_York' )->datetime;
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
 
   if ( $role->role ne body_parameters->get( 'role' ) )
   {
@@ -3584,12 +3588,14 @@ get '/admin/roles/add' => require_role Admin => sub
     {
       data =>
       {
+        user => vars->{user},
       },
+      title => 'Create User Role',
       breadcrumbs =>
       [
         { name => 'Admin', link => '/admin' },
         { name => 'Manage User Roles', link => '/admin/roles' },
-        { name => 'Add New User Role', current => 1 },
+        { name => 'Create New User Role', current => 1 },
       ],
     },
     {
@@ -3681,6 +3687,255 @@ get '/admin/roles/:role_id/delete' => require_role Admin => sub
   );
 
   redirect '/admin/roles';
+};
+
+
+=head2 GET C</admin/forums/categories>
+
+Route to manage forum categories dashboard. Requires Admin access.
+
+=cut
+
+get '/admin/forums/categories' => require_any_role [qw( Admin Owner )] => sub
+{
+  my @categories = $SCHEMA->resultset( 'ForumCategory' )->search( {}, { order_by => [ 'sort_order' ] } );
+
+  template 'admin_manage_forum_categories',
+    {
+      data =>
+      {
+        user       => vars->{user},
+        categories => \@categories,
+      },
+      title => 'Manage Forum Categories',
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Manage Forums', disabled => 1 },
+        { name => 'Categories', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
+=head2 GET C</admin/forums/categories/:category_id/edit>
+
+Route for displaying the edit forum categories form. Admin access required.
+
+=cut
+
+get '/admin/forums/categories/:category_id/edit' => require_any_role [qw( Admin Owner )] => sub
+{
+  my $category_id = route_parameters->get( 'category_id' );
+
+  my $category = $SCHEMA->resultset( 'ForumCategory' )->find( $category_id );
+
+  if
+  (
+    not defined $category
+    or
+    ref( $category ) ne 'Side7::Schema::Result::ForumCategory'
+  )
+  {
+    warn sprintf( 'Invalid or undefined forum category ID: >%s<', $category_id );
+    flash error => 'Error: Invalid or undefined Category ID.';
+    redirect '/admin/forums/categories';
+  }
+
+  template 'admin_manage_forum_categories_edit_form',
+    {
+      data =>
+      {
+        user     => vars->{user},
+        category => $category,
+      },
+      title => 'Edit Forum Category',
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Manage Forums', disabled => 1 },
+        { name => 'Categories', link => '/admin/forums/categories' },
+        { name => 'Edit Forum Category', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
+=head2 POST C</admin/forums/categories/:category_id/update>
+
+Route to save updated forum category data to the database. Admin access required.
+
+=cut
+
+post '/admin/forums/categories/:category_id/update' => require_any_role [qw( Admin Owner )] => sub
+{
+  my $category_id = route_parameters->get( 'category_id' );
+
+  if ( not defined body_parameters->get( 'name' ) )
+  {
+    flash error => 'Error: You must provide a Category name.';
+    redirect sprintf( '/admin/forums/categories/%s/edit', $category_id );
+  }
+
+  my $category = $SCHEMA->resultset( 'ForumCategory' )->find( $category_id );
+
+  if
+  (
+    not defined $category
+    or
+    ref( $category ) ne 'Side7::Schema::Result::ForumCategory'
+  )
+  {
+    warn sprintf( 'Invalid or undefined forum category ID: >%s<', $category_id );
+    flash error => 'Error: Invalid or undefined Category ID.';
+    redirect '/admin/forums/categories';
+  }
+
+  my $orig_category = Clone::clone( $category );
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+
+  my $changes = 0; my @change_details = ();
+  my @fields = qw( name sort_order view_access read_access );
+  foreach my $field ( @fields )
+  {
+    if ( $category->$field ne body_parameters->get( $field ) )
+    {
+      $changes = 1;
+      push @change_details, sprintf( '%s: "%s" to "%s"', $field, $category->$field, body_parameters->get( $field ) );
+      $category->$field( body_parameters->get( $field ) );
+    }
+  }
+
+  if ( $changes == 1 )
+  {
+    $category->update;
+    flash success => sprintf( 'Forum Category &quot;<strong>%s</strong>&quot; has been updated.', $category->name );
+    info sprintf( 'Updated forum category %s on %s: %s', $category->name, $now, join( ' :: ', @change_details ) );
+    my $logged = Side7::Log->admin_log
+    (
+      admin       => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
+      ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+      log_level   => 'Info',
+      log_message => sprintf( 'Updated Forum Category "%s":  %s', $category->name, join( '<br>', @change_details ) ),
+    );
+    redirect '/admin/forums/categories';
+  }
+  else
+  {
+    flash error => 'Error: You changed nothing. So nothing was updated.';
+    redirect sprintf( '/admin/forums/categories/%s/edit', $category_id );
+  }
+};
+
+
+=head2 GET C</admin/forums/categories/add>
+
+Route to add forum category form. Admin access required.
+
+=cut
+
+get '/admin/forums/categories/add' => require_any_role [qw( Admin Owner )] => sub
+{
+  template 'admin_manage_forum_categories_add_form',
+    {
+      data =>
+      {
+        user => vars->{user},
+      },
+      title => 'Create Forum Category',
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Manage Forums', disabled => 1 },
+        { name => 'Categories', link => '/admin/forums/categories' },
+        { name => 'Create New Category', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
+=head2 POST C</admin/forums/categories/create>
+
+Route to save new forum category to the DB. Admin access required.
+
+=cut
+
+post '/admin/forums/categories/create' => require_any_role [qw( Admin Owner )] => sub
+{
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+  my $new_category = $SCHEMA->resultset( 'ForumCategory' )->create
+  (
+    {
+      name        => body_parameters->get( 'name' ),
+      sort_order  => body_parameters->get( 'sort_order' ),
+      view_access => body_parameters->get( 'view_access' ),
+      read_access => body_parameters->get( 'read_access' ),
+    }
+  );
+
+  info sprintf( 'Created new forum category >%s<, ID: >%s<, on %s', body_parameters->get( 'name' ), $new_category->id, $now );
+  my $logged = Side7::Log->admin_log
+  (
+    admin       => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
+    ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+    log_level   => 'Info',
+    log_message => sprintf( 'Created New Forum Category: %s (ID:%s)', $new_category->name, $new_category->id ),
+  );
+
+  flash success => sprintf( 'Successfully created new Forum Category &quot;<strong>%s</strong>&quot;.', $new_category->name );
+  redirect '/admin/forums/categories';
+};
+
+
+=head2 GET C</admin/forums/categories/:category_id/delete>
+
+Route to delete a forum category. Admin access required.
+
+=cut
+
+get '/admin/forums/categories/:category_id/delete' => require_role Admin => sub
+{
+  my $category_id = route_parameters->get( 'category_id' );
+
+  my $category = $SCHEMA->resultset( 'ForumCategory' )->find( $category_id );
+
+  if
+  (
+    not defined $category
+    or
+    ref( $category ) ne 'Side7::Schema::Result::ForumCategory'
+  )
+  {
+    warn sprintf( 'Invalid or undefined forum category ID: >%s<', $category_id );
+    flash error => 'Error: Invalid or undefined Forum Category ID.';
+    redirect '/admin/forums/categories';
+  }
+
+  my $category_name = $category->name;
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+
+  $category->delete;
+
+  info sprintf( 'Deleted forum category >%s<, on %s', $category_name, $now );
+  flash success => sprintf( 'Successfully deleted Forum Category &quot;<strong>%s</strong>&quot;', $category_name );
+  my $logged = Side7::Log->admin_log
+  (
+    admin       => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
+    ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+    log_level   => 'Info',
+    log_message => sprintf( 'Deleted Forum Category >%s< (ID:%s)', $category_name, $category_id ),
+  );
+
+  redirect '/admin/forums/categories';
 };
 
 

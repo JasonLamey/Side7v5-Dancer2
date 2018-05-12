@@ -1,47 +1,45 @@
 [% USE date %]
 [% PROCESS 'partials/_breadcrumbs.tt' %]
 
-<div class="row column">
-  <div class="callout">
+<div class="grid-container">
+  <div class="grid-x grid-margin-x callout">
 
-    <div class="row column">
+    <div class="cell small-12">
       <h3>Manage User Roles</h3>
     </div>
 
-    <div class="row column">
+    <div class="cell small-12">
       <small>(Please note that User Roles are a programmatic device, and cannot be manually used to affect user permissions.)</small><br>
       <a href="/admin/roles/add" class="button">Create New User Role</a>
     </div>
 
-    <div class="row align-center">
-      <div class="small-12 columns">
-        <table class="display" id="roles_table">
-          <thead>
-            <tr>
-              <th>Role</th>
-              <th>Num Accounts</th>
-              <th>Created</th>
-              <th>Updated</th>
-              <th>&nbsp;</th>
-            </tr>
-          </thead>
-          <tbody>
-            [% FOREACH role IN data.roles %][% count = 0 %]
-              [% FOREACH urole IN role.userroles %][% count = count + 1 %][% END %]
-            <tr>
-              <td>[% role.role %]</td>
-              <td>[% count %]</td>
-              <td>[% date.format( role.created_on, format => datetime_format_short ) %]</td>
-              <td>[% role.updated_on.defined ? date.format( role.updated_on, format => datetime_format_short ) : 'Never' %]</td>
-              <td>
-                <a href="/admin/roles/[% role.id %]/edit" class="tiny button">Edit</a>
-                <button class="tiny alert button" onclick="promptForDelete( '[% role.role %]', '/admin/roles/[% role.id %]/delete' );">Delete</button>
-              </td>
-            </tr>
-            [% END %]
-          </tbody>
-        </table>
-      </div>
+    <div class="cell small-12 align-center">
+      <table class="display" id="roles_table">
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Num Accounts</th>
+            <th>Created</th>
+            <th>Updated</th>
+            <th>&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH role IN data.roles %][% count = 0 %]
+            [% FOREACH urole IN role.userroles %][% count = count + 1 %][% END %]
+          <tr>
+            <td>[% role.role %]</td>
+            <td>[% count %]</td>
+            <td>[% date.format( role.created_on, format => datetime_format_short ) %]</td>
+            <td>[% role.updated_on.defined ? date.format( role.updated_on, format => datetime_format_short ) : 'Never' %]</td>
+            <td>
+              <a href="/admin/roles/[% role.id %]/edit" class="tiny button">Edit</a>
+              <button class="tiny alert button" onclick="promptForDelete( '[% role.role %]', '/admin/roles/[% role.id %]/delete' );">Delete</button>
+            </td>
+          </tr>
+          [% END %]
+        </tbody>
+      </table>
     </div>
 
   </div>

@@ -1,28 +1,32 @@
 [% USE date %]
 [% PROCESS 'partials/_breadcrumbs.tt' %]
 
-<div class="row column">
-  <h2>Add New User Role</h2>
-</div>
+<div class="grid-container">
+  <div class="grid-x grid-margin-x callout">
 
-<div class="row">
-  <div class="small-12 medium-8 columns">
-    <form method="post" action="/admin/roles/create" id="add_role_form" data-abide novalidate>
+    <div class="cell small-12">
+      <h2>Add New User Role</h2>
+    </div>
 
-      <div class="row">
-        <div class="small-6 medium-4 columns">
-          <label for="role" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Role Name:</label>
-        </div>
-        <div class="small-6 medium-8 columns">
-          <input type="text" name="role" placeholder="Moderator" required>
-          <span class="form-error">A name for the User Role is required.</span>
-        </div>
-      </div>
+    <div class="cell small-12 medium-8">
+        <form method="post" action="/admin/roles/create" id="add_role_form" data-abide novalidate>
 
-      <div class="row column text-center">
-        <button type="submit" form="add_role_form" class="button">Create Role</button>
-      </div>
+          <div class="grid-x grid-margin-x">
+            <div class="small-6 medium-4 cell">
+              <label for="role" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Role Name:</label>
+            </div>
+            <div class="small-6 medium-8 cell">
+              <input type="text" name="role" placeholder="Moderator" required>
+              <span class="form-error">A name for the User Role is required.</span>
+            </div>
+          </div>
 
-    </form>
+          <div class="cell small-12 text-center">
+            <button type="submit" form="add_role_form" class="button">Create Role</button>
+          </div>
+
+        </form>
+    </div>
+
   </div>
 </div>
