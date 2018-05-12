@@ -1,0 +1,63 @@
+[% USE date %]
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+
+<div class="row column">
+  <div class="callout">
+
+    <div class="row column">
+      <h3>Manage Forum Groups</h3>
+      <p>Forum Groups are the 2nd level of organization within the forums. They contain individual threads.</p>
+    </div>
+
+    <div class="row column">
+      <a href="/admin/forums/groups/add" class="button">Create New Group</a>
+    </div>
+
+    <div class="row align-center">
+      <div class="small-12 columns">
+        <table class="display" id="groups_table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Num Threads</th>
+              <th>Sort Order</th>
+              <th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            [% FOREACH group IN data.groups %][% count = 0 %]
+              [% FOREACH thread IN group.threads %][% count = count + 1 %][% END %]
+            <tr>
+              <td>[% group.name %]</td>
+              <td>[% group.category.name %]</td>
+              <td>[% count %]</td>
+              <td>[% group.sort_order %]</td>
+              <td>
+                <a href="/admin/forums/groups/[% group.id %]/edit" class="tiny button">Edit</a>
+                <button class="tiny alert button" onclick="promptForDelete( '[% group.name %]', '/admin/forums/groups/[% group.id %]/delete' );">Delete</button>
+              </td>
+            </tr>
+            [% END %]
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  $('#groups_table').DataTable
+  (
+    {
+      searching  : true,
+      ordering   : true,
+      lengthMenu : [ 10, 25, 50, 75, 100 ],
+      pagingType : 'full_numbers',
+      responsive : true,
+      order      : [ [ 1, 'asc' ], [ 3, 'asc' ] ],
+    }
+  );
+</script>
+

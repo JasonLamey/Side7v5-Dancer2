@@ -42,3 +42,5 @@ populate_system_avatars [system_avatars appuser] 2018-04-12T03:12:09Z Jason Lame
 user_avatars [appuser users] 2018-04-18T00:49:22Z Jason Lamey <jasonlamey@gmail.com> # Creation of user_avatars table.
 forum_categories [appuser] 2018-05-10T17:52:33Z Jason Lamey <jasonlamey@gmail.com> # Creates the forum_categories table
 populate_forum_categories [appuser forum_categories] 2018-05-10T18:39:42Z Jason Lamey <jasonlamey@gmail.com> # Populate forum_categories with default rows.
+forum_groups [appuser forum_categories] 2018-05-12T03:24:06Z Jason Lamey <jasonlamey@gmail.com> # Create forum_groups table.
+populate_forum_groups [appuser forum_groups] 2018-05-12T03:45:40Z Jason Lamey <jasonlamey@gmail.com> # Populate Forum Groups table.

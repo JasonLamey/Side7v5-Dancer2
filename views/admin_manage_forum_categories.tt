@@ -28,7 +28,7 @@
           </thead>
           <tbody>
             [% FOREACH category IN data.categories %][% count = 0 %]
-              [% FOREACH group IN catgory.groups %][% count = count + 1 %][% END %]
+              [% FOREACH group IN category.groups %][% count = count + 1 %][% END %]
             <tr>
               <td>[% category.name %]</td>
               <td>[% count %]</td>

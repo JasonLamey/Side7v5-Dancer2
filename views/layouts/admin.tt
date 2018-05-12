@@ -34,8 +34,8 @@
               <ul class="menu vertical nested">
                 <li><a href="/admin/forums/categories"><i class="far fa-th fa-fw fa-lg"></i> Categories</a></li>
                 <li><a href="/admin/forums/groups"><i class="far fa-th-large fa-fw fa-lg"></i> Groups</a></li>
-                <li><a href="/admin/forums/threads"><i class="far fa-square fa-fw fa-lg"></i> Threads</a></li>
-                <li><a href="/admin/forums/posts"><i class="far fa-comment-alt-dots fa-fw fa-lg"></i> Posts</a></li>
+                <li><a href="/admin/forums/user_groups"><i class="far fa-user-lock fa-fw fa-lg"></i> User Groups</a></li>
+                <li><a href="/admin/forums/moderators"><i class="far fa-user-ninja fa-fw fa-lg"></i> Moderators</a></li>
               </ul>
             </li>
             <li><a href="/admin/reports"><i class="far fa-flag fa-fw fa-lg"></i> Manage Reports</a></li>

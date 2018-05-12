@@ -1,0 +1,147 @@
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+[% accesses = [ 'Any', 'Registered', 'User Group', 'Moderator', 'Admin' ] %]
+
+<form method="post" action="/admin/forums/groups/create" id="add_group_form" data-abide novalidate>
+  <div class="grid-container">
+    <div class="grid-x grid-margin-x callout">
+
+      <div class="cell small-12">
+        <h2>Create New Forum Group</h2>
+      </div>
+
+      <div class="cell small-6 medium-3">
+        <label for="name" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Group Name:</label>
+      </div>
+      <div class="cell small-6 medium-9">
+        <input type="text" name="name" value="" placeholder="Commission Requests" required>
+        <span class="form-error">A name for the Forum Group is required.</span>
+      </div>
+
+      <div class="cell small-6 medium-3">
+        <label for="forum_category_id" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Category:</label>
+      </div>
+      <div class="cell small-6 medium-9">
+        <select name="forum_category_id" required>
+          <option value=''>Select One</option>
+          [% FOREACH category IN data.categories %]
+          <option value='[% category.id %]'>[% category.name %]</option>
+          [% END %]
+        </select>
+        <span class="form-error">Forum Category is required.</span>
+        <p class="help-text">Which category does this group exist in?</p>
+      </div>
+
+      <div class="cell small-6 medium-3">
+        <label for="sort_order" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Sort Order:</label>
+      </div>
+      <div class="cell small-6 medium-9">
+        <input type="number" name="sort_order" value="" placeholder="100" required>
+        <span class="form-error">A sort order for the Forum Group is required. A number between 1-999.</span>
+        <p class="help-text">Ranking order between 1 - 999.</p>
+      </div>
+
+      <div class="cell small-6 medium-3">
+        <label for="view_access" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> View Access:</label>
+      </div>
+      <div class="cell small-6 medium-9">
+        <select name="view_access" required>
+          <option value=''>Select One</option>
+          [% FOREACH access IN accesses %]
+          <option value='[% access %]'>[% access %]</option>
+          [% END %]
+        </select>
+        <span class="form-error">View Access is required.</span>
+        <p class="help-text">Controls who has access to see this Group exists.</p>
+      </div>
+
+      <div class="cell small-6 medium-3">
+        <label for="read_access" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Read Access:</label>
+      </div>
+      <div class="cell small-6 medium-9">
+        <select name="read_access" required>
+          <option value=''>Select One</option>
+          [% FOREACH access IN accesses %]
+          <option value='[% access %]'>[% access %]</option>
+          [% END %]
+        </select>
+        <span class="form-error">Read Access is required.</span>
+        <p class="help-text">Controls who has access to read posts in this Group.</p>
+      </div>
+
+      <div class="cell small-6 medium-3">
+        <label for="post_access" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Post Access:</label>
+      </div>
+      <div class="cell small-6 medium-9">
+        <select name="post_access" required>
+          <option value=''>Select One</option>
+          [% FOREACH access IN accesses %]
+          <option value='[% access %]'>[% access %]</option>
+          [% END %]
+        </select>
+        <span class="form-error">Post Access is required.</span>
+        <p class="help-text">Controls who has access to create posts this Group.</p>
+      </div>
+
+      <div class="cell small-6 medium-3">
+        <label for="reply_access" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Reply Access:</label>
+      </div>
+      <div class="cell small-6 medium-9">
+        <select name="reply_access" required>
+          <option value=''>Select One</option>
+          [% FOREACH access IN accesses %]
+          <option value='[% access %]'>[% access %]</option>
+          [% END %]
+        </select>
+        <span class="form-error">Reply Access is required.</span>
+        <p class="help-text">Controls who has access to reply to posts in this Group.</p>
+      </div>
+
+      <div class="cell small-6 medium-3">
+        <label for="edit_access" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Edit Access:</label>
+      </div>
+      <div class="cell small-6 medium-9">
+        <select name="edit_access" required>
+          <option value=''>Select One</option>
+          [% FOREACH access IN accesses %]
+          <option value='[% access %]'>[% access %]</option>
+          [% END %]
+        </select>
+        <span class="form-error">Edit Access is required.</span>
+        <p class="help-text">Controls who has access to edit their posts in this Group.</p>
+      </div>
+
+      <div class="cell small-6 medium-3">
+        <label for="poll_access" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Poll Access:</label>
+      </div>
+      <div class="cell small-6 medium-9">
+        <select name="poll_access" required>
+          <option value=''>Select One</option>
+          [% FOREACH access IN accesses %]
+          <option value='[% access %]'>[% access %]</option>
+          [% END %]
+        </select>
+        <span class="form-error">Poll Access is required.</span>
+        <p class="help-text">Controls who has access to create poll posts in this Group.</p>
+      </div>
+
+      <div class="cell small-6 medium-3">
+        <label for="attach_access" class="text-right middle"><i class="far fa-asterisk fa-sm"></i> Attach Access:</label>
+      </div>
+      <div class="cell small-6 medium-9">
+        <select name="attach_access" required>
+          <option value=''>Select One</option>
+          [% FOREACH access IN accesses %]
+          <option value='[% access %]'>[% access %]</option>
+          [% END %]
+        </select>
+        <span class="form-error">Attach Access is required.</span>
+        <p class="help-text">Controls who has access to attach files to posts in this Group.</p>
+      </div>
+
+      <div class="cell small-12 text-center">
+        <button type="submit" form="add_group_form" class="button">Create Group</button>
+      </div>
+
+    </div>
+  </div>
+</form>

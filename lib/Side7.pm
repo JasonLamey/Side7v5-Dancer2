@@ -1942,13 +1942,13 @@ post '/user/avatars/delete' => require_login sub
     {
       # Remove file.
       my $filepath = $GALLERIES_FILEROOT . $user->dirpath . '/avatars/' . $avatar->filename;
-      
+
       if ( -e $filepath )
       {
         unlink( $filepath );
       }
       my $thumbpath = $GALLERIES_FILEROOT . $user->dirpath . '/avatars/thumbnails/' . $avatar->filename;
-      
+
       if ( -e $thumbpath )
       {
         unlink( $thumbpath );
@@ -2429,7 +2429,7 @@ post '/user/settings/update' => require_login sub
   else
   {
     my %new_settings = map {
-      $_ => ( (defined $form_data{$_}) 
+      $_ => ( (defined $form_data{$_})
             ? ( ( $form_data{$_} eq 'on' ) ? 1 : 0 )
             : 0 )
     } @settings_fields;
@@ -3936,6 +3936,267 @@ get '/admin/forums/categories/:category_id/delete' => require_role Admin => sub
   );
 
   redirect '/admin/forums/categories';
+};
+
+
+=head2 GET C</admin/forums/groups>
+
+Route to manage forum groups dashboard. Requires Admin access.
+
+=cut
+
+get '/admin/forums/groups' => require_any_role [qw( Admin Owner )] => sub
+{
+  my @groups = $SCHEMA->resultset( 'ForumGroup' )->search( {}, { order_by => [ 'sort_order' ] } );
+
+  template 'admin_manage_forum_groups',
+    {
+      data =>
+      {
+        user   => vars->{user},
+        groups => \@groups,
+      },
+      title => 'Manage Forum Groups',
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Manage Forums', disabled => 1 },
+        { name => 'Groups', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
+=head2 GET C</admin/forums/groups/:group_id/edit>
+
+Route for displaying the edit forum groups form. Admin access required.
+
+=cut
+
+get '/admin/forums/groups/:group_id/edit' => require_any_role [qw( Admin Owner )] => sub
+{
+  my $group_id = route_parameters->get( 'group_id' );
+
+  my $group = $SCHEMA->resultset( 'ForumGroup' )->find( $group_id );
+
+  if
+  (
+    not defined $group
+    or
+    ref( $group ) ne 'Side7::Schema::Result::ForumGroup'
+  )
+  {
+    warn sprintf( 'Invalid or undefined forum group ID: >%s<', $group_id );
+    flash error => 'Error: Invalid or undefined Group ID.';
+    redirect '/admin/forums/groups';
+  }
+
+  my @categories = $SCHEMA->resultset( 'ForumCategory' )->search( {}, { order_by => 'name' } )->all;
+  template 'admin_manage_forum_groups_edit_form',
+    {
+      data =>
+      {
+        user       => vars->{user},
+        group      => $group,
+        categories => \@categories,
+      },
+      title => 'Edit Forum Group',
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Manage Forums', disabled => 1 },
+        { name => 'Groups', link => '/admin/forums/groups' },
+        { name => 'Edit Forum Group', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
+=head2 POST C</admin/forums/groups/:group_id/update>
+
+Route to save updated forum group data to the database. Admin access required.
+
+=cut
+
+post '/admin/forums/groups/:group_id/update' => require_any_role [qw( Admin Owner )] => sub
+{
+  my $group_id = route_parameters->get( 'group_id' );
+
+  if ( not defined body_parameters->get( 'name' ) )
+  {
+    flash error => 'Error: You must provide a Group name.';
+    redirect sprintf( '/admin/forums/groups/%s/edit', $group_id );
+  }
+
+  my $group = $SCHEMA->resultset( 'ForumGroup' )->find( $group_id );
+
+  if
+  (
+    not defined $group
+    or
+    ref( $group ) ne 'Side7::Schema::Result::ForumGroup'
+  )
+  {
+    warn sprintf( 'Invalid or undefined forum group ID: >%s<', $group_id );
+    flash error => 'Error: Invalid or undefined Group ID.';
+    redirect '/admin/forums/groups';
+  }
+
+  my $orig_group = Clone::clone( $group );
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+
+  my $changes = 0; my @change_details = ();
+  my @fields = qw( name forum_category_id sort_order
+                   view_access read_access post_access reply_access edit_access poll_access attach_access );
+  foreach my $field ( @fields )
+  {
+    if ( $group->$field ne body_parameters->get( $field ) )
+    {
+      $changes = 1;
+      push @change_details, sprintf( '%s: "%s" to "%s"', $field, $group->$field, body_parameters->get( $field ) );
+      $group->$field( body_parameters->get( $field ) );
+    }
+  }
+
+  if ( $changes == 1 )
+  {
+    $group->update;
+    flash success => sprintf( 'Forum Group &quot;<strong>%s</strong>&quot; has been updated.', $group->name );
+    info sprintf( 'Updated forum group %s on %s: %s', $group->name, $now, join( ' :: ', @change_details ) );
+    my $logged = Side7::Log->admin_log
+    (
+      admin       => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
+      ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+      log_level   => 'Info',
+      log_message => sprintf( 'Updated Forum Group "%s":  %s', $group->name, join( '<br>', @change_details ) ),
+    );
+    redirect '/admin/forums/groups';
+  }
+  else
+  {
+    flash error => 'Error: You changed nothing. So nothing was updated.';
+    redirect sprintf( '/admin/forums/groups/%s/edit', $group_id );
+  }
+};
+
+
+=head2 GET C</admin/forums/groups/add>
+
+Route to add forum group form. Admin access required.
+
+=cut
+
+get '/admin/forums/groups/add' => require_any_role [qw( Admin Owner )] => sub
+{
+  my @categories = $SCHEMA->resultset( 'ForumCategory' )->search( {}, { order_by => 'name' } )->all;
+
+  template 'admin_manage_forum_groups_add_form',
+    {
+      data =>
+      {
+        user       => vars->{user},
+        categories => \@categories,
+      },
+      title => 'Create Forum Group',
+      breadcrumbs =>
+      [
+        { name => 'Admin', link => '/admin' },
+        { name => 'Manage Forums', disabled => 1 },
+        { name => 'Groups', link => '/admin/forums/groups' },
+        { name => 'Create New Group', current => 1 },
+      ],
+    },
+    {
+      layout => 'admin'
+    };
+};
+
+
+=head2 POST C</admin/forums/groups/create>
+
+Route to save new forum group to the DB. Admin access required.
+
+=cut
+
+post '/admin/forums/groups/create' => require_any_role [qw( Admin Owner )] => sub
+{
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+  my $new_group = $SCHEMA->resultset( 'ForumGroup' )->create
+  (
+    {
+      name              => body_parameters->get( 'name' ),
+      forum_category_id => body_parameters->get( 'forum_category_id' ),
+      sort_order        => body_parameters->get( 'sort_order' ),
+      view_access       => body_parameters->get( 'view_access' ),
+      read_access       => body_parameters->get( 'read_access' ),
+      post_access       => body_parameters->get( 'post_access' ),
+      reply_access      => body_parameters->get( 'reply_access' ),
+      edit_access       => body_parameters->get( 'edit_access' ),
+      poll_access       => body_parameters->get( 'poll_access' ),
+      attach_access     => body_parameters->get( 'attach_access' ),
+    }
+  );
+
+  info sprintf( 'Created new forum group >%s<, ID: >%s<, on %s', body_parameters->get( 'name' ), $new_group->id, $now );
+  my $logged = Side7::Log->admin_log
+  (
+    admin       => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
+    ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+    log_level   => 'Info',
+    log_message => sprintf( 'Created New Forum Group: %s (ID:%s)', $new_group->name, $new_group->id ),
+  );
+
+  flash success => sprintf( 'Successfully created new Forum Group &quot;<strong>%s</strong>&quot;.', $new_group->name );
+  redirect '/admin/forums/groups';
+};
+
+
+=head2 GET C</admin/forums/groups/:group_id/delete>
+
+Route to delete a forum group. Admin access required.
+
+=cut
+
+get '/admin/forums/groups/:group_id/delete' => require_role Admin => sub
+{
+  my $group_id = route_parameters->get( 'group_id' );
+
+  my $group = $SCHEMA->resultset( 'ForumGroup' )->find( $group_id );
+
+  if
+  (
+    not defined $group
+    or
+    ref( $group ) ne 'Side7::Schema::Result::ForumGroup'
+  )
+  {
+    warn sprintf( 'Invalid or undefined forum group ID: >%s<', $group_id );
+    flash error => 'Error: Invalid or undefined Forum Group ID.';
+    redirect '/admin/forums/groups';
+  }
+
+  my $group_name = $group->name;
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+
+  $group->delete;
+
+  info sprintf( 'Deleted forum group >%s<, on %s', $group_name, $now );
+  flash success => sprintf( 'Successfully deleted Forum Group &quot;<strong>%s</strong>&quot;', $group_name );
+  my $logged = Side7::Log->admin_log
+  (
+    admin       => sprintf( '%s (ID:%s)', logged_in_user->username, logged_in_user->id ),
+    ip_address  => ( request->header('X-Forwarded-For') // 'Unknown' ),
+    log_level   => 'Info',
+    log_message => sprintf( 'Deleted Forum Group >%s< (ID:%s)', $group_name, $group_id ),
+  );
+
+  redirect '/admin/forums/groups';
 };
 
 
