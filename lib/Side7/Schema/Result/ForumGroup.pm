@@ -131,7 +131,8 @@ __PACKAGE__->set_primary_key( 'id' );
 
 __PACKAGE__->belongs_to( 'category', 'Side7::Schema::Result::ForumCategory', 'forum_category_id' );
 
-__PACKAGE__->has_many( 'threads', 'Side7::Schema::Result::ForumThread', 'forum_group_id' );
+__PACKAGE__->has_many( 'threads',       'Side7::Schema::Result::ForumThread', 'forum_group_id' );
+__PACKAGE__->has_many( 'moved_threads', 'Side7::Schema::Result::ForumThread', 'original_forum_group_id' );
 
 
 =head1 AUTHOR

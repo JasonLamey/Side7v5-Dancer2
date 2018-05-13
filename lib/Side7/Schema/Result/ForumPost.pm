@@ -1,4 +1,4 @@
-package Side7::Schema::Result::ForumThread;
+package Side7::Schema::Result::ForumPost;
 
 use base 'DBIx::Class::Core';
 
@@ -11,50 +11,32 @@ use version; our $VERSION = qv( "v0.1.0" );
 
 =head1 NAME
 
-Side7::Schema::Result::ForumThread
+Side7::Schema::Result::ForumPost
 
 
 =head1 DESCRIPTION AND USAGE
 
-Database object representing ForumThread entries within the web app.
+Database object representing ForumPost entries within the web app.
 
 =cut
 
 
-__PACKAGE__->table( 'forum_threads' );
+
+__PACKAGE__->table( 'forum_posts' );
 __PACKAGE__->add_columns(
                             id =>
                                 {
-                                    accessor          => 'thread_id',
+                                    accessor          => 'post_id',
                                     data_type         => 'integer',
                                     size              => 20,
                                     is_nullable       => 0,
                                     is_auto_increment => 1,
                                 },
-                            forum_group_id =>
+                            forum_thread_id =>
                                 {
                                     data_type         => 'integer',
                                     size              => 20,
                                     is_nullable       => 0,
-                                },
-                            name =>
-                                {
-                                    data_type         => 'varchar',
-                                    size              => 20,
-                                    is_nullable       => 0,
-                                },
-                            thread_status_id =>
-                                {
-                                    data_type         => 'integer',
-                                    size              => 20,
-                                    is_nullable       => 0,
-                                    default_value     => 1,
-                                },
-                            start_date =>
-                                {
-                                    data_type         => 'datetime',
-                                    is_nullable       => 0,
-                                    default_value     => DateTime->now( time_zone => 'UTC' )->datetime,
                                 },
                             user_id =>
                                 {
@@ -62,14 +44,49 @@ __PACKAGE__->add_columns(
                                     size              => 20,
                                     is_nullable       => 0,
                                 },
-                            thread_type_id =>
+                            subject =>
+                                {
+                                    data_type         => 'varchar',
+                                    size              => 255,
+                                    is_nullable       => 0,
+                                },
+                            body =>
+                                {
+                                    data_type         => 'text',
+                                    is_nullable       => 0,
+                                },
+                            show_signature =>
+                                {
+                                    data_type         => 'boolean',
+                                    is_nullable       => 0,
+                                    default_value     => 1,
+                                },
+                            timestamp =>
+                                {
+                                    data_type         => 'datetime',
+                                    is_nullable       => 0,
+                                    default_value     => DateTime->now( time_zone => 'UTC' )->datetime,
+                                },
+                             last_modified_date =>
+                                {
+                                    data_type         => 'timestampe',
+                                    is_nullable       => 1,
+                                    default_value     => DateTime->now( time_zone => 'UTC' )->datetime,
+                                },
+                            modified_count =>
                                 {
                                     data_type         => 'integer',
                                     size              => 20,
                                     is_nullable       => 0,
-                                    default_value     => 1,
+                                    default_value     => 0,
                                 },
-                            original_forum_group_id =>
+                            ip_address =>
+                                {
+                                    data_type         => 'varchar',
+                                    size              => 255,
+                                    is_nullable       => 0,
+                                },
+                            original_forum_thread_id =>
                                 {
                                     data_type         => 'integer',
                                     size              => 20,
@@ -79,12 +96,9 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key( 'id' );
 
-__PACKAGE__->belongs_to( 'group', 'Side7::Schema::Result::ForumGroup', 'forum_group_id' );
-__PACKAGE__->belongs_to( 'group', 'Side7::Schema::Result::ForumGroup', 'original_forum_group_id' );
-__PACKAGE__->belongs_to( 'user',  'Side7::Schema::Result::User',       'user_id' );
-
-__PACKAGE__->has_many( 'posts',       'Side7::Schema::Result::ForumPost', 'forum_thread_id' );
-__PACKAGE__->has_many( 'moved_posts', 'Side7::Schema::Result::ForumPost', 'original_forum_thread_id' );
+__PACKAGE__->belongs_to( 'thread', 'Side7::Schema::Result::ForumThread', 'forum_thread_id' );
+__PACKAGE__->belongs_to( 'thread', 'Side7::Schema::Result::ForumThread', 'original_forum_thread_id' );
+__PACKAGE__->belongs_to( 'user',   'Side7::Schema::Result::User',        'user_id' );
 
 
 =head1 AUTHOR
