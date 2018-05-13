@@ -2835,7 +2835,7 @@ Route to load the admin dashboard.
 
 =cut
 
-get '/admin' => require_role Admin => sub
+get '/admin' => require_any_role ['Admin', 'Owner', 'Moderator', 'Forum Admin'] => sub
 {
   my @storage_stats = `du -h -d1 /data/galleries | sort -h`;
   my @diskfree = `df -h`;
@@ -2959,7 +2959,7 @@ Route to view admin logs. Requires Admin Access.
 
 =cut
 
-get '/admin/logs/admin' => require_any_role [qw( Admin Owner Moderator )] => sub
+get '/admin/logs/admin' => require_any_role [qw( Admin Owner )] => sub
 {
   my @logs = $SCHEMA->resultset( 'AdminLog' )->search(
     undef,
@@ -3696,7 +3696,7 @@ Route to manage forum categories dashboard. Requires Admin access.
 
 =cut
 
-get '/admin/forums/categories' => require_any_role [qw( Admin Owner )] => sub
+get '/admin/forums/categories' => require_any_role ['Admin', 'Owner', 'Forum Admin'] => sub
 {
   my @categories = $SCHEMA->resultset( 'ForumCategory' )->search( {}, { order_by => [ 'sort_order' ] } );
 
@@ -3727,7 +3727,7 @@ Route for displaying the edit forum categories form. Admin access required.
 
 =cut
 
-get '/admin/forums/categories/:category_id/edit' => require_any_role [qw( Admin Owner )] => sub
+get '/admin/forums/categories/:category_id/edit' => require_any_role ['Admin', 'Owner', 'Forum Admin'] => sub
 {
   my $category_id = route_parameters->get( 'category_id' );
 
@@ -3773,7 +3773,7 @@ Route to save updated forum category data to the database. Admin access required
 
 =cut
 
-post '/admin/forums/categories/:category_id/update' => require_any_role [qw( Admin Owner )] => sub
+post '/admin/forums/categories/:category_id/update' => require_any_role ['Admin', 'Owner', 'Forum Admin'] => sub
 {
   my $category_id = route_parameters->get( 'category_id' );
 
@@ -3840,7 +3840,7 @@ Route to add forum category form. Admin access required.
 
 =cut
 
-get '/admin/forums/categories/add' => require_any_role [qw( Admin Owner )] => sub
+get '/admin/forums/categories/add' => require_any_role ['Admin', 'Owner', 'Forum Admin'] => sub
 {
   template 'admin_manage_forum_categories_add_form',
     {
@@ -3869,7 +3869,7 @@ Route to save new forum category to the DB. Admin access required.
 
 =cut
 
-post '/admin/forums/categories/create' => require_any_role [qw( Admin Owner )] => sub
+post '/admin/forums/categories/create' => require_any_role ['Admin', 'Owner', 'Forum Admin'] => sub
 {
   my $now = DateTime->now( time_zone => 'UTC' )->datetime;
   my $new_category = $SCHEMA->resultset( 'ForumCategory' )->create
@@ -3902,7 +3902,7 @@ Route to delete a forum category. Admin access required.
 
 =cut
 
-get '/admin/forums/categories/:category_id/delete' => require_role Admin => sub
+get '/admin/forums/categories/:category_id/delete' => require_any_role ['Admin', 'Owner', 'Forum Admin'] => sub
 {
   my $category_id = route_parameters->get( 'category_id' );
 
@@ -3945,7 +3945,7 @@ Route to manage forum groups dashboard. Requires Admin access.
 
 =cut
 
-get '/admin/forums/groups' => require_any_role [qw( Admin Owner )] => sub
+get '/admin/forums/groups' => require_any_role ['Admin', 'Owner', 'Forum Admin'] => sub
 {
   my @groups = $SCHEMA->resultset( 'ForumGroup' )->search( {}, { order_by => [ 'sort_order' ] } );
 
@@ -3976,7 +3976,7 @@ Route for displaying the edit forum groups form. Admin access required.
 
 =cut
 
-get '/admin/forums/groups/:group_id/edit' => require_any_role [qw( Admin Owner )] => sub
+get '/admin/forums/groups/:group_id/edit' => require_any_role ['Admin', 'Owner', 'Forum Admin'] => sub
 {
   my $group_id = route_parameters->get( 'group_id' );
 
@@ -4024,7 +4024,7 @@ Route to save updated forum group data to the database. Admin access required.
 
 =cut
 
-post '/admin/forums/groups/:group_id/update' => require_any_role [qw( Admin Owner )] => sub
+post '/admin/forums/groups/:group_id/update' => require_any_role ['Admin', 'Owner', 'Forum Admin'] => sub
 {
   my $group_id = route_parameters->get( 'group_id' );
 
@@ -4092,7 +4092,7 @@ Route to add forum group form. Admin access required.
 
 =cut
 
-get '/admin/forums/groups/add' => require_any_role [qw( Admin Owner )] => sub
+get '/admin/forums/groups/add' => require_any_role ['Admin', 'Owner', 'Forum Admin'] => sub
 {
   my @categories = $SCHEMA->resultset( 'ForumCategory' )->search( {}, { order_by => 'name' } )->all;
 
@@ -4124,7 +4124,7 @@ Route to save new forum group to the DB. Admin access required.
 
 =cut
 
-post '/admin/forums/groups/create' => require_any_role [qw( Admin Owner )] => sub
+post '/admin/forums/groups/create' => require_any_role ['Admin', 'Owner', 'Forum Admin'] => sub
 {
   my $now = DateTime->now( time_zone => 'UTC' )->datetime;
   my $new_group = $SCHEMA->resultset( 'ForumGroup' )->create
@@ -4163,7 +4163,7 @@ Route to delete a forum group. Admin access required.
 
 =cut
 
-get '/admin/forums/groups/:group_id/delete' => require_role Admin => sub
+get '/admin/forums/groups/:group_id/delete' => require_any_role ['Admin', 'Owner', 'Forum Admin'] => sub
 {
   my $group_id = route_parameters->get( 'group_id' );
 
