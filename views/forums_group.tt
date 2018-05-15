@@ -1,0 +1,91 @@
+[% USE date %]
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+
+<div class="grid-container">
+
+  <div class="grid-x grid-margin-x">
+    <div class="cell small-12 button-group">
+      <a href="/forums/thread/add" class="button small"><i class="far fa-plus-circle"></i> Start New Thread</a>
+      <a href="/forums/group/[% data.group.id %]/mark_read" class="button small secondary"><i class="far fa-comment-alt-check"></i> Mark All Threads Read</a>
+    </div>
+
+    <div class="cell small-12 forum-category-header align-self-middle">
+      <span class="h4">[% data.group.name %]</span>
+    </div>
+    <div class="cell small-12 forum-group-header-row">
+      <div class="grid-x grid-margin-x">
+        <div class="cell small-1 align-self-middle text-center padding-2">&nbsp;</div>
+        <div class="cell small-4"><strong>Thread</strong></div>
+        <div class="cell small-2 text-center"><strong>Thread Author</strong></div>
+        <div class="cell small-1 text-center"><strong>Posts</strong></div>
+        <div class="cell small-1 text-center"><strong>Views</strong></div>
+        <div class="cell small-3 text-center"><strong>Latest Post</strong></div>
+      </div>
+    </div>
+    [% FOREACH thread IN data.threads %]
+    <div class="cell small-12 forum-group-row">
+      <div class="grid-x grid-margin-x">
+        <div class="cell small-1 align-self-middle text-center padding-2">
+          [% IF thread.posts.size >= 15 %]
+          <div class="fa-2x info-tooltip" data-tooltip-content="#hot_topic">
+            <i class="fas fa-fire" data-fa-transform="shrink-10 down-.5" data-fa-mask="fas fa-folder"></i>
+          </div>
+          [% ELSE %]
+            <span class="info-tooltip" data-tooltip-content="#cool_topic"><i class="fas fa-folder fa-2x"></i></span>
+          [% END %]
+        </div>
+        <div class="cell small-4 align-self-middle">
+          <a href="/forums/thread/[% thread.id %]"><strong>[% thread.name %]</strong></a> <a href="/forums/thread/[% thread.id %]#[% thread.last_read %]" class="info-tooltip" data-tooltip-content="#last_seen"><i class="far fa-external-link-square-alt"></i></a>
+        </div>
+        <div class="cell small-2 text-center align-self-middle" style="line-height: 0.9em;">
+          [% thread.user.username || '<em>Defunct Account</em>' %]<br><small>On: [% date.format( thread.start_date, date_format_short ) %]</small>
+        </div>
+        <div class="cell small-1 text-center align-self-middle">
+          [% thread.posts.size || 0 %]
+        </div>
+        <div class="cell small-1 text-center align-self-middle">
+          [% thread.views || 0 %]
+        </div>
+        <div class="cell small-3 text-center align-self-middle">
+          <div style="line-height: 0.9em;"><small>[% recent = thread.most_recent_post %]
+          [% IF recent.defined && recent.id != '' %]
+            <a href='/forums/thread/[% recent.forum_thread_id %]#[% recent.id %]' class="info-tooltip" data-tooltip-content="#latest_post"><strong>[% recent.user.defined ? 'By: ' _ recent.user.username : '-' %]</strong> <i class='fas fa-external-link-square'></i></a><br>
+            [% recent.timestamp.defined ? date.format( recent.timestamp, datetime_format_short ) : '' %]
+          [% ELSE %]No Posts[% END %]
+          </small></div>
+        </div>
+      </div>
+    </div>
+    [% END %]
+
+  </div>
+
+</div>
+
+<div class="tooltip_templates hide">
+    <span id="latest_post">
+        <i class="far fa-external-link-square fa-lg"></i> Go to the latest post.
+    </span>
+    <span id="last_seen">
+        <i class="far fa-glasses fa-lg"></i> Go to the last post you read.
+    </span>
+    <span id="hot_topic">
+      <i class="far fa-fire fa-lg"></i> This is a hot topic! Lots of peope are posting to it.
+    </span>
+    <span id="cool_topic">
+      <i class="far fa-snowflake fa-lg"></i> This thread has only a few posts. Maybe contribute?
+    </span>
+</div>
+
+<script>
+$(document).ready( function() {
+
+  $('.info-tooltip').tooltipster({
+    contentAsHTML: true,
+    theme: 'tooltipster-light',
+    animation: 'fade',
+    interactive: true,
+    maxWidth: 500
+  });
+});
+</script>

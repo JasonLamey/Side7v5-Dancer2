@@ -79,12 +79,40 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key( 'id' );
 
-__PACKAGE__->belongs_to( 'group', 'Side7::Schema::Result::ForumGroup', 'forum_group_id' );
-__PACKAGE__->belongs_to( 'group', 'Side7::Schema::Result::ForumGroup', 'original_forum_group_id' );
-__PACKAGE__->belongs_to( 'user',  'Side7::Schema::Result::User',       'user_id' );
+__PACKAGE__->belongs_to( 'group',          'Side7::Schema::Result::ForumGroup', 'forum_group_id' );
+__PACKAGE__->belongs_to( 'original_group', 'Side7::Schema::Result::ForumGroup', 'original_forum_group_id' );
+__PACKAGE__->belongs_to( 'user',           'Side7::Schema::Result::User',       'user_id' );
 
-__PACKAGE__->has_many( 'posts',       'Side7::Schema::Result::ForumPost', 'forum_thread_id' );
-__PACKAGE__->has_many( 'moved_posts', 'Side7::Schema::Result::ForumPost', 'original_forum_thread_id' );
+__PACKAGE__->has_many( 'posts',       'Side7::Schema::Result::ForumPost', { 'foreign.forum_thread_id'          => 'self.id' } );
+__PACKAGE__->has_many( 'moved_posts', 'Side7::Schema::Result::ForumPost', { 'foreign.original_forum_thread_id' => 'self.id' } );
+
+
+=head1 METHODS
+
+=head2 most_recent_post()
+
+Returns the most recently made ForumPost object in the thread.
+
+=over 4
+
+=item Input: None.
+
+=item Output: ForumPost object.
+
+=back
+
+  my $mrp = $thread->most_recent_post();
+
+=cut
+
+sub most_recent_post
+{
+  my $self = shift;
+
+  my $post = $self->search_related( 'posts', {}, { order_by => { -desc => 'timestamp' } } )->first;
+
+  return $post;
+}
 
 
 =head1 AUTHOR

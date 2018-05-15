@@ -1,0 +1,73 @@
+[% USE date %][% USE Util %]
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+
+<div class="grid-container">
+
+  <div class="grid-x grid-margin-x">
+    <div class="cell small-12 button-group">
+      <a href="/forums/thread/add" class="button small"><i class="far fa-plus-circle"></i> Start New Thread</a>
+      <a href="/forums/thread/reply" class="button small"><i class="far fa-reply"></i> Reply To This Thread</a>
+    </div>
+
+    <div class="cell small-12 forum-category-header align-self-middle">
+      <span class="h5">[% data.thread.name %]</span> - Started by: [% data.thread.user.username || 'Defunct Account' %]
+    </div>
+    [% FOREACH post IN data.posts %]
+    <div class="cell small-12 forum-group-row">
+      <div class="grid-x grid-margin-x">
+
+        <div class="cell small-12 medium-2"><a name="[% post.id %]"></a>
+        [% IF post.user.defined %]
+          <div>[% INCLUDE 'partials/_avatar_thumbnail.tt' user=post.user avatar_size=100 %]</div>
+          <div><strong>[% post.user.username %]</strong></div>
+          <div>[% post.user.forum_rank %]</div>
+          <div><small>Member Since: [% date.format( post.user.created_at, date_format_short ) %]</small></div>
+        [% ELSE %]
+          <div class="callout small warning">Defunct Account</div>
+        [% END %]
+        </div>
+        <div class="cell small-12 medium-10">
+          <div class="grid-x grid-padding-x">
+            <div class="cell small-6 forum-post-header">RE: [% post.thread.name %]</div>
+            <div class="cell small-6 forum-post-header">Posted: [% date.format( post.timestamp, datetime_format_short ) %][% post.last_modified_on ? ' - Last edited on: ' _ date.format( post.last_modified_on, datetime_format_short ) : '' %]</div>
+            <div class="cell small-12 forum-post-body">
+              [% Util.parse_bbcode( post.body ) %]
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    [% END %]
+
+  </div>
+
+</div>
+
+<div class="tooltip_templates hide">
+    <span id="latest_post">
+        <i class="far fa-external-link-square fa-lg"></i> Go to the latest post.
+    </span>
+    <span id="last_seen">
+        <i class="far fa-glasses fa-lg"></i> Go to the last post you read.
+    </span>
+    <span id="hot_topic">
+      <i class="far fa-fire fa-lg"></i> This is a hot topic! Lots of peope are posting to it.
+    </span>
+    <span id="cool_topic">
+      <i class="far fa-snowflake fa-lg"></i> This thread has only a few posts. Maybe contribute?
+    </span>
+</div>
+
+<script>
+$(document).ready( function() {
+
+  $('.info-tooltip').tooltipster({
+    contentAsHTML: true,
+    theme: 'tooltipster-light',
+    animation: 'fade',
+    interactive: true,
+    maxWidth: 500
+  });
+});
+</script>

@@ -566,7 +566,7 @@ Route to browse the user directory.
 
 =cut
 
-get '/browse/directory/?:initial?' => sub
+get '/browse/directory/?:initial?' => require_role 'User' => sub
 {
   my $initial = route_parameters->get( 'initial' ) // 'A';
 
@@ -789,6 +789,150 @@ get '/content/:content_id' => sub
       image       => sprintf( '%s/galleries%s/%s', $DOMAIN_ROOT, $upload->user->dirpath, $upload->filename ),
     },
     title => sprintf( '%s By %s', $upload->title, $upload->user->full_name ),
+  };
+};
+
+
+=head3 GET C</forums>
+
+Route to view the forums home.
+
+=cut
+
+get '/forums' => sub
+{
+  my @categories = $SCHEMA->resultset( 'ForumCategory' )->search(
+    {},
+    {
+      prefetch =>
+      [
+        { groups => { threads => 'posts' } },
+      ],
+      order_by => [ 'me.sort_order', 'groups.sort_order' ],
+    }
+  )->all;
+
+  template 'forums_home',
+  {
+    data =>
+    {
+      user       => vars->{user},
+      categories => \@categories,
+    },
+    title => 'Forums',
+    breadcrumbs =>
+    [
+      { name => 'Forums', current => 1 },
+    ],
+  };
+};
+
+
+=head3 GET C</forums/group/:group_id>
+
+Route to view the threads in a forum group.
+
+=cut
+
+get '/forums/group/:group_id' => sub
+{
+  my $group_id = route_parameters->get( 'group_id' );
+  if ( ! defined $group_id or $group_id !~ m/^\d+$/ )
+  {
+    flash error => '<strong>I have no idea what you are looking for.</strong><br>Could not find the forum group you indicated.';
+    warning sprintf( 'Invalid or missing group ID when loading Forum Group: "%s"', $group_id );
+    redirect '/forums';
+  }
+
+  my $group = $SCHEMA->resultset( 'ForumGroup' )->find( $group_id );
+  if ( ! defined $group or ref( $group ) ne 'Side7::Schema::Result::ForumGroup' )
+  {
+    flash error => '<strong>I have no idea what you are looking for.</strong><br>Could not find the forum group you indicated.';
+    warning sprintf( 'No forum group found for indicated group ID: "%s"', $group_id );
+    redirect '/forums';
+  }
+
+  my @threads = $group->search_related( 'threads',
+    {},
+    {
+      '+select' =>
+      [
+        { max   => 'posts.timestamp', -as => 'most_recent' },
+        { count => 'posts.id',        -as => 'num_posts' },
+      ],
+      join =>
+      [
+        'posts',
+      ],
+      group_by => [ 'me.id' ],
+      order_by => [ { -desc => 'most_recent' } ],
+    }
+  );
+
+  template 'forums_group',
+  {
+    data =>
+    {
+      user       => vars->{user},
+      group   => $group,
+      threads => \@threads,
+    },
+    title => sprintf( 'Forums | %s', $group->name ),
+    breadcrumbs =>
+    [
+      { name => 'Forums', link => '/forums' },
+      { name => sprintf( '"%s"', $group->name ), current => 1 },
+    ],
+  };
+};
+
+
+=head3 GET C</forums/thread/:thread_id>
+
+Route to view the posts in a forum thread.
+
+=cut
+
+get '/forums/thread/:thread_id' => sub
+{
+  my $thread_id = route_parameters->get( 'thread_id' );
+  if ( ! defined $thread_id or $thread_id !~ m/^\d+$/ )
+  {
+    flash error => '<strong>I have no idea what you are looking for.</strong><br>Could not find the forum thread you indicated.';
+    warning sprintf( 'Invalid or missing thread ID when loading Forum Thread: "%s"', $thread_id );
+    redirect '/forums';
+  }
+
+  my $thread = $SCHEMA->resultset( 'ForumThread' )->find( $thread_id );
+  if ( ! defined $thread or ref( $thread ) ne 'Side7::Schema::Result::ForumThread' )
+  {
+    flash error => '<strong>I have no idea what you are looking for.</strong><br>Could not find the forum thread you indicated.';
+    warning sprintf( 'No forum thread found for indicated thread ID: "%s"', $thread_id );
+    redirect '/forums';
+  }
+
+  my @posts = $thread->search_related( 'posts',
+    {},
+    {
+      order_by => [ { -asc => 'timestamp' } ],
+    }
+  );
+
+  template 'forums_thread',
+  {
+    data =>
+    {
+      user   => vars->{user},
+      thread => $thread,
+      posts  => \@posts,
+    },
+    title => sprintf( 'Forums | %s', $thread->name ),
+    breadcrumbs =>
+    [
+      { name => 'Forums', link => '/forums' },
+      { name => sprintf( '"%s"', $thread->group->name ), link => sprintf( '/forums/group/%s', $thread->forum_group_id ) },
+      { name => sprintf( '"%s"', $thread->name ), current => 1 },
+    ],
   };
 };
 

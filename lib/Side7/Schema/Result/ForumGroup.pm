@@ -48,6 +48,11 @@ __PACKAGE__->add_columns(
                                     size              => 255,
                                     is_nullable       => 0,
                                 },
+                            description =>
+                                {
+                                    data_type         => 'text',
+                                    is_nullable       => 1,
+                                },
                             view_access =>
                                 {
                                     data_type         => 'enum',
@@ -134,6 +139,34 @@ __PACKAGE__->belongs_to( 'category', 'Side7::Schema::Result::ForumCategory', 'fo
 __PACKAGE__->has_many( 'threads',       'Side7::Schema::Result::ForumThread', 'forum_group_id' );
 __PACKAGE__->has_many( 'moved_threads', 'Side7::Schema::Result::ForumThread', 'original_forum_group_id' );
 
+
+
+=head1 METHODS
+
+=head2 most_recent_post()
+
+Returns the most recent post object for a group.
+
+=over4
+
+=item Input: none.
+
+=item Output: ForumPost object.
+
+=back
+
+  my $mrp = $group->most_recent_post();
+
+=cut
+
+sub most_recent_post
+{
+  my $self = shift;
+
+  my $post = $self->threads->search_related( 'posts', {}, { order_by => { -desc => 'timestamp' } } )->first;
+
+  return $post;
+}
 
 =head1 AUTHOR
 

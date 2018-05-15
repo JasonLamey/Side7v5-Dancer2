@@ -1,0 +1,51 @@
+[% USE date %]
+
+[% PROCESS 'partials/_breadcrumbs.tt' %]
+
+<div class="grid-container">
+
+  <div class="grid-x grid-margin-x">
+
+    <div class="cell small-12 forum-group-header-row">
+      <div class="grid-x grid-margin-x">
+        <div class="cell small-1 align-self-middle text-center padding-2">&nbsp;</div>
+        <div class="cell small-6"><strong>Group</strong></div>
+        <div class="cell small-2 text-center align-self-middle"><strong>Threads / Posts</strong></div>
+        <div class="cell small-3 text-center align-self-middle"><strong>Most Recent Post</strong></div>
+      </div>
+    </div>
+    [% FOREACH category IN data.categories %]
+    <div class="cell small-12 forum-category-header align-self-middle">
+      <span class="h4">[% category.name %]</span>
+    </div>
+      [% FOREACH group IN category.groups %]
+    <div class="cell small-12 forum-group-row">
+      <div class="grid-x grid-margin-x">
+        <div class="cell small-1 align-self-middle text-center padding-2">
+          <i class="fas fa-folder fa-lg"></i>
+        </div>
+        <div class="cell small-6">
+          <a href="/forums/group/[% group.id %]" class="forum-group-row-header h5">[% group.name %]</a>
+          <div class="help-text">[% group.description %]</div>
+        </div>
+        <div class="cell small-2 text-center align-self-middle">
+          T: [% group.threads.size || 0 %]
+          P: [% pcount = 0; FOREACH thread IN group.threads; pcount = pcount + ( thread.posts.size || 0 ); END; %][% pcount %]
+        </div>
+        <div class="cell small-3 text-center align-self-middle">
+          <div style="line-height: 0.9em;"><small>[% recent = group.most_recent_post %]
+          [% IF recent.defined && recent.id != '' %]
+            <a href='/forums/thread/[% recent.forum_thread_id %]#[% recent.id %]'><strong>[% recent.thread.name.substr(0,20) %]</strong> <i class='fas fa-external-link-square'></i></a><br>
+            [% recent.user.defined ? 'By: ' _ recent.user.username : '-' %]<br>
+            [% recent.timestamp.defined ? date.format( recent.timestamp, datetime_format_short ) : '' %]
+          [% ELSE %]No Posts[% END %]
+          </small></div>
+        </div>
+      </div>
+    </div>
+      [% END %]
+    [% END %]
+
+  </div>
+
+</div>

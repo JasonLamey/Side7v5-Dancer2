@@ -56,6 +56,7 @@ sub parse_bbcode_markup
                         attribute_quote   => q/'"/,
                         close_open_tags   => 1,
                         strict_attributes => 0,
+                        linebreaks        => 1,
                         smileys         => {
                                             base_url => '/images/emoticons/',
                                             icons    => {
@@ -248,7 +249,6 @@ sub parse_bbcode_markup
 
     my $parsed_text = Side7::Util::Text::tag_usernames( $incoming_text );
     $parsed_text = $parser->render( $parsed_text );
-
 
     return $parsed_text;
 }
