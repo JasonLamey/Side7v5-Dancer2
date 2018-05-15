@@ -38,13 +38,13 @@
           <a href="/forums/thread/[% thread.id %]"><strong>[% thread.name %]</strong></a> <a href="/forums/thread/[% thread.id %]#[% thread.last_read %]" class="info-tooltip" data-tooltip-content="#last_seen"><i class="far fa-external-link-square-alt"></i></a>
         </div>
         <div class="cell small-2 text-center align-self-middle" style="line-height: 0.9em;">
-          [% thread.user.username || '<em>Defunct Account</em>' %]<br><small>On: [% date.format( thread.start_date, date_format_short ) %]</small>
+          [% thread.user.username || '<em>Defunct Account</em>' %]<br><small><strong>Started On:</strong> [% date.format( thread.start_date, date_format_short ) %]</small>
         </div>
         <div class="cell small-1 text-center align-self-middle">
           [% thread.posts.size || 0 %]
         </div>
         <div class="cell small-1 text-center align-self-middle">
-          [% thread.views || 0 %]
+          [% thread.view_count.view_count || 0 %]
         </div>
         <div class="cell small-3 text-center align-self-middle">
           <div style="line-height: 0.9em;"><small>[% recent = thread.most_recent_post %]

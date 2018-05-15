@@ -864,6 +864,10 @@ get '/forums/group/:group_id' => sub
       [
         'posts',
       ],
+      prefetch =>
+      [
+        'view_count',
+      ],
       group_by => [ 'me.id' ],
       order_by => [ { -desc => 'most_recent' } ],
     }
@@ -910,6 +914,21 @@ get '/forums/thread/:thread_id' => sub
     warning sprintf( 'No forum thread found for indicated thread ID: "%s"', $thread_id );
     redirect '/forums';
   }
+
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+
+  my $view_count = $SCHEMA->resultset( 'ForumThreadView' )->find_or_create(
+    {
+      forum_thread_id => $thread->id,
+      last_viewed     => $now,
+    },
+    {
+      key => 'forum_thread_id'
+    }
+  );
+
+  $view_count->view_count( $view_count->view_count + 1 );
+  $view_count->update;
 
   my @posts = $thread->search_related( 'posts',
     {},

@@ -48,3 +48,5 @@ forum_threads [appuser forum_groups] 2018-05-12T20:04:03Z Jason Lamey <jasonlame
 populate_forum_threads [appuser forum_threads] 2018-05-12T20:10:07Z Jason Lamey <jasonlamey@gmail.com> # Populate threads with existing data.
 forum_posts [appuser forum_threads] 2018-05-13T01:25:59Z Jason Lamey <jasonlamey@gmail.com> # Creates forum_posts table
 populate_forum_posts [appuser forum_posts] 2018-05-13T01:28:27Z Jason Lamey <jasonlamey@gmail.com> # Populate forum_posts with old post data.
+forum_thread_views [appuser forum_threads] 2018-05-15T17:19:05Z Jason Lamey <jasonlamey@gmail.com> # Creates the forum_thread_views table.
+populate_forum_thread_views [appuser forum_thread_views] 2018-05-15T17:44:01Z Jason Lamey <jasonlamey@gmail.com> # Populate forum_thread_views table with old data.

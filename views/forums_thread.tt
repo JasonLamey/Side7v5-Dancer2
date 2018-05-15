@@ -16,7 +16,7 @@
     <div class="cell small-12 forum-group-row">
       <div class="grid-x grid-margin-x">
 
-        <div class="cell small-12 medium-2"><a name="[% post.id %]"></a>
+        <div class="cell small-12 medium-2 forum-post-author-block"><a name="[% post.id %]"></a>
         [% IF post.user.defined %]
           <div>[% INCLUDE 'partials/_avatar_thumbnail.tt' user=post.user avatar_size=100 %]</div>
           <div><strong>[% post.user.username %]</strong></div>

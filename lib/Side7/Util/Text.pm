@@ -118,7 +118,7 @@ sub parse_bbcode_markup
                         url_finder => {
                                         max_length  => 50,
                                         # sprintf format:
-                                        format      => '<a href="%s" rel="nofollow">%s</a>',
+                                        format      => '<a href="%s" rel="nofollow" target="_blank">%s</a>',
                                       },
                         tags => {
                                     Parse::BBCode::HTML->defaults,
@@ -137,6 +137,19 @@ sub parse_bbcode_markup
                                                 parse => 0,
                                                 class => 'block',
                                             },
+                                    'quote' => {
+                                                code => sub {
+                                                                my ($parser, $attr, $content) = @_;
+                                                                my $title = 'Quote';
+                                                                if ($attr) {
+                                                                    $title = Parse::BBCode::escape_html($attr);
+                                                                }
+                                                                qq{<div class="bbcode_quote_header">$title:\n} .
+                                                                qq{<div class="bbcode_quote_body">$$content</div></div>}
+                                                },
+                                                parse => 1,
+                                                class => 'block',
+                                    },
                                     table => {
                                                 code  => sub {
                                                                 my ( $parser, $attr, $content, $attribute_fallback ) = @_;

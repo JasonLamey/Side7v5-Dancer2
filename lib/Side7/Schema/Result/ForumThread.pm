@@ -40,7 +40,7 @@ __PACKAGE__->add_columns(
                             name =>
                                 {
                                     data_type         => 'varchar',
-                                    size              => 20,
+                                    size              => 255,
                                     is_nullable       => 0,
                                 },
                             thread_status_id =>
@@ -85,6 +85,8 @@ __PACKAGE__->belongs_to( 'user',           'Side7::Schema::Result::User',       
 
 __PACKAGE__->has_many( 'posts',       'Side7::Schema::Result::ForumPost', { 'foreign.forum_thread_id'          => 'self.id' } );
 __PACKAGE__->has_many( 'moved_posts', 'Side7::Schema::Result::ForumPost', { 'foreign.original_forum_thread_id' => 'self.id' } );
+
+__PACKAGE__->might_have( 'view_count', 'Side7::Schema::Result::ForumThreadView', 'forum_thread_id' );
 
 
 =head1 METHODS
