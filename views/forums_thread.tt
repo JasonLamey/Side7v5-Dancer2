@@ -9,6 +9,10 @@
       <a href="/forums/thread/reply" class="button small"><i class="far fa-reply"></i> Reply To This Thread</a>
     </div>
 
+    <div class="cell small-12">
+      [% INCLUDE 'partials/_pagination.tt' page = data.pagination.page total_pages = data.pagination.total_pages first_item = data.pagination.first_item last_item = data.pagination.last_item total_items = data.pagination.total_items link = '/forums/thread/' _ data.thread.id %]
+    </div>
+
     <div class="cell small-12 forum-category-header align-self-middle">
       <span class="h5">[% data.thread.name %]</span> - Started by: [% data.thread.user.username || 'Defunct Account' %]
     </div>
@@ -21,6 +25,7 @@
           <div>[% INCLUDE 'partials/_avatar_thumbnail.tt' user=post.user avatar_size=100 %]</div>
           <div><strong>[% post.user.username %]</strong></div>
           <div>[% post.user.forum_rank %]</div>
+          <div><small>Total Posts: [% post.user.posts.size || 0 %]</small></div>
           <div><small>Member Since: [% date.format( post.user.created_at, date_format_short ) %]</small></div>
         [% ELSE %]
           <div class="callout small warning">Defunct Account</div>
@@ -31,7 +36,36 @@
             <div class="cell small-6 forum-post-header">RE: [% post.thread.name %]</div>
             <div class="cell small-6 forum-post-header">Posted: [% date.format( post.timestamp, datetime_format_short ) %][% post.last_modified_on ? ' - Last edited on: ' _ date.format( post.last_modified_on, datetime_format_short ) : '' %]</div>
             <div class="cell small-12 forum-post-body">
+              <div class="button-group small">
+                <a href="/forums/thread/[% data.thread.id %]/post/add" class="button"><i class="far fa-reply"></i> Reply</a>
+                <a href="/forums/thread/[% data.thread.id %]/post/[% post.id %]/add" class="button"><i class="far fa-quote-right"></i> Quote</a>
+              [% IF data.user.has_role('Owner')
+                 || data.user.has_role('Admin')
+                 || data.user.has_role('Forum Admin')
+                 || data.user.has_role('Forum Moderator')
+                 || data.user.id == post.user_id %]
+                <a href="/forums/thread/[% data.thread.id %]/post/[% post.id %]/edit" class="button warning"><i class="far fa-edit"></i> Edit</a>
+              [% END %]
+              [% IF data.user.has_role('Owner')
+                 || data.user.has_role('Admin')
+                 || data.user.has_role('Forum Admin')
+                 || data.user.has_role('Forum Moderator') %]
+                <a href="/forums/thread/[% data.thread.id %]/post/[% post.id %]/move" class="button warning"><i class="far fa-exchange-alt"></i> Move Post</a>
+                <a href="/forums/thread/[% data.thread.id %]/post/[% post.id %]/delete" class="button alert"><i class="far fa-trash"></i> Delete Post</a>
+              [% END %]
+              </div>
+              [% post.modified_count > 0 ? "<div class='callout small'><span class='help-text'>This post has been edited $post.modified_count " _ ( post.modified_count == 1 ? "time" : "times" ) _ '. Last edit on ' _ date.format( post.last_modified_date, datetime_format_short ) _ '.</span></div>' : '' %]
               [% Util.parse_bbcode( post.body ) %]
+
+              [% IF data.user.has_role('Owner')
+                 || data.user.has_role('Admin')
+                 || data.user.has_role('Forum Admin')
+                 || data.user.has_role('Forum Moderator') %]
+              <br><br>
+              <div class="callout secondary small">
+                <small><strong>Posted From:</strong> [% post.ip_address %][% IF post.modified_count > 0 %] - <a href="/forums/thread/[% data.thread.id %]/post/[% post.id %]/revisions">View previous versions of this post</a>.[% END %]</small>
+              </div>
+              [% END %]
             </div>
           </div>
         </div>
@@ -40,34 +74,11 @@
     </div>
     [% END %]
 
+    <div class="cell small-12">
+      [% INCLUDE 'partials/_pagination.tt' page = data.pagination.page total_pages = data.pagination.total_pages first_item = data.pagination.first_item last_item = data.pagination.last_item total_items = data.pagination.total_items link = '/forums/thread/' _ data.thread.id %]
+    </div>
+
+
   </div>
 
 </div>
-
-<div class="tooltip_templates hide">
-    <span id="latest_post">
-        <i class="far fa-external-link-square fa-lg"></i> Go to the latest post.
-    </span>
-    <span id="last_seen">
-        <i class="far fa-glasses fa-lg"></i> Go to the last post you read.
-    </span>
-    <span id="hot_topic">
-      <i class="far fa-fire fa-lg"></i> This is a hot topic! Lots of peope are posting to it.
-    </span>
-    <span id="cool_topic">
-      <i class="far fa-snowflake fa-lg"></i> This thread has only a few posts. Maybe contribute?
-    </span>
-</div>
-
-<script>
-$(document).ready( function() {
-
-  $('.info-tooltip').tooltipster({
-    contentAsHTML: true,
-    theme: 'tooltipster-light',
-    animation: 'fade',
-    interactive: true,
-    maxWidth: 500
-  });
-});
-</script>

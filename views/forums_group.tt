@@ -9,6 +9,10 @@
       <a href="/forums/group/[% data.group.id %]/mark_read" class="button small secondary"><i class="far fa-comment-alt-check"></i> Mark All Threads Read</a>
     </div>
 
+    <div class="cell small-12">
+      [% INCLUDE 'partials/_pagination.tt' page = data.pagination.page total_pages = data.pagination.total_pages first_item = data.pagination.first_item last_item = data.pagination.last_item total_items = data.pagination.total_items link = '/forums/group/' _ data.group.id %]
+    </div>
+
     <div class="cell small-12 forum-category-header align-self-middle">
       <span class="h4">[% data.group.name %]</span>
     </div>
@@ -23,16 +27,22 @@
       </div>
     </div>
     [% FOREACH thread IN data.threads %]
+    [% tooltip = ( thread.posts.size >= 15 ) ? 'hot_topic' : 'cool_topic' %]
+    [% IF thread.has_new_posts; tooltip = tooltip _ '_new'; END; %]
     <div class="cell small-12 forum-group-row">
       <div class="grid-x grid-margin-x">
         <div class="cell small-1 align-self-middle text-center padding-2">
-          [% IF thread.posts.size >= 15 %]
-          <div class="fa-2x info-tooltip" data-tooltip-content="#hot_topic">
-            <i class="fas fa-fire" data-fa-transform="shrink-10 down-.5" data-fa-mask="fas fa-folder"></i>
+          <div class="fa-2x info-tooltip" data-tooltip-content="#[% tooltip %]">
+            <span class="fa-layers fa-fw">
+              <i class="fas fa-folder"></i>
+              [% IF thread.posts.size >= 15 %]
+              <i class="fas fa-fire fa-inverse" data-fa-transform="shrink-10 down-.5"></i>
+              [% END %]
+              [% IF thread.has_new_posts %]
+              <i class="fas fa-plus-circle fa-inverse" data-fa-transform="shrink-10 right-5" style="color: lime;"></i>
+              [% END %]
+            </span>
           </div>
-          [% ELSE %]
-            <span class="info-tooltip" data-tooltip-content="#cool_topic"><i class="fas fa-folder fa-2x"></i></span>
-          [% END %]
         </div>
         <div class="cell small-4 align-self-middle">
           <a href="/forums/thread/[% thread.id %]"><strong>[% thread.name %]</strong></a> <a href="/forums/thread/[% thread.id %]#[% thread.last_read %]" class="info-tooltip" data-tooltip-content="#last_seen"><i class="far fa-external-link-square-alt"></i></a>
@@ -58,6 +68,10 @@
     </div>
     [% END %]
 
+    <div class="cell small-12">
+      [% INCLUDE 'partials/_pagination.tt' page = data.pagination.page total_pages = data.pagination.total_pages first_item = data.pagination.first_item last_item = data.pagination.last_item total_items = data.pagination.total_items link = '/forums/group/' _ data.group.id %]
+    </div>
+
   </div>
 
 </div>
@@ -70,10 +84,16 @@
         <i class="far fa-glasses fa-lg"></i> Go to the last post you read.
     </span>
     <span id="hot_topic">
-      <i class="far fa-fire fa-lg"></i> This is a hot topic! Lots of peope are posting to it.
+      <i class="far fa-fire fa-lg"></i> This is a hot topic!.
+    </span>
+    <span id="hot_topic_new">
+      <i class="far fa-fire fa-lg"></i> This is a hot topic! And there are new posts.
     </span>
     <span id="cool_topic">
-      <i class="far fa-snowflake fa-lg"></i> This thread has only a few posts. Maybe contribute?
+      <i class="far fa-snowflake fa-lg"></i> This is a fairly quiet thread. Maybe contribute?
+    </span>
+    <span id="cool_topic_new">
+      <i class="far fa-snowflake fa-lg"></i> This is a fairly quiet thread. But there are new posts.
     </span>
 </div>
 

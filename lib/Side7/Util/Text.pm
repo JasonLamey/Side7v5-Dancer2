@@ -9,6 +9,7 @@ use Parse::BBCode;
 use Parse::BBCode::HTML;
 use Regexp::Common qw/profanity profanity_us/;
 use HTML::Escape;
+use POSIX;
 
 use version; our $VERSION = qv( '0.1.11' );
 
@@ -497,6 +498,46 @@ sub get_pronoun
                    );
 
     return $pronouns{ lc( $sex ) }{ lc( $part_of_speech ) };
+}
+
+
+=head2 calculate_pagination()
+
+Calculate the pagination values given a set of parameters.
+
+=over 4
+
+=item Input: C<hash> containing the total number of items, the current page, and the number of items per page.
+
+=item Output: C<hashref> containing the above items, plus total pages, and first and last items on current page.
+
+=back
+
+  my $pagination = Side7::Util::Text::calculate_pagination( total_items => $a, page => $p, per_page => $ipp );
+
+=cut
+
+sub calculate_pagination
+{
+  my %params = @_;
+
+  my $page        = delete $params{page}        // 1;
+  my $per_page    = delete $params{per_page}    // 25;
+  my $total_items = delete $params{total_items} // 0;
+
+  my $first_item = (( ($page-1) * $per_page ) + 1 );
+  my $last_item  = $first_item + $per_page;
+  my $total_pages = POSIX::ceil( $total_items / $per_page );
+
+  my %pagination = (
+    page        => $page,
+    total_pages => $total_pages,
+    first_item  => $first_item,
+    last_item   => ( $last_item > $total_items ) ? $total_items : $last_item,
+    total_items => $total_items,
+  );
+
+  return \%pagination;
 }
 
 

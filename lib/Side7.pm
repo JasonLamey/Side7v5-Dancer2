@@ -21,6 +21,7 @@ use Digest::SHA;
 use File::Basename;
 use Array::Utils;
 use Clone;
+use POSIX;
 
 # Side 7 modules
 use Side7::Schema;
@@ -34,14 +35,16 @@ use Side7::Crypt;
 
 our $VERSION = '5.0';
 
-const my $DOMAIN_ROOT               => 'http://www.side7.com';
-const my $GALLERIES_ROOT            => '/public/galleries';
-const my $GALLERIES_FILEROOT        => '/data/galleries';
-const my $SCHEMA                    => Side7::Schema->db_connect();
-const my $USER_SESSION_EXPIRE_TIME  => 172800; # 48 hours in seconds.
-const my $ADMIN_SESSION_EXPIRE_TIME => 600;    # 10 minutes in seconds.
-const my $DPAE_REALM                => 'site'; # Dancer2::Plugin::Auth::Extensible realm
-const my %DEFAULT_SETTINGS          => (
+const my $DOMAIN_ROOT                => 'http://www.side7.com';
+const my $GALLERIES_ROOT             => '/public/galleries';
+const my $GALLERIES_FILEROOT         => '/data/galleries';
+const my $SCHEMA                     => Side7::Schema->db_connect();
+const my $USER_SESSION_EXPIRE_TIME   => 172800; # 48 hours in seconds.
+const my $ADMIN_SESSION_EXPIRE_TIME  => 600;    # 10 minutes in seconds.
+const my $DPAE_REALM                 => 'site'; # Dancer2::Plugin::Auth::Extensible realm
+const my $MAX_FORUM_THREADS_PER_PAGE => 25;
+const my $MAX_FORUM_POSTS_PER_PAGE   => 25;
+const my %DEFAULT_SETTINGS           => (
   show_online_status       => 1,
   allow_museum_adds        => 1,
   allow_friend_requests    => 1,
@@ -60,7 +63,7 @@ const my %DEFAULT_SETTINGS          => (
   notify_on_favorite       => 1,
   notify_on_museum_add     => 1,
 );
-const my @PROFILE_FIELDS            => (
+const my @PROFILE_FIELDS             => (
   qw/ first_name last_name gender_id birthday_visibility state country_id biography /
 );
 
@@ -828,14 +831,15 @@ get '/forums' => sub
 };
 
 
-=head3 GET C</forums/group/:group_id>
+=head3 GET C</forums/group/:group_id/?:page?>
 
 Route to view the threads in a forum group.
 
 =cut
 
-get '/forums/group/:group_id' => sub
+get '/forums/group/:group_id/?:page?' => sub
 {
+  my $page     = route_parameters->get( 'page' ) // 1;
   my $group_id = route_parameters->get( 'group_id' );
   if ( ! defined $group_id or $group_id !~ m/^\d+$/ )
   {
@@ -868,18 +872,28 @@ get '/forums/group/:group_id' => sub
       [
         'view_count',
       ],
+      rows     => $MAX_FORUM_THREADS_PER_PAGE,
+      page     => $page,
       group_by => [ 'me.id' ],
       order_by => [ { -desc => 'most_recent' } ],
     }
+  );
+
+  my $thread_count = $group->search_related( 'threads', {} )->count;
+  my $pagination   = Side7::Util::Text::calculate_pagination(
+    total_items => $thread_count,
+    per_page    => $MAX_FORUM_THREADS_PER_PAGE,
+    page        => $page
   );
 
   template 'forums_group',
   {
     data =>
     {
-      user       => vars->{user},
-      group   => $group,
-      threads => \@threads,
+      user        => vars->{user},
+      group       => $group,
+      threads     => \@threads,
+      pagination  => $pagination,
     },
     title => sprintf( 'Forums | %s', $group->name ),
     breadcrumbs =>
@@ -891,14 +905,15 @@ get '/forums/group/:group_id' => sub
 };
 
 
-=head3 GET C</forums/thread/:thread_id>
+=head3 GET C</forums/thread/:thread_id/?:page?>
 
 Route to view the posts in a forum thread.
 
 =cut
 
-get '/forums/thread/:thread_id' => sub
+get '/forums/thread/:thread_id/?:page?' => sub
 {
+  my $page      = route_parameters->get( 'page' ) // 1;
   my $thread_id = route_parameters->get( 'thread_id' );
   if ( ! defined $thread_id or $thread_id !~ m/^\d+$/ )
   {
@@ -933,17 +948,27 @@ get '/forums/thread/:thread_id' => sub
   my @posts = $thread->search_related( 'posts',
     {},
     {
+      rows     => $MAX_FORUM_POSTS_PER_PAGE,
+      page     => $page,
       order_by => [ { -asc => 'timestamp' } ],
     }
+  );
+
+  my $post_count = $thread->search_related( 'posts', {} )->count;
+  my $pagination   = Side7::Util::Text::calculate_pagination(
+    total_items => $post_count,
+    per_page    => $MAX_FORUM_POSTS_PER_PAGE,
+    page        => $page
   );
 
   template 'forums_thread',
   {
     data =>
     {
-      user   => vars->{user},
-      thread => $thread,
-      posts  => \@posts,
+      user       => vars->{user},
+      thread     => $thread,
+      posts      => \@posts,
+      pagination => $pagination,
     },
     title => sprintf( 'Forums | %s', $thread->name ),
     breadcrumbs =>

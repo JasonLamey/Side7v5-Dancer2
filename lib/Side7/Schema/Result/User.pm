@@ -3,6 +3,9 @@ package Side7::Schema::Result::User;
 use strict;
 use warnings;
 
+use Dancer2 appname => 'Side7';
+use Dancer2::Plugin::Auth::Extensible;
+
 use Side7::Schema;
 use Side7::Schema::Result::SystemAvatar;
 
@@ -236,6 +239,8 @@ __PACKAGE__->has_many( 'sent_mail'       => 'Side7::Schema::Result::UserMail',  
 __PACKAGE__->has_many( 'received_mail'   => 'Side7::Schema::Result::UserMail',            'recipient_id' );
 __PACKAGE__->has_many( 'comment_threads' => 'Side7::Schema::Result::UploadCommentThread', 'creator_id' );
 __PACKAGE__->has_many( 'avatars'         => 'Side7::Schema::Result::UserAvatar',          'user_id' );
+__PACKAGE__->has_many( 'posts'           => 'Side7::Schema::Result::ForumPost',           'user_id' );
+__PACKAGE__->has_many( 'threads'         => 'Side7::Schema::Result::ForumThread',         'user_id' );
 
 __PACKAGE__->many_to_many( 'roles' => 'userroles', 'role' );
 
@@ -447,6 +452,33 @@ sub upload_count
   my $self = shift;
 
   return $self->search_related( 'uploads', {} )->count;
+}
+
+
+=head2 has_role()
+
+Returns a boolean if the indicated role is attributed to the User.
+
+=over 4
+
+=item Input: string containing the name of the role.
+
+=item Output: Boolean value indicating existence of role.
+
+=back
+
+  my $has_role = $user->has_role( 'User' );
+
+=cut
+
+sub has_role
+{
+  my $self = shift;
+  my $role = shift;
+
+  return 0 if ! defined $role;
+
+  return user_has_role( $self->username, $role );
 }
 
 

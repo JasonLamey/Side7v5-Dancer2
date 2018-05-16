@@ -1,0 +1,31 @@
+<div class="grid-x grid-margin-x">
+
+  <div class="cell small-6 medium-4">
+    Page [% page %] of [% total_pages %] :: Viewing [% first_item %]-[% last_item %] of [% total_items %]
+  </div>
+
+  <div class="cell small-6 medium-8 text-right">
+    <nav aria-label="Pagination">
+      <ul class="pagination">
+      [% IF page == 1 %]
+        <li class="pagination-previous disabled">Previous <span class="show-for-sr">page</span></li>
+      [% ELSE %]
+        <li class="pagination-previous"><a href="[% link %]/[% ( page - 1 < 1 ) ? 1 : page - 1 %]" aria-label="Previous page">Previous <span class="show-for-sr">page</span></a></li>
+      [% END %]
+      [% FOREACH thispage IN [ 1..total_pages ] %]
+        [% IF thispage == page %]
+        <li class="current"><span class="show-for-sr">You're on page </span>[% thispage %]</li>
+        [% ELSE %]
+        <li><a href="[% link %]/[% thispage %]" aria-label="Page [% thispage %]">[% thispage %]</a></li>
+        [% END %]
+      [% END %]
+      [% IF page == total_pages %]
+        <li class="pagination-next disabled">Next <span class="show-for-sr">page</span></li>
+      [% ELSE %]
+        <li class="pagination-next"><a href="[% link %]/[% ( page + 1 > total_pages ) ? total_pages : page + 1 %]" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>
+      [% END %]
+      </ul>
+    </nav>
+  </div>
+
+</div>
