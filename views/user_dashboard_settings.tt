@@ -15,12 +15,9 @@
         <h4>Privacy</h4>
 
         <div class="grid-container callout small">
-          <div class="grid-x">
+          <div class="grid-x grid-margin-x">
 
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Show Online Status:</strong><br><small>Allow others to see if you are online?</small>
-            </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="online-status" type="checkbox" name="show_online_status"[% IF data.settings.show_online_status == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="online-status">
@@ -30,11 +27,11 @@
                   </label>
               </div>
             </div>
-
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Allow Adding To Museums:</strong><br><small>Allow others to add you to their Museum? This allows them to easily see your public posts in their Museum Feed.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Show Online Status:</strong><br><small>Allow others to see if you are online?</small>
             </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="add-to-museums" type="checkbox" name="allow_museum_adds"[% IF data.settings.allow_museum_adds == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="add-to-museums">
@@ -44,11 +41,11 @@
                   </label>
               </div>
             </div>
-
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Allow Friends Requests:</strong><br><small>Allow others to send Friend requests? Adding someone as a Friend allows them to see both public and Friends-only content in your gallery.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Allow Adding To Museums:</strong><br><small>Allow others to add you to their Museum? This allows them to easily see your public posts in their Museum Feed.</small>
             </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="friend-requests" type="checkbox" name="allow_friend_requests"[% IF data.settings.allow_friend_requests == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="friend-requests">
@@ -58,11 +55,11 @@
                   </label>
               </div>
             </div>
-
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Allow Others To Contact You:</strong><br><small>Allows others to send you messages through the site.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Allow Friends Requests:</strong><br><small>Allow others to send Friend requests? Adding someone as a Friend allows them to see both public and Friends-only content in your gallery.</small>
             </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="send-messages" type="checkbox" name="allow_user_contact"[% IF data.settings.allow_user_contact == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="send-messages">
@@ -72,11 +69,11 @@
                   </label>
               </div>
             </div>
-
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Allow Favoriting Of Your Content:</strong><br><small>Allows others to add your content to their Favorites.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Allow Others To Contact You:</strong><br><small>Allows others to send you messages through the site.</small>
             </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="add-to-favorites" type="checkbox" name="allow_add_to_favorites"[% IF data.settings.allow_add_to_favorites == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="add-to-favorites">
@@ -86,11 +83,11 @@
                   </label>
               </div>
             </div>
-
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Display Sharing Links:</strong><br><small>Displays social networking sharing links on your content.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Allow Favoriting Of Your Content:</strong><br><small>Allows others to add your content to their Favorites.</small>
             </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="show-social-links" type="checkbox" name="show_social_links"[% IF data.settings.show_social_links == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="show-social-links">
@@ -100,46 +97,46 @@
                   </label>
               </div>
             </div>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Display Sharing Links:</strong><br><small>Displays social networking sharing links on your content.</small>
+            </div>
 
           </div>
         </div>
 
         <h4>Display</h4>
         <div class="grid-container callout small">
-          <div class="grid-x">
+          <div class="grid-x grid-margin-x">
 
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Filter Out Categories:</strong><br><small>Hides chosen categories from display when browsing.</small>
-            </div>
-            <div class="cell small-3 medium-3 large-4">
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="grid-x grid-margin-x">
+                <div class="cell auto align-self-middle show-for-medium">
+                  <small>[% ( data.category_filter_count > 0 ) ? 'Filters set: ' _ data.category_filter_count : 'No Filter Set' %]</small>
+                </div>
                 <div class="cell shrink">
                   <a href="/user/settings/filter/categories" class="button tiny radius" id="filter-categories" rel="modal:open">Set</a>
                 </div>
-                <div class="cell auto medium-cell-block-y show-for-medium">
-                  <small>[% ( data.category_filter_count > 0 ) ? 'Filters set: ' _ data.category_filter_count : 'No Filter Set' %]</small>
-                </div>
               </div>
             </div>
-
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Filter Out Ratings:</strong><br><small>Hides chosen ratings from display when browsing.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Filter Out Categories:</strong><br><small>Hides chosen categories from display when browsing.</small>
             </div>
-            <div class="cell small-3 medium-3 large-4">
+
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="grid-x grid-margin-x">
+                <div class="cell auto align-self-middle show-for-medium">
+                  <small>[% data.settings.filter_ratings || 'No Filter Set' %]</small>
+                </div>
                 <div class="cell shrink">
                   <a href="/user/settings/filter/ratings" class="button tiny radius" id="filter-ratings" rel="modal:open">Set</a>
                 </div>
-                <div class="cell auto medium-cell-block-y show-for-medium">
-                  <small>[% data.settings.filter_ratings || 'No Filter Set' %]</small>
-                </div>
               </div>
             </div>
-
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Display Mature-rated Thumbnails:</strong><br><small>Display setting for M-rated image thumbnails.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Filter Out Ratings:</strong><br><small>Hides chosen ratings from display when browsing.</small>
             </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="show-m-thumbnails" type="checkbox" name="show_m_thumbnails"[% IF data.settings.show_m_thumbnails == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="show-m-thumbnails">
@@ -149,11 +146,12 @@
                   </label>
               </div>
             </div>
-
-            [% IF data.settings.over_18 == 1 %]<div class="cell small-9 medium-9 large-8">
-              <strong>Access Adult-rated Content:</strong><br><small>Shows adult content to those users who are 18 years of age or older. This option is <strong>opt-in</strong>, and <em>does not</em> display for users under 18 years of age.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Display Mature-rated Thumbnails:</strong><br><small>Display setting for M-rated image thumbnails.</small>
             </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+
+            [% IF data.settings.over_18 == 1 %]
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="show-adult-content" type="checkbox" name="show_adult_content"[% IF data.settings.show_adult_content == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="show-adult-content">
@@ -162,7 +160,11 @@
                     <span class="switch-inactive" aria-hidden="true">No</span>
                   </label>
               </div>
-            </div>[% END %]
+            </div>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Access Adult-rated Content:</strong><br><small>Shows adult content to those users who are 18 years of age or older. This option is <strong>opt-in</strong>, and <em>does not</em> display for users under 18 years of age.</small>
+            </div>
+            [% END %]
 
           </div>
         </div>

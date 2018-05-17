@@ -12,6 +12,8 @@ use Side7::Schema::Result::SystemAvatar;
 # Third Party modules
 use base 'DBIx::Class::Core';
 use DateTime;
+use Date::Manip;
+use Time::Duration;
 use File::Path;
 use Gravatar::URL;
 our $VERSION = '1.0';
@@ -480,6 +482,41 @@ sub has_role
 
   return user_has_role( $self->username, $role );
 }
+
+
+=head2 last_seen()
+
+Returns the elapsed time since a user's last login.
+
+=over 4
+
+=item Input: None.
+
+=item Output: String containing the elapsed time.
+
+=back
+
+  my $last_seen = $user->last_seen;
+
+=cut
+
+sub last_seen
+{
+  my ( $self ) = @_;
+
+  if ( ! defined $self->lastlogin )
+  {
+    return 'It\'s been a while...';
+  }
+
+  my $now = DateTime->now( time_zone => 'UTC' )->datetime;
+
+  my @seconds = map Date::Manip::UnixDate( $_, '%s'), $now, $self->lastlogin;
+  my $delta = ( $seconds[0] - $seconds[1] );
+
+  return Time::Duration::ago( $delta, 2 );
+}
+
 
 
 =head1 COPYRIGHT & LICENSE

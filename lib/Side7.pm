@@ -569,7 +569,7 @@ Route to browse the user directory.
 
 =cut
 
-get '/browse/directory/?:initial?' => require_role 'User' => sub
+get '/browse/directory/?:initial?' => require_any_role [qw( User Admin Owner Moderator Subscriber )] => sub
 {
   my $initial = route_parameters->get( 'initial' ) // 'A';
 
@@ -594,12 +594,12 @@ get '/browse/directory/?:initial?' => require_role 'User' => sub
     @users = $SCHEMA->resultset( 'User' )->search(
       { username => { like => \[q{? ESCAPE '#'}, '#_%'] }, user_status_id => 2 },
       {
-        order_by => [ 'username' ],
-        prefetch =>
+        prefetch  =>
         [
           { userroles => 'role' },
           'status',
         ],
+        order_by  => [ 'username' ],
       }
     );
   }
@@ -608,12 +608,12 @@ get '/browse/directory/?:initial?' => require_role 'User' => sub
     @users = $SCHEMA->resultset( 'User' )->search(
       { username => { like => "$initial%" }, user_status_id => 2 },
       {
-        order_by => [ 'username' ],
-        prefetch =>
+        prefetch  =>
         [
           { userroles => 'role' },
           'status',
         ],
+        order_by  => [ 'username' ],
       }
     );
   }

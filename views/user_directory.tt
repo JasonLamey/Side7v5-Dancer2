@@ -22,11 +22,12 @@
       <div class="card-divider">
         <div class="grid-x grid-padding-x align-middle">
           <div class="cell shrink">
-            [% INCLUDE 'partials/_avatar_thumbnail.tt' user=thisuser avatar_size=50 %]
+            [% INCLUDE 'partials/_avatar_thumbnail.tt' user=thisuser avatar_size=100 %]
           </div>
-          <div class="cell auto">
+          <div class="cell auto" style="line-height: 1em;">
             <span class="h5">[% thisuser.full_name %]</span> <span class="h6 subheader">([% thisuser.username %])</span></br>
-            <small>Member Since: [% date.format( thisuser.created_at, date_format_short ) %]</small>
+            <small>Member Since: [% date.format( thisuser.created_at, date_format_short ) %]<br>
+            Last Seen: [% thisuser.last_seen %]</small>
           </div>
         </div>
       </div>

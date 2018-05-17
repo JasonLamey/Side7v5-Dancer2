@@ -5,6 +5,8 @@ use base 'DBIx::Class::Core';
 use strict;
 use warnings;
 
+use Dancer2 appname => 'Side7';
+
 use DateTime;
 use version; our $VERSION = qv( "v0.1.0" );
 
@@ -140,8 +142,8 @@ __PACKAGE__->has_many( 'threads',       'Side7::Schema::Result::ForumThread', 'f
 __PACKAGE__->has_many( 'moved_threads', 'Side7::Schema::Result::ForumThread', 'original_forum_group_id' );
 
 
-
 =head1 METHODS
+
 
 =head2 most_recent_post()
 
@@ -167,6 +169,7 @@ sub most_recent_post
 
   return $post;
 }
+
 
 =head1 AUTHOR
 

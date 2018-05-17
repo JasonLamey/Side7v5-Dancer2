@@ -11,7 +11,8 @@
 
     <link href="https://fonts.googleapis.com/css?family=Athiti|Jockey+One|Share+Tech|Squada+One|Teko&amp;subset=latin-ext" rel="stylesheet">
     <link rel="stylesheet" href="/css/app.css">
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-oi8o31xSQq8S0RpBcb4FaLB8LJi9AT8oIdmS1QldR8Ui7KUQjNAnDlJjp55Ba8FG" crossorigin="anonymous">
+    <link rel="stylesheet" href="/javascripts/vendor/FontAwesome/svg-with-js/css/fa-svg-with-js.css">
+    <!-- <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-oi8o31xSQq8S0RpBcb4FaLB8LJi9AT8oIdmS1QldR8Ui7KUQjNAnDlJjp55Ba8FG" crossorigin="anonymous">-->
     <link rel="stylesheet" href="/css/notifIt.min.css">
     <link rel="stylesheet" href="/css/tooltipster-sideTip-light.min.css">
     <link rel="stylesheet" href="/css/jquery.modal.min.css">
@@ -20,7 +21,8 @@
     <link rel="stylesheet" href="/css/ply.css" />
 
     <script type="text/javascript" src="/javascripts/jquery-3.3.1.min.js"></script>
-    <script defer src="https://pro.fontawesome.com/releases/v5.0.13/js/all.js" integrity="sha384-d84LGg2pm9KhR4mCAs3N29GQ4OYNy+K+FBHX8WhimHpPm86c839++MDABegrZ3gn" crossorigin="anonymous"></script>
+    <script defer type="text/javascript" src="/javascripts/vendor/FontAwesome/svg-with-js/js/fontawesome-all.min.js"></script>
+    <!--<script defer src="https://pro.fontawesome.com/releases/v5.0.13/js/all.js" integrity="sha384-d84LGg2pm9KhR4mCAs3N29GQ4OYNy+K+FBHX8WhimHpPm86c839++MDABegrZ3gn" crossorigin="anonymous"></script>-->
 
     <script type="text/javascript" src="/javascripts/vendor/notifIt.min.js"></script>
     <script type="text/javascript" src="/javascripts/vendor/jquery-paginate.min.js"></script>
