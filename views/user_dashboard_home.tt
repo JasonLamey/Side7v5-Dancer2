@@ -11,16 +11,16 @@
 
           <ul class="tabs menu align-right" data-active-collapse="true" data-tabs id="stats-tabs">
             <li class="tabs-title is-active"><a href="#space" aria-selected="true">
-              <i class="far fa-hdd" aria-hidden="true"></i>
+              <span class="info-tooltip" data-tooltip-content="#drive_space_icon"><i class="far fa-hdd" aria-hidden="true"></i></span>
             </a></li>
             <li class="tabs-title"><a href="#image">
-              <i class="far fa-image" aria-hidden="true"></i>
+              <span class="info-tooltip" data-tooltip-content="#image_icon"><i class="far fa-image" aria-hidden="true"></i></span>
             </a></li>
             <li class="tabs-title"><a href="#audio">
-              <i class="far fa-headphones" aria-hidden="true"></i>
+              <span class="info-tooltip" data-tooltip-content="#audio_icon"><i class="far fa-headphones" aria-hidden="true"></i></span>
             </a></li>
             <li class="tabs-title"><a href="#lit">
-              <i class="far fa-book" aria-hidden="true"></i>
+              <span class="info-tooltip" data-tooltip-content="#literature_icon"><i class="far fa-book" aria-hidden="true"></i></span>
             </a></li>
           </ul>
 
@@ -33,7 +33,7 @@
               <h5>Your Account Space
                   <span class="info-tooltip" data-tooltip-content="#drive_space"><i class="far fa-question-circle"></i></span></h5>
 
-              <div class="circle-graph float-center" data-circle-graph data-percent="35">
+              <div class="circle-graph float-center" data-circle-graph data-percent="[% data.disk_usage %]">
                 <div class="circle-graph-progress">
                   <div class="circle-graph-progress-fill"></div>
                 </div>
@@ -44,6 +44,7 @@
                   </div>
                 </div>
               </div>
+              <small>[% data.used_mb %]Mb of [% data.quota %]Mb</small>
 
             </div>
           </div>
@@ -175,6 +176,18 @@
       <li><strong>Gold Account</strong> - You have a total of 500MB of drive space to use.</li>
     </ul>
     If you use all of your drive space, you will not be able to upload more submissions until you delete some.
+  </span>
+  <span id="drive_space_icon">
+    Your drive space usage.
+  </span>
+  <span id="image_icon">
+    Your images summary.
+  </span>
+  <span id="audio_icon">
+    Your audio summary.
+  </span>
+  <span id="literature_icon">
+    Your literature summary.
   </span>
 </div>
 

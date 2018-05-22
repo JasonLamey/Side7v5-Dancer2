@@ -19,9 +19,12 @@ use Data::Dumper;
 use URL::Encode;
 use Digest::SHA;
 use File::Basename;
+use Filesys::DiskUsage::Fast;
+use Filesys::DiskFree;
 use Array::Utils;
 use Clone;
 use POSIX;
+use Format::Human::Bytes;
 
 # Side 7 modules
 use Side7::Schema;
@@ -277,6 +280,20 @@ get '/' => sub
     }
   );
 
+  my @forum_posts = $SCHEMA->resultset( 'ForumPostsLatestView' )->search(
+    {},
+    {
+      rows => 5,
+      order_by => { -desc => 'timestamp' },
+    }
+  );
+
+  foreach my $thread ( @forum_posts )
+  {
+    my $num_posts = $SCHEMA->resultset( 'ForumThread' )->find( $thread->thread_id )->search_related( 'posts', {} )->count;
+    $thread->last_page( POSIX::ceil( $num_posts / $MAX_FORUM_POSTS_PER_PAGE ) );
+  }
+
   foreach my $upload ( @recents )
   {
     $upload->check_thumbnail();
@@ -290,6 +307,7 @@ get '/' => sub
       news          => \@news,
       recents       => \@recents,
       stats         => \%stats,
+      posts         => \@forum_posts,
       user          => vars->{user},
     }
   };
@@ -1644,10 +1662,24 @@ get '/user' => require_login sub
   );
   my $balance = $credits_rs->first->get_column('balance');
 
+  my $disk_usage = 0;
+  my $quota      = 500; ### TODO: Make this value come from user perks.
+  my $used_mb    = 0;
+  my $used_disk  = Filesys::DiskUsage::Fast::du( $GALLERIES_FILEROOT . $user->dirpath );
+  if ( defined $used_disk )
+  {
+    # Convert bytes to Megabytes, divide by the bytemode (1024), and then calculate a percentage.
+    $used_mb    = POSIX::ceil( ( $used_disk / 1024 ) / 1024 );
+    $disk_usage = POSIX::ceil( ( $used_mb / $quota ) * 100 );
+  }
+
   template "user_dashboard_home",
   {
     data =>
     {
+      disk_usage  => $disk_usage,
+      used_mb     => $used_mb,
+      quota       => $quota,
       user        => $user,
       image_count => \@img_counts,
       audio_count => \@aud_counts,
@@ -1815,6 +1847,7 @@ get '/user/settings' => require_login sub
   {
     data =>
     {
+      user       => vars->{user},
       settings   => \%settings,
       categories => \@categories,
       ratings    => \@ratings,
@@ -3025,8 +3058,44 @@ Route to load the admin dashboard.
 
 get '/admin' => require_any_role ['Admin', 'Owner', 'Moderator', 'Forum Admin'] => sub
 {
-  my @storage_stats = `du -h -d1 /data/galleries | sort -h`;
-  my @diskfree = `df -h`;
+  my @data_dirs = (
+    '/data/galleries/1',
+    '/data/galleries/2',
+    '/data/galleries/3',
+    '/data/galleries/4',
+    '/data/galleries/5',
+    '/data/galleries/6',
+    '/data/galleries/7',
+    '/data/galleries/8',
+    '/data/galleries/9',
+    '/data/galleries',
+  );
+  my @storage_stats = ();
+
+  foreach my $dir ( @data_dirs )
+  {
+    push @storage_stats,
+      { $dir => Format::Human::Bytes->base10( Filesys::DiskUsage::Fast::du( $dir ) ) };
+  }
+
+  my $df = new Filesys::DiskFree;
+  $df->df();
+
+  my @disks = ( '/', '/usr', '/data', '/var', '/tmp' );
+  my @diskfree = ();
+  foreach my $disk ( @disks )
+  {
+    push @diskfree,
+      {
+        disk   => $disk,
+        used   => Format::Human::Bytes->base10( $df->used( $disk ) ),
+        avail  => Format::Human::Bytes->base10( $df->avail( $disk ) ),
+        total  => Format::Human::Bytes->base10( $df->total( $disk ) ),
+        usage  => ( $df->used( $disk ) == 0 ) ? 0 : POSIX::ceil( ($df->used( $disk ) / $df->total( $disk )) * 100 ),
+        mount  => $df->mount( $disk ),
+        device => $df->device( $disk ),
+      };
+  }
 
   my $stop = DateTime->today;
   my $start = $stop->clone();

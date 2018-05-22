@@ -84,7 +84,7 @@
               </div>
             </div>
             <div class="cell small-8 medium-10 user-settings-row">
-              <strong>Allow Favoriting Of Your Content:</strong><br><small>Allows others to add your content to their Favorites.</small>
+              <strong>Allow Others To Favorite Your Content:</strong><br><small>Allows others to add your content to their Favorites.</small>
             </div>
 
             <div class="cell small-4 medium-2 text-right user-settings-row">
@@ -171,12 +171,9 @@
 
         <h4>Notifications</h4>
         <div class="grid-container callout small">
-          <div class="grid-x">
+          <div class="grid-x grid-margin-x">
 
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Email Notifications:</strong><br><small>Email notifications to you in addition to being PMed.</small>
-            </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="email-notifications" type="checkbox" name="email_notifications"[% IF data.settings.email_notifications == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="email-notifications">
@@ -186,11 +183,11 @@
                   </label>
               </div>
             </div>
-
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Notify on Private Messages:</strong><br><small>Notify you when you receive a PM.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Email Notifications:</strong><br><small>Email notifications to you in addition to being PMed.</small>
             </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="notify-on-pms" type="checkbox" name="notify_on_pm"[% IF data.settings.notify_on_pm == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="notify-on-pms">
@@ -200,11 +197,11 @@
                   </label>
               </div>
             </div>
-
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Notify on Comments:</strong><br><small>Notify you when you receive a comment or critique.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Notify on Private Messages:</strong><br><small>Notify you when you receive a PM.</small>
             </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="notify-on-comments" type="checkbox" name="notify_on_comment"[% IF data.settings.notify_on_comment == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="notify-on-comments">
@@ -214,11 +211,11 @@
                   </label>
               </div>
             </div>
-
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Notify on Friend Requests:</strong><br><small>Notify you when you receive a friend request.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Notify on Comments:</strong><br><small>Notify you when you receive a comment or critique.</small>
             </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="notify-on-friend-requests" type="checkbox" name="notify_on_friend_request"[% IF data.settings.notify_on_friend_request == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="notify-on-friend-requests">
@@ -228,11 +225,11 @@
                   </label>
               </div>
             </div>
-
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Notify on Mentions:</strong><br><small>Notify you when someone mentions your username in a post or comment.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Notify on Friend Requests:</strong><br><small>Notify you when you receive a friend request.</small>
             </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="notify-on-mentions" type="checkbox" name="notify_on_mention"[% IF data.settings.notify_on_mention == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="notify-on-mentions">
@@ -242,11 +239,11 @@
                   </label>
               </div>
             </div>
-
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Notify on Favorites:</strong><br><small>Notify you when someone favorites one of your posts.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Notify on Mentions:</strong><br><small>Notify you when someone mentions your username in a post or comment.</small>
             </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="notify-on-favorites" type="checkbox" name="notify_on_favorite"[% IF data.settings.notify_on_favorite == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="notify-on-favorites">
@@ -256,11 +253,11 @@
                   </label>
               </div>
             </div>
-
-            <div class="cell small-9 medium-9 large-8">
-              <strong>Notify on Museum Adds:</strong><br><small>Notify you when someone adds you to their museum.</small>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Notify on Favorites:</strong><br><small>Notify you when someone favorites one of your posts.</small>
             </div>
-            <div class="cell small-3 medium-3 large-4 align-self-middle">
+
+            <div class="cell small-4 medium-2 text-right user-settings-row">
               <div class="switch small">
                 <input class="switch-input" id="notify-on-museums" type="checkbox" name="notify_on_museum_add"[% IF data.settings.notify_on_museum_add == 1 %] checked[% END %]>
                   <label class="switch-paddle" for="notify-on-museums">
@@ -269,6 +266,9 @@
                     <span class="switch-inactive" aria-hidden="true">No</span>
                   </label>
               </div>
+            </div>
+            <div class="cell small-8 medium-10 user-settings-row">
+              <strong>Notify on Museum Adds:</strong><br><small>Notify you when someone adds you to their museum.</small>
             </div>
 
           </div>

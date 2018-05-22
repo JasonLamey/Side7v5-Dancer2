@@ -33,7 +33,7 @@
             <h5><a href="/news/item/[% announcement.id %]">[% announcement.title %]</a></h5>
           </div>
           <div class="cell small-6 medium-5 text-right">
-            <h6><small>Posted: [% date.format( announcement.posted_on, datetime_format_short ) %]</small></h6>
+            <h6><small><span class="subheader">[% date.format( announcement.posted_on, datetime_format_short ) %]</span></small></h6>
           </div>
         </div>
         [% END %]
@@ -43,13 +43,13 @@
             <h6><a href="/news/item/[% item.id %]">[% item.title %]</a></h6>
           </div>
           <div class="cell small-6 medium-5 text-right">
-            <h6><small>Posted: [% date.format( item.posted_on, datetime_format_short ) %]</small></h6>
+            <h6><small><span class="subheader">[% date.format( item.posted_on, datetime_format_short ) %]</span></small></h6>
           </div>
         </div>
         [% END %]
         <div class="grid-x">
           <div class="cell small-12 text-right">
-            <small><a href="/news">More</a></small>
+            <small><a href="/news">More News</a></small>
           </div>
         </div>
       </div>
@@ -57,7 +57,23 @@
 
     <div class="grid-x">
       <div class="callout secondary small cell">
-        <h4>Latest Forums Posts</h4>
+        <h4>Latest Active Forum Threads</h4>
+        <div class="grid-x">
+        [% FOREACH item IN data.posts %]
+          <div class="cell small-6 medium-8" style="margin-bottom: 0.25em;">
+            <div><span class="h6"><a href="/forums/thread/[% item.thread_id %]/[% item.last_page %]#[% item.post_id %]">[% item.name %]</a></span><br>
+            <small>By: [% ( item.username || 'Defunct User' ) %]</small></div>
+          </div>
+          <div class="cell small-6 medium-4 text-right" style="margin-bottom: 0.25em;">
+            <h6><small><span class="subheader">[% date.format( item.timestamp, datetime_format_short ) %]</span></small><h6>
+          </div>
+        [% END %]
+        </div>
+        <div class="grid-x">
+          <div class="cell small-12 text-right">
+            <small><a href="/forums">Head to the Forums</a></small>
+          </div>
+        </div>
       </div>
     </div>
 

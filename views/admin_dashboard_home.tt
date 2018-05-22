@@ -27,29 +27,53 @@
       <div class="grid-container full">
 
         <div class="grid-x grid-margin-x">
-          <div class="cell small-12 medium-6">
+          <div class="cell small-12 medium-4">
             <h6>Gallery Disk Usage</h6>
             <div class="grid-x grid-padding-x">
             [% IF ! data.stats.defined %]
               <div class="align-self-middle text-center"><strong><i class="far fa-info-circle"></i> No Available Stats</strong></div>
             [% ELSE %]
-              [% FOREACH line IN data.stats %][% elements = line.trim.split( '\s+' ) %]
-              <div class="cell small-2 text-right"><small><pre>[% elements.0 %]</pre></small></div>
-              <div class="cell small-10"><small><pre>[% elements.1 %]</pre></small></div>
+              [% FOREACH stat IN data.stats %]
+                [% FOREACH key IN stat.keys %]
+                <div class="cell small-4 text-right"><small><pre>[% stat.$key %]</pre></small></div>
+                <div class="cell small-8"><small><pre>[% key %]</pre></small></div>
+                [% END %]
               [% END %]
             [% END %]
             </div>
           </div>
-          <div class="cell small-12 medium-6">
-            <h6>Total Drive Usage</h6>
+          <div class="cell small-12 medium-8">
+            <h6>Disk Free</h6>
             <div class="grid-x grid-padding-x">
-            [% IF ! data.stats.defined %]
+            [% IF ! data.disk.defined %]
               <div class="align-self-middle text-center"><strong><i class="far fa-info-circle"></i> No Disk Free Stats</strong></div>
             [% ELSE %]
-              [% FOREACH line IN data.disk %][% elements = line.trim.split( '\s+' ) %]
-               [% NEXT IF elements.0 == 'tmpfs' %]
-              <div class="cell small-12"><small><pre>[% line %]</pre></small></div>
+              <table class="unstriped stack">
+                <thead>
+                  <tr>
+                    <th><small><pre>Dir</pre></small></th>
+                    <th><small><pre>Filesystem</pre></small></th>
+                    <th class="text-right"><small><pre>Size</pre></small></th>
+                    <th class="text-right"><small><pre>Used</pre></small></th>
+                    <th class="text-right"><small><pre>Avail</pre></small></th>
+                    <th class="text-right"><small><pre>Use %</pre></small></th>
+                    <th><small><pre>Mounted on</pre></small></th>
+                  </th>
+                </thead>
+                <tbody>
+              [% FOREACH disk IN data.disk %]
+                  <tr>
+                    <td><small><pre>[% disk.disk %]</pre></small></td>
+                    <td><small><pre>[% disk.device %]</pre></small></td>
+                    <td class="text-right"><small><pre>[% disk.total %]</pre></small></td>
+                    <td class="text-right"><small><pre>[% disk.used %]</pre></small></td>
+                    <td class="text-right"><small><pre>[% disk.avail %]</pre></small></td>
+                    <td class="text-right"><small><pre>[% disk.usage %]%</pre></small></td>
+                    <td><small><pre>[% disk.mount %]</pre></small></td>
+                  </tr>
               [% END %]
+                </tbody>
+              </table>
             [% END %]
             </div>
           </div>

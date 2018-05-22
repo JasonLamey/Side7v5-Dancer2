@@ -6,7 +6,7 @@ BEGIN;
 
 CREATE TABLE `forum_groups` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `forum_category_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `forum_category_id` bigint(20) unsigned NOT NULL DEFAULT '0' REFERENCES forum_categories(id),
   `name` varchar(255) NOT NULL DEFAULT '',
   `description` text,
   `sort_order` bigint(20) unsigned NOT NULL DEFAULT '0',

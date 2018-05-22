@@ -1,7 +1,7 @@
 [% USE date %]
 <div class="grid-x grid-padding-x align-middle">
-  <div class="small-3 cell">[% INCLUDE 'partials/_avatar_thumbnail.tt' user=data.upload.user avatar_size=100 nolazy=1 %]</div>
-  <div class="small-9 cell">
+  <div class="small-4 cell align-self-middle text-center">[% INCLUDE 'partials/_avatar_thumbnail.tt' user=data.upload.user avatar_size=100 nolazy=1 %]</div>
+  <div class="small-8 cell">
     <a href="/[% data.upload.user.username %]/gallery">[% data.upload.user.full_name %]</a><br>
     <small><strong>Title:</strong> [% data.upload.title %]<br>
     <strong>Rating:</strong> [% data.upload.upload_rating.rating %]<br>

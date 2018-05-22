@@ -95,6 +95,7 @@ function tooltipInit( selector )
     theme: 'tooltipster-light',
     animation: 'fade',
     interactive: true,
+    maxWidth: 420,
     // 'instance' is basically the tooltip. More details in the "Object-oriented Tooltipster" section.
     functionBefore: function(instance, helper)
     {
@@ -137,6 +138,7 @@ $('.upload-tooltip').tooltipster(
   theme: 'tooltipster-light',
   animation: 'fade',
   interactive: true,
+  maxWidth: 420,
   // 'instance' is basically the tooltip. More details in the "Object-oriented Tooltipster" section.
   functionBefore: function(instance, helper)
   {

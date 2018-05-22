@@ -25,9 +25,9 @@
           <div class="fa-2x">
             <span class="fa-layers fa-fw">
               <i class="fas fa-folder"></i>
-              [%# IF group.has_new_posts %]
+              [% IF group.new_posts_in_group %]
               <i class="fas fa-plus-circle fa-inverse" data-fa-transform="shrink-10 right-5" style="color: lime;"></i>
-              [%# END %]
+              [% END %]
             </span>
           </div>
         </div>

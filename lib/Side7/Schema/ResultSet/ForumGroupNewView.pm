@@ -5,7 +5,7 @@ use warnings;
 
 use parent 'DBIx::Class::ResultSet';
 
-sub has_new_posts
+sub new_posts_in_group
 {
   my ( $self, $user ) = @_;
   my @results = $self->search( {}, { bind => [ $user->id, $self->id ] } );
