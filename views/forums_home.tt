@@ -25,7 +25,7 @@
           <div class="fa-2x">
             <span class="fa-layers fa-fw">
               <i class="fas fa-folder"></i>
-              [% IF group.new_posts_in_group %]
+              [% IF data.has_unread_posts.${group.id}.defined %]
               <i class="fas fa-plus-circle fa-inverse" data-fa-transform="shrink-10 right-5" style="color: lime;"></i>
               [% END %]
             </span>
@@ -42,7 +42,7 @@
         <div class="cell small-3 text-center align-self-middle">
           <div style="line-height: 0.9em;"><small>[% recent = group.most_recent_post %]
           [% IF recent.defined && recent.id != '' %]
-            <a href='/forums/thread/[% recent.forum_thread_id %]#[% recent.id %]'><strong>[% recent.thread.name.substr(0,20) %]</strong> <i class='fas fa-external-link-square'></i></a><br>
+            <a href='/forums/thread/[% recent.forum_thread_id %]/[% recent.thread.last_page %]#[% recent.id %]'><strong>[% recent.thread.name.length > 20 ? recent.thread.name.substr(0,15) _ '...' : recent.thread.name %]</strong> <i class='fas fa-external-link-square'></i></a><br>
             [% recent.user.defined ? 'By: ' _ recent.user.username : '-' %]<br>
             [% recent.timestamp.defined ? date.format( recent.timestamp, datetime_format_short ) : '' %]
           [% ELSE %]No Posts[% END %]

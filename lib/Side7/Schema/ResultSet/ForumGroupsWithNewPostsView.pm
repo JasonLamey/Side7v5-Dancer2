@@ -1,14 +1,14 @@
-package Side7::Schema::ResultSet::ForumGroupNewView;
+package Side7::Schema::ResultSet::ForumGroupsWithNewPostsView;
 
 use strict;
 use warnings;
 
 use parent 'DBIx::Class::ResultSet';
 
-sub new_posts_in_group
+sub has_unseen_posts_in_groups
 {
   my ( $self, $user ) = @_;
-  my @results = $self->search( {}, { bind => [ $user->id, $self->id ] } );
+  my @results = $self->search( {}, { bind => [ $user->id ] } );
 
   foreach my $result ( @results )
   {

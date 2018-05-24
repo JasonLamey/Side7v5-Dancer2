@@ -36,7 +36,7 @@ __PACKAGE__->add_columns(
                                     data_type         => 'integer',
                                     size              => 20,
                                     is_nullable       => 0,
-                                    is_auto_increment => 1,
+                                    is_auto_increment => 0,
                                 },
                             post_id =>
                                 {

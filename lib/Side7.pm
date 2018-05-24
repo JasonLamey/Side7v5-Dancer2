@@ -290,8 +290,9 @@ get '/' => sub
 
   foreach my $thread ( @forum_posts )
   {
-    my $num_posts = $SCHEMA->resultset( 'ForumThread' )->find( $thread->thread_id )->search_related( 'posts', {} )->count;
-    $thread->last_page( POSIX::ceil( $num_posts / $MAX_FORUM_POSTS_PER_PAGE ) );
+    $thread->last_page(
+      $SCHEMA->resultset( 'ForumThread' )->find( $thread->thread_id )->last_page
+    );
   }
 
   foreach my $upload ( @recents )
@@ -833,12 +834,34 @@ get '/forums' => sub
     }
   )->all;
 
+  my @groups = $SCHEMA->resultset( 'ForumGroup' )->search(
+    {},
+    {
+      order_by => 'sort_order'
+    },
+  );
+
+  my %has_unread_posts = ();
+  my @groups_with_unread = $SCHEMA->resultset( 'ForumGroupsWithNewPostsView' )->search(
+    {},
+    {
+      bind => [ vars->{user}->id ],
+    }
+  );
+
+  foreach my $group ( @groups_with_unread )
+  {
+    debug 'GROUP: ' . $group->group_id;
+    $has_unread_posts{ $group->group_id } = 1;
+  }
+
   template 'forums_home',
   {
     data =>
     {
-      user       => vars->{user},
-      categories => \@categories,
+      user             => vars->{user},
+      categories       => \@categories,
+      has_unread_posts => \%has_unread_posts,
     },
     title => 'Forums',
     breadcrumbs =>

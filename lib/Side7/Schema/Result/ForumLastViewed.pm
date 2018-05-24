@@ -1,4 +1,4 @@
-package Side7::Schema::Result::ForumPost;
+package Side7::Schema::Result::ForumLastViewed;
 
 use base 'DBIx::Class::Core';
 
@@ -11,22 +11,21 @@ use version; our $VERSION = qv( "v0.1.0" );
 
 =head1 NAME
 
-Side7::Schema::Result::ForumPost
+Side7::Schema::Result::ForumLastViewed
 
 
 =head1 DESCRIPTION AND USAGE
 
-Database object representing ForumPost entries within the web app.
+Database object representing ForumLastViewed entries within the web app.
 
 =cut
 
 
-
-__PACKAGE__->table( 'forum_posts' );
+__PACKAGE__->table( 'forum_last_viewed' );
 __PACKAGE__->add_columns(
                             id =>
                                 {
-                                    accessor          => 'post_id',
+                                    accessor          => 'last_viewed_id',
                                     data_type         => 'integer',
                                     size              => 20,
                                     is_nullable       => 0,
@@ -44,60 +43,24 @@ __PACKAGE__->add_columns(
                                     size              => 20,
                                     is_nullable       => 0,
                                 },
-                            subject =>
-                                {
-                                    data_type         => 'varchar',
-                                    size              => 255,
-                                    is_nullable       => 0,
-                                },
-                            body =>
-                                {
-                                    data_type         => 'text',
-                                    is_nullable       => 0,
-                                },
-                            show_signature =>
-                                {
-                                    data_type         => 'boolean',
-                                    is_nullable       => 0,
-                                    default_value     => 1,
-                                },
                             timestamp =>
                                 {
                                     data_type         => 'datetime',
                                     is_nullable       => 0,
                                     default_value     => DateTime->now( time_zone => 'UTC' )->datetime,
                                 },
-                             last_modified_date =>
-                                {
-                                    data_type         => 'timestamp',
-                                    is_nullable       => 1,
-                                    default_value     => DateTime->now( time_zone => 'UTC' )->datetime,
-                                },
-                            modified_count =>
+                            updates =>
                                 {
                                     data_type         => 'integer',
                                     size              => 20,
                                     is_nullable       => 0,
                                     default_value     => 0,
                                 },
-                            ip_address =>
-                                {
-                                    data_type         => 'varchar',
-                                    size              => 255,
-                                    is_nullable       => 0,
-                                },
-                            original_forum_thread_id =>
-                                {
-                                    data_type         => 'integer',
-                                    size              => 20,
-                                    is_nullable       => 0,
-                                },
                         );
 
 __PACKAGE__->set_primary_key( 'id' );
 
 __PACKAGE__->belongs_to( 'thread',          'Side7::Schema::Result::ForumThread', { 'foreign.id' => 'self.forum_thread_id' } );
-__PACKAGE__->belongs_to( 'original_thread', 'Side7::Schema::Result::ForumThread', { 'foreign.id' => 'self.original_forum_thread_id' } );
 __PACKAGE__->belongs_to( 'user',            'Side7::Schema::Result::User',        { 'foreign.id' => 'self.user_id' } );
 
 

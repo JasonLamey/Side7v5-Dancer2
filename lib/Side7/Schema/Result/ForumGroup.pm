@@ -7,8 +7,17 @@ use warnings;
 
 use Dancer2 appname => 'Side7';
 
+use Side7;
+use Side7::Schema;
+
+use POSIX;
 use DateTime;
+use Const::Fast;
 use version; our $VERSION = qv( "v0.1.0" );
+
+const my $MAX_FORUM_THREADS_PER_PAGE => 25;
+
+our $SCHEMA = Side7::Schema->db_connect();
 
 
 =head1 NAME
@@ -168,6 +177,30 @@ sub most_recent_post
   my $post = $self->threads->search_related( 'posts', {}, { order_by => { -desc => 'timestamp' } } )->first;
 
   return $post;
+}
+
+
+=head2 last_page()
+
+Returns the last page number for the number of threads in this group.
+
+=over 4
+
+=item Input: None.
+
+=item Output: Integer containing the last page number.
+
+=back
+
+  my $last_page = $group->last_page;
+
+=cut
+
+sub last_page
+{
+  my $self = shift;
+
+  return POSIX::ceil( $self->search_related( 'threads', {} )->count / $MAX_FORUM_THREADS_PER_PAGE );
 }
 
 

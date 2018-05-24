@@ -46,6 +46,15 @@
         </div>
         <div class="cell small-4 align-self-middle">
           <a href="/forums/thread/[% thread.id %]"><strong>[% thread.name %]</strong></a> <a href="/forums/thread/[% thread.id %]#[% thread.last_read %]" class="info-tooltip" data-tooltip-content="#last_seen"><i class="far fa-external-link-square-alt"></i></a>
+          [% IF thread.last_page > 1 %]<br><small><strong>Jump to page:</strong>
+            [% IF thread.last_page > 5 %]
+              [% FOREACH thispage IN [ 1..5 ] %]<a href="/forums/thread/[% thread.id %]/[% thispage %]">[% thispage %]</a> [% END %]
+              ... <a href="/forums/thread/[% thread.id %]/[% thread.last_page %]">Last Page</a>
+            [% ELSE %]
+              [% FOREACH thispage IN [ 1..thread.last_page ] %]<a href="/forums/thread/[% thread.id %]/[% thispage %]">[% thispage %]</a> [% END %]
+            [% END %]
+          </small>
+          [% END %]
         </div>
         <div class="cell small-2 text-center align-self-middle" style="line-height: 0.9em;">
           [% thread.user.username || '<em>Defunct Account</em>' %]<br><small><strong>Started On:</strong> [% date.format( thread.start_date, date_format_short ) %]</small>

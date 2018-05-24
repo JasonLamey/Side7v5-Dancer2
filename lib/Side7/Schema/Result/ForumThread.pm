@@ -2,11 +2,17 @@ package Side7::Schema::Result::ForumThread;
 
 use base 'DBIx::Class::Core';
 
+use Dancer2 appname => 'Side7';
+
 use strict;
 use warnings;
 
+use POSIX;
 use DateTime;
+use Const::Fast;
 use version; our $VERSION = qv( "v0.1.0" );
+
+const my $MAX_FORUM_POSTS_PER_PAGE   => 25;
 
 
 =head1 NAME
@@ -83,8 +89,9 @@ __PACKAGE__->belongs_to( 'group',          'Side7::Schema::Result::ForumGroup', 
 __PACKAGE__->belongs_to( 'original_group', 'Side7::Schema::Result::ForumGroup', 'original_forum_group_id' );
 __PACKAGE__->belongs_to( 'user',           'Side7::Schema::Result::User',       'user_id' );
 
-__PACKAGE__->has_many( 'posts',       'Side7::Schema::Result::ForumPost', { 'foreign.forum_thread_id'          => 'self.id' } );
-__PACKAGE__->has_many( 'moved_posts', 'Side7::Schema::Result::ForumPost', { 'foreign.original_forum_thread_id' => 'self.id' } );
+__PACKAGE__->has_many( 'posts',       'Side7::Schema::Result::ForumPost',       { 'foreign.forum_thread_id'          => 'self.id' } );
+__PACKAGE__->has_many( 'moved_posts', 'Side7::Schema::Result::ForumPost',       { 'foreign.original_forum_thread_id' => 'self.id' } );
+__PACKAGE__->has_many( 'last_views',  'Side7::Schema::Result::ForumLastViewed', { 'foreign.forum_thread_id'          => 'self.id' } );
 
 __PACKAGE__->might_have( 'view_count', 'Side7::Schema::Result::ForumThreadView', 'forum_thread_id' );
 
@@ -114,6 +121,30 @@ sub most_recent_post
   my $post = $self->search_related( 'posts', {}, { order_by => { -desc => 'timestamp' } } )->first;
 
   return $post;
+}
+
+
+=head2 last_page()
+
+Returns the last page number for the number of posts in the thread.
+
+=over 4
+
+=item Input: None.
+
+=item Output: Integer indicating the last page number.
+
+=back
+
+  my $last_page = $thread->last_page;
+
+=cut
+
+sub last_page
+{
+  my $self = shift;
+
+  return POSIX::ceil( $self->search_related( 'posts', {} )->count / $MAX_FORUM_POSTS_PER_PAGE );
 }
 
 

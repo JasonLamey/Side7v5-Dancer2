@@ -6,9 +6,6 @@ use warnings;
 use Dancer2 appname => 'Side7';
 use Dancer2::Plugin::Auth::Extensible;
 
-use Side7::Schema;
-use Side7::Schema::Result::SystemAvatar;
-
 # Third Party modules
 use base 'DBIx::Class::Core';
 use DateTime;
@@ -17,8 +14,6 @@ use Time::Duration;
 use File::Path;
 use Gravatar::URL;
 our $VERSION = '1.0';
-
-our $SCHEMA = Side7::Schema->db_connect();
 
 
 =head1 NAME
@@ -243,6 +238,7 @@ __PACKAGE__->has_many( 'comment_threads' => 'Side7::Schema::Result::UploadCommen
 __PACKAGE__->has_many( 'avatars'         => 'Side7::Schema::Result::UserAvatar',          'user_id' );
 __PACKAGE__->has_many( 'posts'           => 'Side7::Schema::Result::ForumPost',           'user_id' );
 __PACKAGE__->has_many( 'threads'         => 'Side7::Schema::Result::ForumThread',         'user_id' );
+__PACKAGE__->has_many( 'last_views'      => 'Side7::Schema::Result::ForumLastViewed',     'user_id' );
 
 __PACKAGE__->many_to_many( 'roles' => 'userroles', 'role' );
 
