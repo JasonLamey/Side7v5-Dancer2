@@ -59,6 +59,7 @@ __PACKAGE__->add_columns(
                         );
 
 __PACKAGE__->set_primary_key( 'id' );
+__PACKAGE__->add_unique_constraint( thread_user_key => [ 'forum_thread_id', 'user_id' ] );
 
 __PACKAGE__->belongs_to( 'thread',          'Side7::Schema::Result::ForumThread', { 'foreign.id' => 'self.forum_thread_id' } );
 __PACKAGE__->belongs_to( 'user',            'Side7::Schema::Result::User',        { 'foreign.id' => 'self.user_id' } );

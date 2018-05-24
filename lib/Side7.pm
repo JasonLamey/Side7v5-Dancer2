@@ -851,7 +851,6 @@ get '/forums' => sub
 
   foreach my $group ( @groups_with_unread )
   {
-    debug 'GROUP: ' . $group->group_id;
     $has_unread_posts{ $group->group_id } = 1;
   }
 
@@ -920,6 +919,19 @@ get '/forums/group/:group_id/?:page?' => sub
     }
   );
 
+  my %has_unread_posts = ();
+  my @threads_with_unread = $SCHEMA->resultset( 'ForumThreadsWithNewPostsView' )->search(
+    {},
+    {
+      bind => [ vars->{user}->id ],
+    }
+  );
+
+  foreach my $thread ( @threads_with_unread )
+  {
+    $has_unread_posts{ $thread->thread_id } = 1;
+  }
+
   my $thread_count = $group->search_related( 'threads', {} )->count;
   my $pagination   = Side7::Util::Text::calculate_pagination(
     total_items => $thread_count,
@@ -931,10 +943,11 @@ get '/forums/group/:group_id/?:page?' => sub
   {
     data =>
     {
-      user        => vars->{user},
-      group       => $group,
-      threads     => \@threads,
-      pagination  => $pagination,
+      user             => vars->{user},
+      group            => $group,
+      threads          => \@threads,
+      has_unread_posts => \%has_unread_posts,
+      pagination       => $pagination,
     },
     title => sprintf( 'Forums | %s', $group->name ),
     breadcrumbs =>
@@ -954,6 +967,7 @@ Route to view the posts in a forum thread.
 
 get '/forums/thread/:thread_id/?:page?' => sub
 {
+  my $user      = vars->{user};
   my $page      = route_parameters->get( 'page' ) // 1;
   my $thread_id = route_parameters->get( 'thread_id' );
   if ( ! defined $thread_id or $thread_id !~ m/^\d+$/ )
@@ -986,6 +1000,26 @@ get '/forums/thread/:thread_id/?:page?' => sub
   $view_count->view_count( $view_count->view_count + 1 );
   $view_count->update;
 
+  if ( defined $user and ref( $user ) eq 'Side7::Schema::Result::User' )
+  {
+    my $user_last_viewed = $SCHEMA->resultset( 'ForumLastViewed' )->find_or_create(
+      {
+        forum_thread_id => $thread->id,
+        user_id         => $user->id,
+        timestamp       => $now,
+      },
+      {
+        key => 'thread_user_key'
+      }
+    );
+
+    if ( $user_last_viewed->in_storage )
+    {
+      $user_last_viewed->updates( $user_last_viewed->updates + 1 );
+      $user_last_viewed->update;
+    }
+  }
+
   my @posts = $thread->search_related( 'posts',
     {},
     {
@@ -1006,7 +1040,7 @@ get '/forums/thread/:thread_id/?:page?' => sub
   {
     data =>
     {
-      user       => vars->{user},
+      user       => $user,
       thread     => $thread,
       posts      => \@posts,
       pagination => $pagination,
