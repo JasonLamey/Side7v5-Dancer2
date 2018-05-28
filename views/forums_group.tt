@@ -5,8 +5,8 @@
 
   <div class="grid-x grid-margin-x">
     <div class="cell small-12 button-group">
-      <a href="/forums/thread/add" class="button small"><i class="far fa-plus-circle"></i> Start New Thread</a>
-      <a href="/forums/group/[% data.group.id %]/mark_read" class="button small secondary"><i class="far fa-comment-alt-check"></i> Mark All Threads Read</a>
+      <a href="[% data.user.defined ? '/forums/thread/add' : '#' %]" class="button small[% IF ! data.user.defined %] disabled[% END %]"><i class="far fa-plus-circle"></i> Start New Thread</a>
+      <a href="[% data.user.defined ? "/forums/group/${data.group.id}/mark_read" : "#" %]" class="button small secondary[% IF ! data.user.defined %] disabled[% END %]"><i class="far fa-comment-alt-check"></i> Mark All Threads Read</a>
     </div>
 
     <div class="cell small-12">
@@ -28,7 +28,7 @@
     </div>
     [% FOREACH thread IN data.threads %]
     [% tooltip = ( thread.posts.size >= 15 ) ? 'hot_topic' : 'cool_topic' %]
-    [% IF thread.has_new_posts; tooltip = tooltip _ '_new'; END; %]
+    [% IF data.has_unread_posts.${thread.id}.defined; tooltip = tooltip _ '_new'; END; %]
     <div class="cell small-12 forum-group-row">
       <div class="grid-x grid-margin-x">
         <div class="cell small-1 align-self-middle text-center padding-2">
@@ -45,7 +45,7 @@
           </div>
         </div>
         <div class="cell small-4 align-self-middle">
-          <a href="/forums/thread/[% thread.id %]"><strong>[% thread.name %]</strong></a> <a href="/forums/thread/[% thread.id %]#[% thread.last_read %]" class="info-tooltip" data-tooltip-content="#last_seen"><i class="far fa-external-link-square-alt"></i></a>
+          <a href="/forums/thread/[% thread.id %]"><strong>[% thread.name %]</strong></a>
           [% IF thread.last_page > 1 %]<br><small><strong>Jump to page:</strong>
             [% IF thread.last_page > 5 %]
               [% FOREACH thispage IN [ 1..5 ] %]<a href="/forums/thread/[% thread.id %]/[% thispage %]">[% thispage %]</a> [% END %]

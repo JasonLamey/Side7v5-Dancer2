@@ -6,18 +6,22 @@
     </div>
 
     <div class="cell small-12 medium-10 footer text-right align-self-bottom">
-      <div class="grid-y grid-frame">
-        <div class="cell auto small-12">
+      <div class="grid-y grid-frame align-bottom">
+        <div class="cell small-12 align-self-bottom">
           <a href="/contact_us">Contact Us</a>
           &middot;
           <a href="/faq">FAQ</a>
           &middot;
+          <a href="/tos">Terms of Service</a>
+          &middot;
           <a href="/privacy">Privacy Policy</a>
           &middot;
-          <a href="/rules">Site Rules</a>
-        </div>
-        <div class="cell auto small-12">
-          <small>&quot;Side 7&quot;, the S7 logo, and all site-related code and assets are copyright &copy; 1993-2018 Side 7</small>
+          <a href="/gdpr">GDPR Policy</a>
+          <br>
+          <small>
+              &quot;Side 7&quot;, the S7 logo, and all site-related code and assets are copyright &copy; 1993-2018 Side 7<br>
+              Privacy Policy provided by <a href="http://freeprivacypolicy.com" target="_blank">FreePrivacyPolicy.com</a>
+          </small>
         </div>
       </div>
     </div>

@@ -842,16 +842,19 @@ get '/forums' => sub
   );
 
   my %has_unread_posts = ();
-  my @groups_with_unread = $SCHEMA->resultset( 'ForumGroupsWithNewPostsView' )->search(
-    {},
-    {
-      bind => [ vars->{user}->id ],
-    }
-  );
-
-  foreach my $group ( @groups_with_unread )
+  if ( defined vars->{user} )
   {
-    $has_unread_posts{ $group->group_id } = 1;
+    my @groups_with_unread = $SCHEMA->resultset( 'ForumGroupsWithNewPostsView' )->search(
+      {},
+      {
+        bind => [ vars->{user}->id ],
+      }
+    );
+
+    foreach my $group ( @groups_with_unread )
+    {
+      $has_unread_posts{ $group->group_id } = 1;
+    }
   }
 
   template 'forums_home',
@@ -920,16 +923,19 @@ get '/forums/group/:group_id/?:page?' => sub
   );
 
   my %has_unread_posts = ();
-  my @threads_with_unread = $SCHEMA->resultset( 'ForumThreadsWithNewPostsView' )->search(
-    {},
-    {
-      bind => [ vars->{user}->id ],
-    }
-  );
-
-  foreach my $thread ( @threads_with_unread )
+  if ( defined vars->{user} )
   {
-    $has_unread_posts{ $thread->thread_id } = 1;
+    my @threads_with_unread = $SCHEMA->resultset( 'ForumThreadsWithNewPostsView' )->search(
+      {},
+      {
+        bind => [ vars->{user}->id ],
+      }
+    );
+
+    foreach my $thread ( @threads_with_unread )
+    {
+      $has_unread_posts{ $thread->thread_id } = 1;
+    }
   }
 
   my $thread_count = $group->search_related( 'threads', {} )->count;
@@ -1085,6 +1091,65 @@ get '/upload-tooltip/:upload_id' => sub
     {
       layout => undef
     };
+};
+
+
+=head3 GET C</forums/group/:group_id/mark_read>
+
+Route to mark all threads within the indicated route as read.
+
+=cut
+
+get '/forums/group/:group_id/mark_read' => require_login sub
+{
+  my $user = vars->{user};
+  my $group_id = route_parameters->get( 'group_id' ) // undef;
+
+  my @json = ();
+
+  if ( ! defined $group_id )
+  {
+    warning 'Invalid or missing group_id supplied when user marking forum group as read: >' . $group_id . '<';
+    push( @json, { success => 0, message => '<strong>I\'m confused...</strong><br>Just what do you want me to mark as read?' } );
+    return to_json( \@json );
+  }
+
+  if ( $group_id !~ /^\d+$/ )
+  {
+    warning 'Invalid group_id supplied when user marking forum group as read: >' . $group_id . '<';
+    push( @json, { success => 0, message => '<strong>I\'m confused...</strong><br>Just what do you want me to mark as read?' } );
+    return to_json( \@json );
+  }
+
+  my $now     = DateTime->now( time_zone => 'UTC' )->datetime;
+  my $group   = $SCHEMA->resultset( 'ForumGroup' )->find( $group_id );
+  my @threads = $group->search_related( 'threads', {} );
+  my $marked  = 0;
+
+  foreach my $thread ( @threads )
+  {
+    my $user_last_viewed = $SCHEMA->resultset( 'ForumLastViewed' )->find_or_create(
+      {
+        forum_thread_id => $thread->id,
+        user_id         => $user->id,
+        timestamp       => $now,
+      },
+      {
+        key => 'thread_user_key'
+      }
+    );
+
+    if ( $user_last_viewed->in_storage )
+    {
+      $user_last_viewed->updates( $user_last_viewed->updates + 1 );
+      $user_last_viewed->update;
+    }
+
+    $marked++;
+  }
+
+  push( @json, { success => 1, message => sprintf( '%d %s marked as read.', $marked, ( $marked == 1 ? 'thread' : 'threads' ) ) } );
+  return to_json( \@json );
 };
 
 

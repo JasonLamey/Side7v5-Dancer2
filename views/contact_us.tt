@@ -19,7 +19,7 @@
                   </label>
 
                   <label for="comments">Message <i class="far fa-asterisk"></i>
-                    <textarea name="comments" rows="10" placeholder="We love the Quilt Patch!">[% data.form.comments %]</textarea>
+                    <textarea name="comments" rows="10" placeholder="We love Side 7!">[% data.form.comments %]</textarea>
                   </label>
 
                   <button class="button" type="submit" formtarget="_self"><i class="far fa-paper-plane fa-fw"></i> Send Message</button>
